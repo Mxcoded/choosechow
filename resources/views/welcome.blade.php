@@ -18,10 +18,10 @@
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
                 <a href="{{ route('chefs.index') }}" class="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors hover-scale">
-                    🔍 Find Chefs Near Me
+                    <i class="fas fa-search"></i> Find Chefs Near Me
                 </a>
                 <a href="{{ route('subscriptions.plans') }}" class="bg-white hover:bg-gray-50 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold border-2 border-gray-200 transition-colors hover-scale">
-                    📋 View Meal Plans
+                    <i class="fas fa-clipboard-list"></i> View Meal Plans
                 </a>
             </div>
             
@@ -59,7 +59,7 @@
         <div class="grid md:grid-cols-3 gap-12">
             <div class="text-center fade-in hover-scale">
                 <div class="bg-red-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-3xl">🔍</span>
+                    <span class="text-3xl"><i class="fas fa-search"></i></span>
                 </div>
                 <h3 class="text-2xl font-semibold mb-4">1. Discover Chefs</h3>
                 <p class="text-gray-600 text-lg">Browse profiles of verified home chefs in your area. View their specialties, ratings, and sample menus.</p>
@@ -67,7 +67,7 @@
 
             <div class="text-center fade-in hover-scale">
                 <div class="bg-blue-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-3xl">🍽️</span>
+                    <span class="text-3xl"><i class="fas fa-utensils"></i></span>
                 </div>
                 <h3 class="text-2xl font-semibold mb-4">2. Order Your Meal</h3>
                 <p class="text-gray-600 text-lg">Choose from daily menus or request custom meals. Set your delivery time and dietary preferences.</p>
@@ -75,7 +75,7 @@
 
             <div class="text-center fade-in hover-scale">
                 <div class="bg-green-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-3xl">🚚</span>
+                    <span class="text-3xl"><i class="fas fa-truck"></i></span>
                 </div>
                 <h3 class="text-2xl font-semibold mb-4">3. Enjoy Fresh Meals</h3>
                 <p class="text-gray-600 text-lg">Receive freshly prepared meals delivered to your door. Rate your experience and discover new favorites.</p>
@@ -95,7 +95,7 @@
         <div class="grid md:grid-cols-3 gap-8">
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
                 <div class="h-48 bg-gradient-to-br from-red-400 to-orange-400 flex items-center justify-center">
-                    <span class="text-6xl">👩‍🍳</span>
+                    <span class="text-6xl"><i class="fas fa-chef"></i></span>
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-semibold mb-2">Chef Amina</h3>
@@ -112,7 +112,7 @@
 
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
                 <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center">
-                    <span class="text-6xl">👨‍🍳</span>
+                    <span class="text-6xl"><i class="fas fa-chef"></i></span>
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-semibold mb-2">Chef David</h3>
@@ -129,7 +129,7 @@
 
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
                 <div class="h-48 bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center">
-                    <span class="text-6xl">👩‍🍳</span>
+                    <span class="text-6xl"><i class="fas fa-chef"></i></span>
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-semibold mb-2">Chef Fatima</h3>
@@ -169,7 +169,7 @@
             </div>
 
             <div class="bg-gradient-to-br from-green-500 to-teal-500 rounded-xl p-6 text-white text-center hover-scale cursor-pointer">
-                <div class="text-4xl mb-3">🍝</div>
+                <div class="text-4xl mb-3"><i class="fas fa-pizza-slice"></i></div>
                 <h3 class="text-lg font-semibold">Italian</h3>
                 <p class="text-sm opacity-90">Pasta, Pizza, Risotto</p>
             </div>
@@ -181,7 +181,7 @@
             </div>
 
             <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-6 text-white text-center hover-scale cursor-pointer">
-                <div class="text-4xl mb-3">🥗</div>
+                <div class="text-4xl mb-3"><i class="fas fa-carrot"></i></div>
                 <h3 class="text-lg font-semibold">Healthy</h3>
                 <p class="text-sm opacity-90">Salads, Smoothies, Vegan</p>
             </div>
@@ -270,7 +270,7 @@
                 <p class="text-gray-700 mb-6">"ChooseChow has completely changed how I eat! The quality is amazing and the convenience is unmatched. Chef Amina's jollof rice is the best I've ever had!"</p>
                 <div class="flex items-center">
                     <div class="w-12 h-12 bg-red-200 rounded-full flex items-center justify-center mr-4">
-                        <span class="text-xl">👩</span>
+                        <span class="text-xl"><i class="fas fa-user"></i></span>
                     </div>
                     <div>
                         <div class="font-semibold">Sarah Johnson</div>
@@ -286,7 +286,7 @@
                 <p class="text-gray-700 mb-6">"As a busy professional, ChooseChow saves me so much time. The meal subscription is perfect - fresh, delicious food delivered right to my office!"</p>
                 <div class="flex items-center">
                     <div class="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center mr-4">
-                        <span class="text-xl">👨</span>
+                        <span class="text-xl"><i class="fas fa-user"></i></span>
                     </div>
                     <div>
                         <div class="font-semibold">Michael Okafor</div>
@@ -302,7 +302,7 @@
                 <p class="text-gray-700 mb-6">"The variety of cuisines available is incredible! I've discovered so many new favorite dishes. The chefs are truly talented and passionate about their craft."</p>
                 <div class="flex items-center">
                     <div class="w-12 h-12 bg-green-200 rounded-full flex items-center justify-center mr-4">
-                        <span class="text-xl">👩</span>
+                        <span class="text-xl"><i class="fas fa-user"></i></span>
                     </div>
                     <div>
                         <div class="font-semibold">Kemi Adebayo</div>
@@ -321,10 +321,10 @@
         <p class="text-xl text-red-100 mb-8">Join thousands of food lovers discovering amazing home chefs in their area</p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="{{ route('chefs.index') }}" class="bg-white text-red-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors">
-                🔍 Find Chefs Near Me
+                <i class="fas fa-search"></i> Find Chefs Near Me
             </a>
             <a href="{{ route('subscriptions.index') }}" class="bg-red-800 hover:bg-red-900 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
-                📋 Start Meal Subscription
+                <i class="fas fa-clipboard-list"></i> Start Meal Subscription
             </a>
         </div>
     </div>

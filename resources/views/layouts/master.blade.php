@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{{ asset('storage/img/choosechowlogo.png') }}">
     <title>@yield('title', 'ChooseChow - Connect with Amazing Home Chefs')</title>
+    <link  rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"/>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .fade-in { animation: fadeIn 0.8s ease-in; }
@@ -47,9 +48,9 @@
                     </div>
                     <p class="text-gray-400 mb-4">Connecting food lovers with amazing home chefs across Nigeria. Fresh, delicious, home-cooked meals delivered to your door.</p>
                     <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">📘</a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">📷</a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">🐦</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><span class="fab fa-facebook-f"></span></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><span class="fab fa-instagram"></span></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors"><span class="fab fa-twitter"></span></a>
                     </div>
                 </div>
                 
@@ -76,10 +77,10 @@
                 <div>
                     <h3 class="text-lg font-semibold mb-6">Contact Us</h3>
                     <ul class="space-y-3 text-gray-400">
-                        <li>📧 hello@choosechow.com</li>
-                        <li>📱 +234-800-CHOOSE</li>
-                        <li>📍 Lagos, Nigeria</li>
-                        <li>🕒 24/7 Customer Support</li>
+                        <li><i class="fas fa-envelope"></i> hello@choosechow.com</li>
+                        <li><i class="fas fa-phone"></i> +234-800-CHOOSE</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Nigeria</li>
+                        <li><i class="fas fa-clock"></i> 24/7 Customer Support</li>
                     </ul>
                 </div>
             </div>
