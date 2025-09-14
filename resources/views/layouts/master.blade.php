@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ asset('storage/img/choosechowlogo.png') }}">
     <title>@yield('title', 'ChooseChow - Connect with Amazing Home Chefs')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -40,7 +41,7 @@
             <div class="grid md:grid-cols-4 gap-8 mb-8">
                 <div>
                     <div class="flex items-center space-x-2 mb-6">
-                        <img src="{{ asset('img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
+                        <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
                          class="h-14 w-14 rounded-full shadow-md transition-transform duration-300 hover:scale-105">
                         <span class="text-2xl font-bold">ChooseChow</span>
                     </div>

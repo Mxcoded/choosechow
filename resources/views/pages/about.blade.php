@@ -16,7 +16,7 @@
 
         <!-- Centered Logo -->
         <div class="mb-8">
-            <img src="{{ asset('img/choosechowlogo.png') }}" alt="ChooseChow Logo"
+            <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo"
                  class="h-24 w-24 mx-auto rounded-full shadow-lg transition-transform duration-300 hover:scale-105">
         </div>
     </div>

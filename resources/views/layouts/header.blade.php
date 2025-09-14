@@ -5,7 +5,7 @@
             <!-- Logo and Brand -->
             <div class="flex items-center space-x-4">
                 <a href="{{ route('home') }}" class="flex items-center space-x-3" aria-label="ChooseChow Home">
-                    <img src="{{ asset('img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
+                    <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
                          class="h-24 w-24 rounded-full shadow-md transition-transform duration-300 hover:scale-105">
                     <span class="text-3xl font-extrabold text-red-600 tracking-tight">ChooseChow</span>
                 </a>
