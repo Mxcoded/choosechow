@@ -28,7 +28,7 @@
             <!-- Step 1 -->
             <div class="text-center fade-in">
                 <div class="bg-red-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-8">
-                    <span class="text-4xl">🔍</span>
+                    <span class="text-4xl"><i class="fas fa-search"></i></span>
                 </div>
                 <div class="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-4 text-sm font-bold">1</div>
                 <h3 class="text-2xl font-semibold mb-6">Discover Amazing Chefs</h3>
@@ -44,7 +44,7 @@
             <!-- Step 2 -->
             <div class="text-center fade-in">
                 <div class="bg-blue-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-8">
-                    <span class="text-4xl">🍽️</span>
+                    <span class="text-4xl"><i class="fas fa-utensils"></i></span>
                 </div>
                 <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-4 text-sm font-bold">2</div>
                 <h3 class="text-2xl font-semibold mb-6">Order Your Perfect Meal</h3>
@@ -60,7 +60,7 @@
             <!-- Step 3 -->
             <div class="text-center fade-in">
                 <div class="bg-green-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-8">
-                    <span class="text-4xl">🚚</span>
+                    <span class="text-4xl"><i class="fas fa-truck"></i></span>
                 </div>
                 <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-4 text-sm font-bold">3</div>
                 <h3 class="text-2xl font-semibold mb-6">Enjoy Fresh, Delicious Meals</h3>
@@ -88,7 +88,7 @@
             <!-- Quality Assurance -->
             <div class="bg-gray-50 rounded-xl p-8 hover-scale">
                 <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl">✅</span>
+                    <span class="text-2xl"><i class="fas fa-check"></i></span>
                 </div>
                 <h3 class="text-xl font-semibold mb-4">Quality Assurance</h3>
                 <p class="text-gray-600">All our chefs are verified and rated by the community. We ensure consistent quality and food safety standards through regular reviews and feedback.</p>
@@ -97,7 +97,7 @@
             <!-- Flexible Ordering -->
             <div class="bg-gray-50 rounded-xl p-8 hover-scale">
                 <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl">🔄</span>
+                    <span class="text-2xl"><i class="fas fa-sync-alt"></i></span>
                 </div>
                 <h3 class="text-xl font-semibold mb-4">Flexible Ordering</h3>
                 <p class="text-gray-600">Order individual meals when you want them, or subscribe to regular deliveries. Pause, modify, or cancel your subscription anytime with no penalties.</p>
@@ -106,7 +106,7 @@
             <!-- Support Local Chefs -->
             <div class="bg-gray-50 rounded-xl p-8 hover-scale">
                 <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl">❤️</span>
+                    <span class="text-2xl"><i class="fas fa-heart"></i></span>
                 </div>
                 <h3 class="text-xl font-semibold mb-4">Support Local Chefs</h3>
                 <p class="text-gray-600">Help talented home chefs build their businesses while enjoying authentic, home-cooked meals. Every order supports local culinary entrepreneurs.</p>
@@ -115,7 +115,7 @@
             <!-- Fresh & Authentic -->
             <div class="bg-gray-50 rounded-xl p-8 hover-scale">
                 <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl">🌟</span>
+                    <span class="text-2xl"><i class="fas fa-star"></i></span>
                 </div>
                 <h3 class="text-xl font-semibold mb-4">Fresh & Authentic</h3>
                 <p class="text-gray-600">Every meal is prepared fresh to order using quality ingredients. Experience authentic flavors and traditional cooking methods from passionate home chefs.</p>
@@ -124,7 +124,7 @@
             <!-- Easy & Convenient -->
             <div class="bg-gray-50 rounded-xl p-8 hover-scale">
                 <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl">📱</span>
+                    <span class="text-2xl"><i class="fas fa-mobile-alt"></i></span>
                 </div>
                 <h3 class="text-xl font-semibold mb-4">Easy & Convenient</h3>
                 <p class="text-gray-600">Our user-friendly platform makes ordering simple. Browse, order, and track your meals with just a few clicks. Available on web and mobile.</p>
@@ -133,7 +133,7 @@
             <!-- Affordable Pricing -->
             <div class="bg-gray-50 rounded-xl p-8 hover-scale">
                 <div class="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl">💰</span>
+                    <span class="text-2xl"><i class="fas fa-naira-sign"></i></span>
                 </div>
                 <h3 class="text-xl font-semibold mb-4">Affordable Pricing</h3>
                 <p class="text-gray-600">Enjoy restaurant-quality meals at home-cooking prices. No hidden fees, transparent pricing, and great value for authentic, freshly prepared food.</p>
@@ -151,7 +151,7 @@
                 <div class="bg-white rounded-xl shadow-lg p-8">
                     <div class="flex items-center mb-6">
                         <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mr-4">
-                            <span class="text-2xl">👥</span>
+                            <span class="text-2xl"><i class="fas fa-users"></i></span>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-900">For Food Lovers</h3>
                     </div>
@@ -188,7 +188,7 @@
                 <div class="bg-white rounded-xl shadow-lg p-8">
                     <div class="flex items-center mb-6">
                         <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mr-4">
-                            <span class="text-2xl">👨‍🍳</span>
+                            <span class="text-2xl"><i class="fas fa-hat-chef"></i></span>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-900">For Home Chefs</h3>
                     </div>
@@ -232,10 +232,10 @@
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a href="{{ route('chefs.index') }}" class="bg-white text-red-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors">
-                🔍 Find Chefs Near Me
+                <i class="fas fa-search"></i> Find Chefs Near Me
             </a>
             <a href="{{ route('subscriptions.index') }}" class="bg-red-800 hover:bg-red-900 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
-                📋 View Subscription Plans
+                <i class="fas fa-clipboard-list"></i> View Subscription Plans
             </a>
         </div>
     </div>

@@ -95,7 +95,7 @@
         <div class="grid md:grid-cols-3 gap-8">
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
                 <div class="h-48 bg-gradient-to-br from-red-400 to-orange-400 flex items-center justify-center">
-                    <span class="text-6xl"><i class="fas fa-chef"></i></span>
+                    <span class="text-6xl"><i class="fas fa-user-chef"></i></span>
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-semibold mb-2">Chef Amina</h3>
@@ -112,7 +112,7 @@
 
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
                 <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center">
-                    <span class="text-6xl"><i class="fas fa-chef"></i></span>
+                    <span class="text-6xl"><i class="fas fa-user-chef"></i></span>
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-semibold mb-2">Chef David</h3>
@@ -129,7 +129,7 @@
 
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale">
                 <div class="h-48 bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center">
-                    <span class="text-6xl"><i class="fas fa-chef"></i></span>
+                    <span class="text-6xl"><i class="fas fa-user-chef"></i></span>
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-semibold mb-2">Chef Fatima</h3>
@@ -163,7 +163,7 @@
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div class="bg-gradient-to-br from-red-500 to-orange-500 rounded-xl p-6 text-white text-center hover-scale cursor-pointer">
-                <div class="text-4xl mb-3">🍛</div>
+                <div class="text-4xl mb-3"><i class="fas fa-bowl-food"></i></div>
                 <h3 class="text-lg font-semibold">Nigerian</h3>
                 <p class="text-sm opacity-90">Jollof, Egusi, Suya</p>
             </div>
@@ -175,7 +175,7 @@
             </div>
 
             <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl p-6 text-white text-center hover-scale cursor-pointer">
-                <div class="text-4xl mb-3">🍜</div>
+                <div class="text-4xl mb-3"><i class="fas fa-salt-shaker"></i></div>
                 <h3 class="text-lg font-semibold">Asian</h3>
                 <p class="text-sm opacity-90">Stir-fry, Ramen, Curry</p>
             </div>

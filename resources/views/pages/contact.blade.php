@@ -13,7 +13,7 @@
             We're here to help! Whether you have questions, need support, or want to share feedback, 
             our team is ready to assist you.
         </p>
-        <div class="text-6xl mb-8">📞</div>
+        <div class="text-6xl mb-8"><i class="fas fa-phone"></i></div>
     </div>
 </section>
 
@@ -25,7 +25,7 @@
             <!-- Phone Support -->
             <div class="bg-white rounded-xl p-8 text-center hover-scale">
                 <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-2xl">📞</span>
+                    <span class="text-2xl"><i class="fas fa-phone"></i></span>
                 </div>
                 <h3 class="text-xl font-semibold mb-4">Phone Support</h3>
                 <p class="text-gray-600 mb-4">
@@ -41,7 +41,7 @@
             <!-- Email Support -->
             <div class="bg-white rounded-xl p-8 text-center hover-scale">
                 <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-2xl">📧</span>
+                    <span class="text-2xl"><i class="fas fa-envelope"></i></span>
                 </div>
                 <h3 class="text-xl font-semibold mb-4">Email Support</h3>
                 <p class="text-gray-600 mb-4">
@@ -57,7 +57,7 @@
             <!-- Live Chat -->
             <div class="bg-white rounded-xl p-8 text-center hover-scale">
                 <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-2xl">💬</span>
+                    <span class="text-2xl"><i class="fas fa-comments"></i></span>
                 </div>
                 <h3 class="text-xl font-semibold mb-4">Live Chat</h3>
                 <p class="text-gray-600 mb-4">
@@ -152,7 +152,7 @@
                 <!-- Submit Button -->
                 <div class="text-center">
                     <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
-                        📤 Send Message
+                        <i class="fas fa-paper-plane"></i> Send Message
                     </button>
                     <p class="text-gray-600 text-sm mt-3">
                         We typically respond within 2-24 hours depending on the inquiry type.
@@ -178,7 +178,7 @@
             <!-- FAQ Item 1 -->
             <div class="bg-white rounded-xl p-6 hover-scale">
                 <h3 class="text-lg font-semibold mb-3 flex items-center">
-                    <span class="text-red-600 mr-3">❓</span>
+                    <span class="text-red-600 mr-3"><i class="fas fa-question-circle"></i></span>
                     How do I place an order?
                 </h3>
                 <p class="text-gray-600 ml-8">
@@ -190,7 +190,7 @@
             <!-- FAQ Item 2 -->
             <div class="bg-white rounded-xl p-6 hover-scale">
                 <h3 class="text-lg font-semibold mb-3 flex items-center">
-                    <span class="text-red-600 mr-3">❓</span>
+                    <span class="text-red-600 mr-3"><i class="fas fa-question-circle"></i></span>
                     What are your delivery areas?
                 </h3>
                 <p class="text-gray-600 ml-8">
@@ -202,7 +202,7 @@
             <!-- FAQ Item 3 -->
             <div class="bg-white rounded-xl p-6 hover-scale">
                 <h3 class="text-lg font-semibold mb-3 flex items-center">
-                    <span class="text-red-600 mr-3">❓</span>
+                    <span class="text-red-600 mr-3"><i class="fas fa-question-circle"></i></span>
                     How do I become a chef partner?
                 </h3>
                 <p class="text-gray-600 ml-8">
@@ -214,7 +214,7 @@
             <!-- FAQ Item 4 -->
             <div class="bg-white rounded-xl p-6 hover-scale">
                 <h3 class="text-lg font-semibold mb-3 flex items-center">
-                    <span class="text-red-600 mr-3">❓</span>
+                    <span class="text-red-600 mr-3"><i class="fas fa-question-circle"></i></span>
                     What payment methods do you accept?
                 </h3>
                 <p class="text-gray-600 ml-8">
@@ -226,7 +226,7 @@
             <!-- FAQ Item 5 -->
             <div class="bg-white rounded-xl p-6 hover-scale">
                 <h3 class="text-lg font-semibold mb-3 flex items-center">
-                    <span class="text-red-600 mr-3">❓</span>
+                    <span class="text-red-600 mr-3"><i class="fas fa-question-circle"></i></span>
                     What if I'm not satisfied with my order?
                 </h3>
                 <p class="text-gray-600 ml-8">
@@ -240,7 +240,7 @@
         <div class="text-center mt-8">
             <p class="text-gray-600 mb-4">Still have questions?</p>
             <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                📚 View All FAQs
+                <i class="fas fa-book"></i> View All FAQs
             </button>
         </div>
     </div>
@@ -256,7 +256,7 @@
                 <h2 class="text-3xl font-bold text-gray-900 mb-6">Visit Our Office</h2>
                 <div class="space-y-6">
                     <div class="flex items-start">
-                        <span class="text-red-600 text-xl mr-4 mt-1">📍</span>
+                        <span class="text-red-600 text-xl mr-4 mt-1"><i class="fas fa-map-marker-alt"></i></span>
                         <div>
                             <h3 class="font-semibold mb-2">Address</h3>
                             <p class="text-gray-600">
@@ -269,7 +269,7 @@
                     </div>
 
                     <div class="flex items-start">
-                        <span class="text-red-600 text-xl mr-4 mt-1">🕒</span>
+                        <span class="text-red-600 text-xl mr-4 mt-1"><i class="fas fa-clock"></i></span>
                         <div>
                             <h3 class="font-semibold mb-2">Office Hours</h3>
                             <div class="text-gray-600 space-y-1">
@@ -281,7 +281,7 @@
                     </div>
 
                     <div class="flex items-start">
-                        <span class="text-red-600 text-xl mr-4 mt-1">📞</span>
+                        <span class="text-red-600 text-xl mr-4 mt-1"><i class="fas fa-phone-alt"></i></span>
                         <div>
                             <h3 class="font-semibold mb-2">Emergency Contact</h3>
                             <p class="text-gray-600">
@@ -302,28 +302,28 @@
                     <h3 class="text-lg font-semibold mb-4">Follow Us on Social Media</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <a href="#" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                            <span class="text-2xl mr-3">📘</span>
+                            <span class="text-2xl mr-3"><i class="fab fa-facebook-f"></i></span>
                             <div>
                                 <div class="font-semibold">Facebook</div>
                                 <div class="text-gray-600 text-sm">@ChooseChowNG</div>
                             </div>
                         </a>
                         <a href="#" class="flex items-center p-4 bg-pink-50 rounded-lg hover:bg-pink-100 transition-colors">
-                            <span class="text-2xl mr-3">📷</span>
+                            <span class="text-2xl mr-3"><i class="fab fa-instagram"></i></span>
                             <div>
                                 <div class="font-semibold">Instagram</div>
                                 <div class="text-gray-600 text-sm">@choosechow_ng</div>
                             </div>
                         </a>
                         <a href="#" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                            <span class="text-2xl mr-3">🐦</span>
+                            <span class="text-2xl mr-3"><i class="fab fa-twitter"></i></span>
                             <div>
                                 <div class="font-semibold">Twitter</div>
                                 <div class="text-gray-600 text-sm">@ChooseChowNG</div>
                             </div>
                         </a>
                         <a href="#" class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
-                            <span class="text-2xl mr-3">💬</span>
+                            <span class="text-2xl mr-3"><i class="fab fa-whatsapp"></i></span>
                             <div>
                                 <div class="font-semibold">WhatsApp</div>
                                 <div class="text-gray-600 text-sm">+234 901 234 5678</div>
@@ -360,10 +360,10 @@
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <button class="bg-white text-red-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors">
-                📞 Call Us Now
+                <i class="fas fa-phone-alt"></i> Call Us Now
             </button>
             <button class="bg-red-800 hover:bg-red-900 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
-                💬 Start Live Chat
+                <i class="fas fa-comments"></i> Start Live Chat
             </button>
         </div>
     </div>
