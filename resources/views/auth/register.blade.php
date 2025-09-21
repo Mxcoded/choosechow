@@ -6,7 +6,8 @@
 <div class="auth-container">
     <div class="auth-card row g-0">
         <div class="col-lg-5 auth-left">
-            <div class="brand-logo">🍽️</div>
+            <div class="brand-logo"><img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
+                         class="h-24 w-24 rounded-full shadow-md transition-transform duration-300 hover:scale-105"></div>
             <h1 class="brand-name">ChooseChow</h1>
             <p class="brand-tagline">Join our community of food lovers and talented chefs</p>
             
@@ -137,8 +138,8 @@
                     <input class="form-check-input @error('terms') is-invalid @enderror" 
                            type="checkbox" name="terms" id="terms" required {{ old('terms') ? 'checked' : '' }}>
                     <label class="form-check-label" for="terms">
-                        I agree to the <a href="#" class="auth-link">Terms of Service</a> and 
-                        <a href="#" class="auth-link">Privacy Policy</a>
+                        I agree to the <a href="{{ route('privacy.policy') }}" class="auth-link">Terms of Service</a> and 
+                        <a href="{{ route('privacy.policy') }}" class="auth-link">Privacy Policy</a>
                     </label>
                     @error('terms')
                         <div class="invalid-feedback">{{ $message }}</div>

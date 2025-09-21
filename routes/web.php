@@ -25,6 +25,9 @@ Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy.policy');
 Route::get('/terms', [PageController::class, 'terms'])->name('terms.of.service');
 
+// Authentication Routes with Email Verification
+Auth::routes(['verify' => true]);
+
 // Find Chefs Routes (will need ChefController later)
 Route::prefix('chefs')->name('chefs.')->group(function () {
     Route::get('/', function () {
@@ -47,19 +50,39 @@ Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
     })->name('plans');
 });
 
-// Authentication Routes (for future use)
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
+// Protected Routes (require authentication and email verification)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
+    // Chef specific routes
+    Route::prefix('chef')->name('chef.')->middleware('chef')->group(function () {
+        Route::get('/profile', function () {
+            return view('chefs.profile');
+        })->name('profile');
+        Route::get('/menus', function () {
+            return view('chefs.menus');
+        })->name('menus');
+        Route::get('/orders', function () {
+            return view('chefs.orders');
+        })->name('orders');
+    });
+
+    // Customer specific routes  
+    Route::prefix('customer')->name('customer.')->middleware('customer')->group(function () {
+        Route::get('/profile', function () {
+            return view('customer.profile');
+        })->name('profile');
+        Route::get('/orders', function () {
+            return view('customer.orders');
+        })->name('orders');
+        Route::get('/favorites', function () {
+            return view('customer.favorites');
+        })->name('favorites');
+    });
+});
 
 // Fallback route for development
 Route::fallback(function () {
     return view('errors.404');
 });
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

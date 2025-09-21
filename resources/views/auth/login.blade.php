@@ -6,7 +6,8 @@
 <div class="auth-container">
     <div class="auth-card row g-0">
         <div class="col-lg-5 auth-left">
-            <div class="brand-logo">🍽️</div>
+            <div class="brand-logo"><img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
+                         class="h-24 w-24 rounded-full shadow-md transition-transform duration-300 hover:scale-105"></div>
             <h1 class="brand-name">ChooseChow</h1>
             <p class="brand-tagline">Discover amazing homemade meals from talented local chefs</p>
             
