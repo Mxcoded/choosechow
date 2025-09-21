@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +16,7 @@ use App\Http\Controllers\PageController;
 */
 
 // Home/Landing Page
-Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/', [PageController::class, 'landingPage'])->name('welcome');
 
 // Static Pages handled by PageController
 Route::get('/how-it-works', [PageController::class, 'howItWorks'])->name('how-it-works');
@@ -59,3 +60,6 @@ Route::get('/register', function () {
 Route::fallback(function () {
     return view('errors.404');
 });
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
