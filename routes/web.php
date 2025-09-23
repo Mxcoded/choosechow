@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Chef\MenuController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -77,9 +78,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/profile', function () {
             return view('chefs.profile');
         })->name('profile');
-        Route::get('/menus', function () {
-            return view('chefs.menus');
-        })->name('menus');
+        // Menu routes
+        Route::get('/menus', [MenuController::class, 'index'])->name('menus');
+        Route::get('/menus/create', [MenuController::class, 'create'])->name('menus.create');
+        Route::post('/menus', [MenuController::class, 'store'])->name('menus.store');
+        Route::get('/menus/{menu}', [MenuController::class, 'show'])->name('menus.show');
+        Route::get('/menus/{menu}/edit', [MenuController::class, 'edit'])->name('menus.edit');
+        Route::put('/menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
+        Route::delete('/menus/{menu}', [MenuController::class, 'destroy'])->name('menus.destroy');
+        Route::patch('/menus/{menu}/toggle', [MenuController::class, 'toggleAvailability'])->name('menus.toggle');
+        Route::post('/menus/{menu}/toggle-featured', [MenuController::class, 'toggleFeatured'])->name('menus.toggle-featured');
+        Route::post('/menus/bulk-update', [MenuController::class, 'bulkUpdate'])->name('menus.bulk-update');
         Route::get('/orders', function () {
             return view('chefs.orders');
         })->name('orders');
