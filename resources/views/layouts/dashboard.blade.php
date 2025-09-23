@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- resources/views/layouts/dashboard.blade.php --><!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
@@ -11,9 +11,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="{{ asset('storage/fontawesome-pro/fontawesome-pro-6.5.2-web/css/all.min.css') }}">
+     <link rel="stylesheet" href="{{ asset('storage/fontawesome-pro/fontawesome-pro-6.5.2-web/css/all.min.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
-
     
     <style>
         :root {
@@ -315,6 +314,78 @@
             margin-bottom: 0;
         }
 
+        /* Admin specific styles */
+        .status-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .platform-stat {
+            margin-bottom: 1rem;
+        }
+
+        .platform-stat:last-child {
+            margin-bottom: 0;
+        }
+
+        .activity-timeline {
+            position: relative;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .activity-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: -20px;
+            width: 2px;
+            background: #e9ecef;
+        }
+
+        .activity-item:last-child::before {
+            display: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .activity-content h6 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--dark-color);
+        }
+
+        .activity-content p {
+            color: #6c757d;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+
         /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
@@ -387,7 +458,7 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
+       <div class="sidebar-header">
             <a href="{{ route('dashboard') }}" class="sidebar-brand">
                <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
                          class="h-24 w-24 rounded-full shadow-md transition-transform duration-300 hover:scale-105">
@@ -404,7 +475,38 @@
                     </a>
                 </li>
                 
-                @if(Auth::user()->user_type === 'chef')
+                @if(Auth::user()->user_type === 'admin')
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.users') ? 'active' : '' }}" href="{{ route('admin.users') }}">
+                            <i class="fas fa-users"></i>
+                            Manage Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.chefs') ? 'active' : '' }}" href="{{ route('admin.chefs') }}">
+                            <i class="fas fa-user-tie"></i>
+                            Manage Chefs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.orders') ? 'active' : '' }}" href="{{ route('admin.orders') }}">
+                            <i class="fas fa-clipboard-list"></i>
+                            All Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.reports') ? 'active' : '' }}" href="{{ route('admin.reports') }}">
+                            <i class="fas fa-chart-bar"></i>
+                            Reports & Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
+                            <i class="fas fa-cogs"></i>
+                            System Settings
+                        </a>
+                    </li>
+                @elseif(Auth::user()->user_type === 'chef')
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('chef.menus') ? 'active' : '' }}" href="{{ route('chef.menus') }}">
                             <i class="fas fa-utensils"></i>
@@ -517,5 +619,5 @@
 
         @yield('scripts')
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9835f6e8245cbeeb',t:'MTc1ODU4Nzc1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

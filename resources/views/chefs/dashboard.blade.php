@@ -54,7 +54,7 @@
                     <i class="fas fa-dollar-sign"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">${{ number_format($stats['total_revenue'], 2) }}</h3>
+                    <h3 class="stat-number">&#8358;{{ number_format($stats['total_revenue'], 2) }}</h3>
                     <p class="stat-label">Total Revenue</p>
                     <small class="stat-change positive">+8% this month</small>
                 </div>
@@ -101,7 +101,7 @@
                                     <td>#ORD-001</td>
                                     <td>Sarah Johnson</td>
                                     <td>Grilled Salmon Deluxe</td>
-                                    <td>$28.50</td>
+                                    <td>&#8358;28.50</td>
                                     <td><span class="badge bg-warning">Preparing</span></td>
                                     <td>
                                         <button class="btn btn-sm btn-primary">Update</button>
@@ -111,7 +111,7 @@
                                     <td>#ORD-002</td>
                                     <td>Mike Chen</td>
                                     <td>Pasta Carbonara</td>
-                                    <td>$22.00</td>
+                                    <td>&#8358;22.00</td>
                                     <td><span class="badge bg-success">Ready</span></td>
                                     <td>
                                         <button class="btn btn-sm btn-success">Complete</button>
@@ -121,7 +121,7 @@
                                     <td>#ORD-003</td>
                                     <td>Emma Davis</td>
                                     <td>Vegetarian Bowl</td>
-                                    <td>$18.75</td>
+                                    <td>&#8358;18.75</td>
                                     <td><span class="badge bg-info">New</span></td>
                                     <td>
                                         <button class="btn btn-sm btn-primary">Accept</button>

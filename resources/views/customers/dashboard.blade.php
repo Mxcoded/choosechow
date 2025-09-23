@@ -54,7 +54,7 @@
                     <i class="fas fa-dollar-sign"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">${{ number_format($stats['total_spent'], 2) }}</h3>
+                    <h3 class="stat-number">&#8358;{{ number_format($stats['total_spent'], 2) }}</h3>
                     <p class="stat-label">Total Spent</p>
                     <small class="stat-change positive">Great taste!</small>
                 </div>
@@ -96,7 +96,7 @@
                             </div>
                             <div class="order-status">
                                 <span class="badge bg-success">Delivered</span>
-                                <p class="order-price">$28.50</p>
+                                <p class="order-price">&#8358;28.50</p>
                             </div>
                             <div class="order-actions">
                                 <button class="btn btn-sm btn-outline-primary">Reorder</button>
@@ -115,7 +115,7 @@
                             </div>
                             <div class="order-status">
                                 <span class="badge bg-warning">Preparing</span>
-                                <p class="order-price">$22.00</p>
+                                <p class="order-price">&#8358;22.00</p>
                             </div>
                             <div class="order-actions">
                                 <button class="btn btn-sm btn-outline-info">Track</button>
@@ -133,7 +133,7 @@
                             </div>
                             <div class="order-status">
                                 <span class="badge bg-success">Delivered</span>
-                                <p class="order-price">$18.75</p>
+                                <p class="order-price">&#8358;18.75</p>
                             </div>
                             <div class="order-actions">
                                 <button class="btn btn-sm btn-outline-primary">Reorder</button>
@@ -159,7 +159,7 @@
                             <h6>Pizza Margherita</h6>
                             <p>Chef Luigi Bianchi</p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="price">$24.00</span>
+                                <span class="price">&#8358;24.00</span>
                                 <button class="btn btn-sm btn-primary">Order</button>
                             </div>
                         </div>
@@ -171,7 +171,7 @@
                             <h6>Fluffy Pancakes</h6>
                             <p>Chef Emma Sweet</p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="price">$16.50</span>
+                                <span class="price">&#8358;16.50</span>
                                 <button class="btn btn-sm btn-primary">Order</button>
                             </div>
                         </div>

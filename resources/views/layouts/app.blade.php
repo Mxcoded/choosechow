@@ -16,15 +16,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --primary-color: #ff6b35;
-            --secondary-color: #f7931e;
+            --primary-color: #c23400;
+            --secondary-color: #b7ab00;
             --success-color: #28a745;
             --danger-color: #dc3545;
             --dark-color: #343a40;
         }
 
         body {
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            background: linear-gradient(135deg, #ff4400 0%, #000000 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }

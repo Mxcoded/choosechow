@@ -54,7 +54,24 @@ Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
+    // Admin routes
+    Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+        Route::get('/users', function () {
+            return view('admin.users');
+        })->name('users');
+        Route::get('/chefs', function () {
+            return view('admin.chefs');
+        })->name('chefs');
+        Route::get('/orders', function () {
+            return view('admin.orders');
+        })->name('orders');
+        Route::get('/reports', function () {
+            return view('admin.reports');
+        })->name('reports');
+        Route::get('/settings', function () {
+            return view('admin.settings');
+        })->name('settings');
+    });
     // Chef specific routes
     Route::prefix('chef')->name('chef.')->middleware('chef')->group(function () {
         Route::get('/profile', function () {

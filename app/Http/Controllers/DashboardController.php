@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -16,11 +17,35 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->user_type === 'chef') {
+        if ($user->user_type === 'admin') {
+            return $this->adminDashboard();
+        } elseif ($user->user_type === 'chef') {
             return $this->chefDashboard();
         } else {
             return $this->customerDashboard();
         }
+    }
+
+    private function adminDashboard()
+    {
+        $user = Auth::user();
+
+        // Admin statistics
+        $stats = [
+            'total_users' => User::count(),
+            'total_chefs' => User::where('user_type', 'chef')->count(),
+            'total_customers' => User::where('user_type', 'customer')->count(),
+            'new_users_today' => User::whereDate('created_at', today())->count(),
+            'total_orders' => 156, // Replace with actual order count
+            'total_revenue' => 12450.75, // Replace with actual revenue
+            'pending_approvals' => User::where('user_type', 'chef')->where('status', 'pending')->count(),
+            'active_chefs' => User::where('user_type', 'chef')->where('status', 'active')->count(),
+        ];
+
+        $recentUsers = User::latest()->take(5)->get();
+        $recentChefs = User::where('user_type', 'chef')->latest()->take(5)->get();
+
+        return view('admin.dashboard', compact('user', 'stats', 'recentUsers', 'recentChefs'));
     }
 
     private function chefDashboard()
