@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('category'); // Main course, appetizer, dessert, etc.
             $table->json('cuisine_types'); // Nigerian, Continental, etc.
             $table->json('dietary_info')->nullable(); // Vegetarian, vegan, gluten-free, etc.
-            $table->integer('preparation_time_minutes');
+            $table->integer('preparation_time_minutes')->nullable();
             $table->integer('serves_count')->default(1);
             $table->json('ingredients')->nullable();
             $table->json('allergens')->nullable();
