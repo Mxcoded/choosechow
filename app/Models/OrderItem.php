@@ -51,4 +51,32 @@ class OrderItem extends Model
     {
         return $this->customizations[$key] ?? null;
     }
+    // NEW: Boot method to handle menu updates
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Increment order_count and decrement stock when an OrderItem is created
+        static::created(function (OrderItem $item) {
+            $menu = $item->menu;
+
+            if ($menu) {
+                // Increment order count
+                $menu->increment('order_count', $item->quantity);
+
+                // Decrement stock
+                $menu->decrementStock($item->quantity);
+            }
+        });
+
+        // Handle refunds or cancellations (optional, but good practice)
+        static::deleted(function (OrderItem $item) {
+            $menu = $item->menu;
+
+            if ($menu) {
+                // Restore stock when an order item is deleted (e.g., during cancellation/refund)
+                $menu->restoreStock($item->quantity);
+            }
+        });
+    }
 }

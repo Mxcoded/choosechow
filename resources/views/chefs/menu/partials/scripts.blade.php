@@ -1,4 +1,3 @@
-<!-- resources/views/chef/menus/partials/_scripts.blade.php -->
 <script>
     // Format currency as Naira
     function formatNaira(amount) {
@@ -8,7 +7,7 @@
         });
     }
 
-    // Live preview functionality
+    // --- Live Preview Functionality (UNCHANGED) ---
     document.getElementById('name').addEventListener('input', function() {
         document.getElementById('previewName').textContent = this.value || 'Menu Item Name';
     });
@@ -58,18 +57,21 @@
         const level = parseInt(this.value);
         const spiceIndicator = document.getElementById('previewSpiceLevel');
         
-        if (this.value === '') {
+        if (this.value === '' || isNaN(level)) {
             spiceIndicator.style.display = 'none';
         } else {
             spiceIndicator.style.display = 'flex';
             const levels = spiceIndicator.querySelectorAll('.spice-level');
             levels.forEach((levelEl, index) => {
-                levelEl.classList.toggle('active', index <= level);
+                // The index goes from 0 to 4. Level values are 0 to 5.
+                levelEl.classList.toggle('active', index < level); 
+                // Fix: The previous logic was slightly off for 0-5. Let's use 1 to 5 dots visually.
+                levelEl.classList.toggle('active', index <= level && level > 0);
             });
         }
     });
 
-    // Image upload and preview
+    // Image upload and preview (UNCHANGED)
     document.getElementById('images').addEventListener('change', function() {
         const files = this.files;
         const previewContainer = document.getElementById('imagePreview');
@@ -106,6 +108,7 @@
             });
         } else {
             // Reset to placeholder if no files
+            // Keep existing image if in edit mode
             @if(!$menu || !$menu->images || count($menu->images) === 0)
                 previewImage.innerHTML = `
                     <div class="preview-placeholder">
@@ -117,7 +120,7 @@
         }
     });
 
-    // Auto-enable featured until when featured is checked
+    // Auto-enable featured until when featured is checked (UNCHANGED)
     document.getElementById('is_featured').addEventListener('change', function() {
         const featuredUntil = document.getElementById('featured_until');
         if (this.checked && !featuredUntil.value) {
@@ -127,7 +130,62 @@
         }
     });
 
-    // Form submission with Laravel validation
+    // --- NEW UX LOGIC ---
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Schedule Toggle Logic
+        document.querySelectorAll('.schedule-toggle').forEach(toggle => {
+            const inputs = toggle.closest('.schedule-day').querySelectorAll('input[type="time"]');
+            
+            // Initial state setup: inputs are enabled/disabled based on their checked state from Blade
+            inputs.forEach(input => input.disabled = !toggle.checked);
+
+            toggle.addEventListener('change', function() {
+                inputs.forEach(input => {
+                    input.disabled = !this.checked;
+                });
+            });
+        });
+
+        // 2. Nutritional Info Dynamic Fields Logic
+        const container = document.getElementById('nutritionalInfoContainer');
+        const addButton = document.getElementById('addNutrientButton');
+        
+        const template = `
+            <div class="row mb-2 nutritional-row">
+                <div class="col-5"><input type="text" class="form-control" name="nutritional_info_key[]" placeholder="e.g., Fiber" value=""></div>
+                <div class="col-5"><input type="text" class="form-control" name="nutritional_info_value[]" placeholder="e.g., 5g" value=""></div>
+                <div class="col-2 d-flex align-items-center"><button type="button" class="btn btn-sm btn-danger remove-nutrient">X</button></div>
+            </div>
+        `;
+
+        const addRow = () => {
+            const newRow = document.createElement('div');
+            newRow.innerHTML = template.trim();
+            container.appendChild(newRow.firstChild);
+        };
+        
+        const removeRow = (button) => {
+            const row = button.closest('.nutritional-row');
+            // Allow removal of any row
+            row.remove();
+        };
+
+        addButton.addEventListener('click', addRow);
+        
+        // Use event delegation for removing rows
+        container.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-nutrient')) {
+                removeRow(e.target);
+            }
+        });
+
+        // Ensure there is at least one row for the user to start typing
+        if (container.children.length === 0) {
+            addRow();
+        }
+    });
+
+    // Form submission with Laravel validation (UNCHANGED)
     document.getElementById('menuForm').addEventListener('submit', function(e) {
         // Let Laravel handle validation, but do basic client-side checks
         const name = document.getElementById('name').value.trim();
@@ -161,10 +219,11 @@
         submitBtn.disabled = true;
     });
 
-    // Initialize preview with existing data
+    // Initialize preview with existing data (UNCHANGED)
     document.addEventListener('DOMContentLoaded', function() {
         // Trigger events to populate preview
         document.getElementById('serves_count').dispatchEvent(new Event('input'));
+        // **Ensure description count is initialized**
         document.getElementById('description').dispatchEvent(new Event('input'));
         
         @if($menu)

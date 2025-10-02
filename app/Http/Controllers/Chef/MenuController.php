@@ -56,6 +56,7 @@ class MenuController extends Controller
     public function show(Menu $menu)
     {
         $this->authorize('view', $menu);
+
         return view('chefs.menu.show', compact('menu'));
     }
 
@@ -251,16 +252,17 @@ class MenuController extends Controller
     /**
      * Get validation rules for menu data
      */
-    private function getValidationRules(): array
+    private function getValidationRules(Request $request): array // Requires $request
     {
-        return [
+        // Adjust validation for array fields now that they are structured inputs
+        $rules = [
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:2000',
-            'price' => 'required|numeric|min:0.01|max:9999.99',
-            'discounted_price' => 'nullable|numeric|min:0.01|max:9999.99|lt:price',
+            'price' => 'required|numeric|min:0.01|max:9999999.99',
+            'discounted_price' => 'nullable|numeric|min:0.01|max:9999999.99|lt:price',
             'category' => 'required|string|in:appetizer,main,dessert,beverage,snack',
-            'cuisine_types' => 'nullable|string|max:500',
-            'dietary_info' => 'nullable|string|max:500',
+            'cuisine_types' => 'nullable|string|max:500', // Still processed as comma-separated string for simplicity
+            'dietary_info' => 'nullable|string|max:500', // Still processed as comma-separated string for simplicity
             'preparation_time_minutes' => 'nullable|integer|min:1|max:1440',
             'serves_count' => 'required|integer|min:1|max:50',
             'ingredients' => 'nullable|string|max:2000',
@@ -268,19 +270,25 @@ class MenuController extends Controller
             'spice_level' => 'nullable|integer|min:0|max:5',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'stock_quantity' => 'nullable|integer|min:0|max:99999',
-            'availability_schedule' => 'nullable|string',
-            'nutritional_info' => 'nullable|string|max:2000',
-            'cooking_instructions' => 'nullable|string|max:5000',
-            'storage_instructions' => 'nullable|string|max:1000',
             'featured_until' => 'nullable|date|after:today',
+
+            // NEW RULES FOR STRUCTURED INPUTS
+            'nutritional_info_key.*' => 'nullable|string|max:100',
+            'nutritional_info_value.*' => 'nullable|string|max:100',
+            'availability_schedule' => 'nullable|array',
+            'availability_schedule.*.available' => 'nullable|boolean',
+            'availability_schedule.*.start_time' => 'nullable|date_format:H:i',
+            'availability_schedule.*.end_time' => 'nullable|date_format:H:i|after:availability_schedule.*.start_time',
         ];
+
+        return $rules;
     }
     /**
      * Validate menu data using DRY principle
      */
     private function validateMenuData(Request $request): array
     {
-        return $request->validate($this->getValidationRules());
+        return $request->validate($this->getValidationRules($request));
     }
 
     /**
@@ -288,18 +296,21 @@ class MenuController extends Controller
      */
     private function processMenuData(array $validated, Request $request, Menu $existingMenu = null): array
     {
-        // Handle image uploads
+        // 1. Handle image uploads (UNCHANGED)
         $validated['images'] = $this->handleImageUploads($request, $existingMenu);
 
-        // Process array fields
+        // 2. Process comma-separated fields into arrays (UNCHANGED)
         $validated = $this->processArrayFields($validated);
 
-        // Process special fields
-        $validated = $this->processSpecialFields($validated);
+        // 3. Process special fields (REVISED)
+        $validated = $this->processSpecialFields($validated, $request); // Pass $request for new inputs
 
-        // Handle checkboxes
+        // 4. Handle checkboxes (UNCHANGED)
         $validated['is_available'] = $request->has('is_available');
         $validated['is_featured'] = $request->has('is_featured');
+
+        // Remove transient inputs before final update
+        unset($validated['nutritional_info_key'], $validated['nutritional_info_value']);
 
         return $validated;
     }
@@ -350,14 +361,43 @@ class MenuController extends Controller
 
     /**
      * Process special fields (nutritional_info, availability_schedule)
+     * REVISED to handle structured array inputs.
      */
-    private function processSpecialFields(array $validated): array
+    private function processSpecialFields(array $validated, Request $request): array
     {
-        // Process nutritional_info
-        $validated['nutritional_info'] = $this->processKeyValueField($validated['nutritional_info'] ?? '');
+        // 1. Process nutritional_info (from key/value arrays)
+        $nutritionalInfo = [];
+        $keys = $request->input('nutritional_info_key', []);
+        $values = $request->input('nutritional_info_value', []);
 
-        // Process availability_schedule
-        $validated['availability_schedule'] = $this->processKeyValueField($validated['availability_schedule'] ?? '');
+        // Combine keys and values, filtering out empty entries
+        foreach ($keys as $index => $key) {
+            $value = $values[$index] ?? null;
+            if (trim($key) && trim($value)) {
+                $nutritionalInfo[trim($key)] = trim($value);
+            }
+        }
+        $validated['nutritional_info'] = $nutritionalInfo;
+
+        // 2. Process availability_schedule (from structured day arrays)
+        $schedule = [];
+        $rawSchedule = $request->input('availability_schedule', []);
+
+        foreach ($rawSchedule as $day => $data) {
+            $isAvailable = $data['available'] ?? false;
+
+            if ($isAvailable) {
+                // Only save the schedule if the day is checked as available
+                $schedule[$day] = [
+                    'available' => true,
+                    'start_time' => $data['start_time'] ?? '00:00',
+                    'end_time' => $data['end_time'] ?? '23:59',
+                ];
+            } else {
+                $schedule[$day] = ['available' => false];
+            }
+        }
+        $validated['availability_schedule'] = $schedule;
 
         return $validated;
     }

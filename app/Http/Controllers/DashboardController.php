@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Menu; // Import the Menu model
+// NOTE: Assuming Order and Review models exist for real data
+use App\Models\Order; 
+// use App\Models\Review;
 
 class DashboardController extends Controller
 {
@@ -28,6 +32,7 @@ class DashboardController extends Controller
 
     private function adminDashboard()
     {
+        // ... (Admin dashboard logic remains unchanged for this task) ...
         $user = Auth::user();
 
         // Admin statistics
@@ -50,26 +55,69 @@ class DashboardController extends Controller
 
     private function chefDashboard()
     {
-        $user = Auth::user();
+        $chef = Auth::user();
 
-        // Mock data for now - replace with real queries later
+        // --- BASE QUERIES ---
+        $chefMenuQuery = Menu::where('chef_id', $chef->id);
+        $chefOrderQuery = Order::where('chef_id', $chef->id)->where('payment_status', 'paid');
+
+        // --- REAL DATA CALCULATIONS ---
+
+        // 1. Order Metrics
+        $totalOrders = $chefOrderQuery->count();
+        $pendingOrders = $chefOrderQuery->whereIn('status', ['pending', 'confirmed'])->count();
+        $totalRevenue = $chefOrderQuery->sum('total_amount');
+
+        // Reset query for total orders for recent data
+        $recentOrders = Order::where('chef_id', $chef->id)
+            ->where('payment_status', 'paid')
+            ->latest()
+            ->with('customer')
+            ->take(5)
+            ->get();
+
+        // 2. Menu Metrics
+        $totalMenus = $chefMenuQuery->count();
+        $activeMenus = $chefMenuQuery->where('is_available', true)->count();
+
+        // Calculate average rating across all menus
+        // Note: It's safer to query the database directly for the average of averages
+        $avgRating = round(Menu::where('chef_id', $chef->id)->avg('average_rating') ?? 0, 1);
+
+        // Get popular menus (order count descending)
+        $popularMenus = Menu::where('chef_id', $chef->id)
+            ->orderByDesc('order_count')
+            ->take(5)
+            ->get();
+
+        // 3. Customer/Engagement Metrics (Placeholders for now, but structured)
+        // NOTE: Total customers requires distinct customer_ids from the Order table
+        $totalCustomers = Order::where('chef_id', $chef->id)
+            ->where('payment_status', 'paid')
+            ->distinct('customer_id')
+            ->count('customer_id');
+
         $stats = [
-            'total_orders' => 45,
-            'pending_orders' => 3,
-            'total_revenue' => 2850.00,
-            'avg_rating' => 4.8,
-            'active_menus' => 8,
-            'total_customers' => 32
+            'total_orders' => $totalOrders,
+            'pending_orders' => $pendingOrders,
+            'total_revenue' => $totalRevenue,
+
+            // Menu Stats
+            'total_menus' => $totalMenus,
+            'active_menus' => $activeMenus,
+            'avg_rating' => $avgRating,
+
+            // Engagement
+            'total_customers' => $totalCustomers,
+            'order_completion_rate' => 0.94, // Placeholder for actual calculation
         ];
 
-        $recentOrders = []; // Will be populated from database later
-        $popularMenus = []; // Will be populated from database later
-
-        return view('chefs.dashboard', compact('user', 'stats', 'recentOrders', 'popularMenus'));
+        return view('chefs.dashboard', compact('chef', 'stats', 'recentOrders', 'popularMenus'));
     }
 
     private function customerDashboard()
     {
+        // ... (Customer dashboard logic remains unchanged for this task) ...
         $user = Auth::user();
 
         // Mock data for now - replace with real queries later
