@@ -16,18 +16,18 @@
     
     <style>
         :root {
-            --primary-color: #ac2e00;
-            --secondary-color: #f4e005;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
-            --dark-color: #343a40;
-            --light-color: #f8f9fa;
+        --primary-color: #DC143C;
+        --secondary-color: #F75270;
+        --accent-color: #F7CAC9;
+        --background-color: #FDEBD0;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --dark-color: #343a40;
         }
 
         body {
-            background-color: #f5f6fa;
+            background: linear-gradient(135deg, var(--background-color) 0%, var(--accent-color) 100%);
+            min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 

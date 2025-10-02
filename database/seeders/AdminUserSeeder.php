@@ -17,7 +17,7 @@ class AdminUserSeeder extends Seeder
             'password' => '#Pwd123#', // Will be hashed by the model
             'phone' => '1234567890',
             'user_type' => 'admin',
-            'is_active' => true,
+            'status' => 'active',
             'email_verified_at' => now(),
         ]);
     }

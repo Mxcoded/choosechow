@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Chef\MenuController;
+use App\Http\Controllers\Chef\OrderController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -89,9 +90,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/menus/{menu}/toggle', [MenuController::class, 'toggleAvailability'])->name('menus.toggle');
         Route::post('/menus/{menu}/toggle-featured', [MenuController::class, 'toggleFeatured'])->name('menus.toggle-featured');
         Route::post('/menus/bulk-update', [MenuController::class, 'bulkUpdate'])->name('menus.bulk-update');
-        Route::get('/orders', function () {
-            return view('chefs.orders');
-        })->name('orders');
+        // Route::get('/orders', function () {
+        //     return view('chefs.orders');
+        // })->name('orders');
+
+        // REPLACE with resource-like routing for Orders
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     });
 
     // Customer specific routes  

@@ -1,33 +1,38 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/x-icon" href="{{ asset('storage/img/choosechowlogo.png') }}">  
-    
+    <link rel="icon" type="image/x-icon" href="{{ asset('storage/img/choosechowlogo.png') }}">
+
     <title>@yield('title', 'ChooseChow - Delicious Homemade Meals')</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('storage/fontawesome-pro/fontawesome-pro-6.5.2-web/css/all.min.css') }}">
         <link rel="stylesheet" href="{{ asset('storage/fontawesome-pro/css/all.min.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            --primary-color: #c23400;
-            --secondary-color: #b7ab00;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --dark-color: #343a40;
+        --primary-color: #DC143C;
+        --secondary-color: #F75270;
+        --accent-color: #F7CAC9;
+        --background-color: #FDEBD0;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --dark-color: #343a40;
         }
 
         body {
-            background: linear-gradient(135deg, #ff4400 0%, #000000 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-color) 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
 
         .auth-container {
             min-height: 100vh;
@@ -40,7 +45,7 @@
         .auth-card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             max-width: 900px;
             width: 100%;
@@ -69,7 +74,7 @@
             opacity: 0.3;
         }
 
-        .auth-left > * {
+        .auth-left>* {
             position: relative;
             z-index: 1;
         }
@@ -295,19 +300,19 @@
             .auth-card {
                 margin: 10px;
             }
-            
+
             .auth-left {
                 padding: 40px 20px;
             }
-            
+
             .auth-right {
                 padding: 40px 20px;
             }
-            
+
             .brand-name {
                 font-size: 2rem;
             }
-            
+
             .user-type-selector {
                 flex-direction: column;
                 gap: 0.5rem;
@@ -317,18 +322,19 @@
         @yield('styles')
     </style>
 </head>
+
 <body>
     @yield('content')
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
         // Password toggle functionality
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
             const eye = document.getElementById(inputId + 'Eye');
-            
+
             if (input.type === 'password') {
                 input.type = 'text';
                 eye.classList.remove('fa-eye');
@@ -351,5 +357,39 @@
 
         @yield('scripts')
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9825a501950b6540',t:'MTc1ODQxNjYyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+    <script>
+        (function() {
+            function c() {
+                var b = a.contentDocument || a.contentWindow.document;
+                if (b) {
+                    var d = b.createElement('script');
+                    d.innerHTML =
+                        "window.__CF$cv$params={r:'9825a501950b6540',t:'MTc1ODQxNjYyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+                    b.getElementsByTagName('head')[0].appendChild(d)
+                }
+            }
+            if (document.body) {
+                var a = document.createElement('iframe');
+                a.height = 1;
+                a.width = 1;
+                a.style.position = 'absolute';
+                a.style.top = 0;
+                a.style.left = 0;
+                a.style.border = 'none';
+                a.style.visibility = 'hidden';
+                document.body.appendChild(a);
+                if ('loading' !== document.readyState) c();
+                else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c);
+                else {
+                    var e = document.onreadystatechange || function() {};
+                    document.onreadystatechange = function(b) {
+                        e(b);
+                        'loading' !== document.readyState && (document.onreadystatechange = e, c())
+                    }
+                }
+            }
+        })();
+    </script>
+</body>
+
 </html>

@@ -26,21 +26,26 @@ return new class extends Migration
             $table->integer('serves_count')->default(1);
             $table->json('ingredients')->nullable();
             $table->json('allergens')->nullable();
+            $table->json('nutritional_info')->nullable();
+            $table->text('cooking_instructions')->nullable();
+            $table->text('storage_instructions')->nullable();
             $table->string('spice_level')->nullable(); // Mild, medium, hot
             $table->json('images'); // Array of image URLs
             $table->boolean('is_available')->default(true);
             $table->boolean('is_featured')->default(false);
+            $table->date('featured_until')->nullable();
+            $table->unsignedBigInteger('view_count')->default(0);
             $table->integer('stock_quantity')->nullable(); // For limited items
             $table->json('availability_schedule')->nullable(); // When this item is available
-            $table->decimal('rating', 3, 2)->default(0);
+            $table->decimal('average_rating', 3, 2)->default(0);
             $table->integer('total_reviews')->default(0);
-            $table->integer('total_orders')->default(0);
+            $table->integer('order_count')->default(0);
             $table->timestamps();
 
             $table->unique(['chef_id', 'slug']);
             $table->index(['chef_id', 'is_available']);
             $table->index(['category', 'is_available']);
-            $table->index('rating');
+            $table->index('average_rating');
             $table->fullText(['name', 'description']);
         });
     }

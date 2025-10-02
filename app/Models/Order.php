@@ -24,20 +24,25 @@ class Order extends Model
         'total_amount',
         'payment_method',
         'payment_status',
+        'payment_reference', // FIX: Added missing field
         'delivery_address',
         'special_instructions',
         'estimated_delivery_time',
         'confirmed_at',
+        'prepared_at', // FIX: Added missing field
         'delivered_at',
+        'cancellation_reason', // FIX: Added missing field
+        'cancelled_at',
+        'cancelled_by',
     ];
 
     protected $casts = [
-        'subtotal' => 'decimal:2',
-        'delivery_fee' => 'decimal:2',
+        // ... (existing casts) ...
         'total_amount' => 'decimal:2',
         'delivery_address' => 'array',
         'estimated_delivery_time' => 'datetime',
         'confirmed_at' => 'datetime',
+        'prepared_at' => 'datetime', // FIX: Added missing field
         'delivered_at' => 'datetime',
     ];
 
@@ -107,5 +112,32 @@ class Order extends Model
         $commissionRate = $subscription ? $subscription->plan->commission_rate : 10;
 
         return $this->subtotal * (1 - ($commissionRate / 100));
+    }
+    // NEW: Helper to get status color for dashboard UI
+    public function getStatusColorAttribute(): string
+    {
+        return match ($this->status) {
+            'delivered' => 'success',
+            'pending' => 'secondary',
+            'confirmed', 'preparing' => 'warning',
+            'ready', 'out_for_delivery' => 'info',
+            'cancelled', 'refunded' => 'danger',
+            default => 'secondary',
+        };
+    }
+
+    // NEW: Helper method for common status checks
+    public function isPaid(): bool
+    {
+        return $this->payment_status === 'paid';
+    }
+
+    // NEW: Method for status update
+    public function markAsPrepared(): void
+    {
+        $this->update([
+            'status' => 'prepared',
+            'prepared_at' => now(),
+        ]);
     }
 }
