@@ -1,10 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Chef\MenuController;
 use App\Http\Controllers\Chef\OrderController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Chef\ChefProfileController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -76,9 +78,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     // Chef specific routes
     Route::prefix('chef')->name('chef.')->middleware('chef')->group(function () {
-        Route::get('/profile', function () {
-            return view('chefs.profile');
-        })->name('profile');
+        // REPLACE with new Profile Routes
+        Route::get('/profile', [ChefProfileController::class, 'show'])->name('profile');
+        Route::get('/profile/edit', [ChefProfileController::class, 'edit'])->name('profile.edit');
+        // Uses POST if creating (profile does not exist) or PUT if updating (profile exists)
+        Route::match(['post', 'put'], '/profile', [ChefProfileController::class, 'update'])->name('profile.update');
         // Menu routes
         Route::get('/menus', [MenuController::class, 'index'])->name('menus');
         Route::get('/menus/create', [MenuController::class, 'create'])->name('menus.create');

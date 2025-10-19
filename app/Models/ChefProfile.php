@@ -48,6 +48,7 @@ class ChefProfile extends Model
     ];
 
     protected $casts = [
+        'specialties' => 'array', // <-- FIX: Added this line
         'cuisines' => 'array',
         'operating_hours' => 'array',
         'certifications' => 'array',

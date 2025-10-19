@@ -53,7 +53,7 @@
         <div class="col-lg-3 col-md-6 mb-3">
             <div class="stat-card">
                 <div class="stat-icon bg-success">
-                    <i class="fas fa-dollar-sign"></i>
+                    <i class="fas fa-naira-sign"></i>
                 </div>
                 <div class="stat-content">
                     <h3 class="stat-number">&#8358;{{ number_format($stats['total_revenue'], 2) }}</h3>
@@ -118,10 +118,10 @@
                                 {{-- Hardcoded placeholder for visual stability --}}
                                 @if (count($recentOrders) == 0)
                                 <tr>
-                                    <td>#ORD-001</td><td>Sarah Johnson</td><td>Jollof Rice</td><td>&#8358;3,000.00</td><td><span class="badge bg-warning">Preparing</span></td><td><button class="btn btn-sm btn-primary">Update</button></td>
+                                    <td>#ORD-001</td><td>e.g Sarah Johnson</td><td>Jollof Rice</td><td>&#8358;3,000.00</td><td><span class="badge bg-warning">Preparing</span></td><td><button class="btn btn-sm btn-primary">Update</button></td>
                                 </tr>
                                 <tr>
-                                    <td>#ORD-002</td><td>Mike Chen</td><td>Meat Pie</td><td>&#8358;2,200.00</td><td><span class="badge bg-success">Ready</span></td><td><button class="btn btn-sm btn-success">Complete</button></td>
+                                    <td>#ORD-002</td><td>e.g Mike Chen</td><td>Meat Pie</td><td>&#8358;2,200.00</td><td><span class="badge bg-success">Ready</span></td><td><button class="btn btn-sm btn-success">Complete</button></td>
                                 </tr>
                                 @endif
                             </tbody>

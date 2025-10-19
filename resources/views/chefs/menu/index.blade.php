@@ -63,7 +63,7 @@
             <div class="stat-card">
                 <div class="stat-icon bg-info">
                     {{-- FIX: Use the correct Font Awesome icon name for clarity --}}
-                    <i class="fas fa-dollar-sign"></i> 
+                    <i class="fas fa-naira-sign"></i>
                 </div>
                 <div class="stat-content">
                     <h3 class="stat-number">&#8358;{{ number_format($stats['avg_price'], 2) }}</h3>
@@ -196,9 +196,141 @@
 {{-- Styles remain the same --}}
 @section('styles')
 <style>
-/* ... (styles here) ... */
+/* === Overall Card Styling === */
+.menu-card {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.menu-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* === Menu Image Styling === */
+.menu-image {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    background: #f3f3f3;
+    border-bottom: 1px solid #f1f1f1;
+}
+.menu-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease, filter 0.4s ease;
+    border-radius: 0;
+}
+.menu-card:hover .menu-image img {
+    transform: scale(1.05);
+    filter: brightness(0.95);
+}
+
+/* === Placeholder for missing images === */
+.menu-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+    font-size: 2rem;
+    height: 100%;
+    width: 100%;
+    background: repeating-linear-gradient(
+        45deg,
+        #f8f9fa,
+        #f8f9fa 10px,
+        #f1f1f1 10px,
+        #f1f1f1 20px
+    );
+}
+
+/* === Menu Badges === */
+.menu-badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.menu-badges .badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.35rem 0.6rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* === Menu Content === */
+.menu-content {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.menu-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
+    color: #212529;
+}
+.menu-price {
+    font-weight: 700;
+    color: #28a745;
+    font-size: 0.95rem;
+}
+.menu-description {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin: 0.5rem 0;
+    line-height: 1.4;
+}
+.menu-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+}
+.menu-meta small {
+    font-size: 0.75rem;
+}
+
+/* === Action Buttons === */
+.menu-actions {
+    margin-top: 1rem;
+}
+.menu-actions .btn {
+    transition: all 0.25s ease;
+}
+.menu-actions .btn:hover {
+    transform: scale(1.1);
+}
+
+/* === Responsive tweaks === */
+@media (max-width: 576px) {
+    .menu-image {
+        height: 180px;
+    }
+    .menu-title {
+        font-size: 0.95rem;
+    }
+}
 </style>
 @endsection
+
 
 @section('scripts')
 <script>

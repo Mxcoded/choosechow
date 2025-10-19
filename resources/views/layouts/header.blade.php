@@ -23,8 +23,15 @@
 
             <!-- Auth Buttons -->
             <div class="flex items-center space-x-4">
+            @guest
+    
                 <a href="{{ route('login') }}" class="text-gray-700 hover:text-red-600 transition-colors font-medium">Login</a>
                 <a href="{{ route('register') }}" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors font-semibold">Sign Up</a>
+            
+            @endguest
+            @auth
+                <a href="{{ route('dashboard') }}" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors font-semibold">Dashboard</a>
+            @endauth
             </div>
         </div>
     </div>

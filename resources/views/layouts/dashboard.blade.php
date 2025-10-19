@@ -527,7 +527,7 @@
                     </li>
                 @else
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('chefs.index') ? 'active' : '' }}" href="{{ route('chefs.index') }}">
+                        <a class="nav-link {{ request()->routeIs('chef.profile') ? 'active' : '' }}" href="{{ route('chef.profile') }}">
                             <i class="fas fa-search"></i>
                             Find Chefs
                         </a>
