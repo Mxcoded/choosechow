@@ -52,7 +52,7 @@
                                 @foreach($menu->images as $index => $image)
                                     <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
                                         {{-- Use asset('storage/...') instead of Storage::url() for consistency, assuming public disk setup --}}
-                                        <img src="{{ asset('storage/' . $image) }}" class="d-block w-100 menu-detail-image" alt="{{ $menu->name }}">
+                                        <img src="{{ asset('storage/' . $image) }}" class="d-block w-25 menu-detail-image" alt="{{ $menu->name }}">
                                     </div>
                                 @endforeach
                             </div>
