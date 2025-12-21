@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Spatie\Permission\Traits\HasRoles; // <--- IMPORT THIS
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles; // <--- ADD TRAIT
 
     protected $fillable = [
         'first_name',
@@ -20,7 +20,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'phone',
         'password',
-        'user_type',
+        // 'user_type', <--- REMOVED (Now handled by Roles)
         'status',
         'avatar',
         'date_of_birth',
@@ -67,46 +67,39 @@ class User extends Authenticatable implements MustVerifyEmail
             ->latest();
     }
 
+    // ... (Keep existing Order/Review relationships) ...
     public function customerOrders()
     {
         return $this->hasMany(Order::class, 'customer_id');
     }
-
     public function chefOrders()
     {
         return $this->hasMany(Order::class, 'chef_id');
     }
-
     public function menus()
     {
         return $this->hasMany(Menu::class, 'chef_id');
     }
-
     public function reviews()
     {
         return $this->hasMany(Review::class, 'customer_id');
     }
-
     public function receivedReviews()
     {
         return $this->hasMany(Review::class, 'chef_id');
     }
-
     public function payments()
     {
         return $this->hasMany(Payment::class);
     }
-
     public function payouts()
     {
         return $this->hasMany(ChefPayout::class, 'chef_id');
     }
-
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
     }
-
     public function referrals()
     {
         return $this->hasMany(User::class, 'referred_by', 'referral_code');
@@ -136,43 +129,24 @@ class User extends Authenticatable implements MustVerifyEmail
         );
     }
 
-    // Scopes
-    public function scopeCustomers($query)
-    {
-        return $query->where('user_type', 'customer');
-    }
+    // --- REFACTORED HELPERS (Using Spatie) ---
 
-    public function scopeChefs($query)
-    {
-        return $query->where('user_type', 'chef');
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
-    }
-
-    public function scopeVerified($query)
-    {
-        return $query->whereNotNull('email_verified_at');
-    }
-
-    // Helper Methods
     public function isCustomer(): bool
     {
-        return $this->user_type === 'customer';
+        return $this->hasRole('customer');
     }
 
     public function isChef(): bool
     {
-        return $this->user_type === 'chef';
+        return $this->hasRole('chef');
     }
 
     public function isAdmin(): bool
     {
-        return $this->user_type === 'admin';
+        return $this->hasRole('admin');
     }
 
+    // Keep business logic helpers
     public function hasActiveSubscription(): bool
     {
         return $this->activeSubscription()->exists();

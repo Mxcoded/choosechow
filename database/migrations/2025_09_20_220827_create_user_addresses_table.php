@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('user_addresses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('type')->default('delivery'); // delivery, billing, pickup
-            $table->string('label')->nullable(); // Home, Office, etc.
+            $table->string('type')->default('delivery');
+            $table->string('label')->nullable();
             $table->string('street_address');
             $table->string('apartment')->nullable();
             $table->string('city');
@@ -26,6 +26,8 @@ return new class extends Migration
             $table->decimal('longitude', 11, 8)->nullable();
             $table->text('delivery_instructions')->nullable();
             $table->boolean('is_default')->default(false);
+
+            $table->softDeletes(); // ADDED: Soft Deletes
             $table->timestamps();
 
             $table->index(['user_id', 'type']);

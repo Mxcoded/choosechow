@@ -6,12 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-           Schema::create('users', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
@@ -20,24 +17,28 @@ return new class extends Migration
             $table->string('phone')->unique();
             $table->timestamp('phone_verified_at')->nullable();
             $table->string('password');
-            $table->enum('user_type', ['customer', 'chef', 'admin'])->default('customer');
+
+            // REMOVED: user_type (Moved to Roles & Permissions tables)
+
+            // Status remains as it controls login ability (Banned vs Active)
             $table->enum('status', ['active', 'inactive', 'suspended', 'pending_verification'])->default('pending_verification');
+
             $table->string('avatar')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
             $table->string('referral_code', 10)->unique()->nullable();
             $table->string('referred_by')->nullable();
             $table->timestamp('last_login_at')->nullable();
-            $table->string('device_token')->nullable(); // For push notifications
-            $table->json('preferences')->nullable(); // User preferences as JSON
+            $table->string('device_token')->nullable();
+            $table->json('preferences')->nullable();
             $table->rememberToken();
             $table->timestamps();
-            
-            $table->index(['user_type', 'status']);
+
+            $table->index('status'); // Optimized index
             $table->index('referral_code');
         });
 
-
+        // (Keep password_reset_tokens and sessions schemas as they were...)
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
@@ -54,9 +55,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
