@@ -55,7 +55,7 @@ Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
 });
 
 // Protected Routes (require authentication and email verification)
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     // Admin routes
