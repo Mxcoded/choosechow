@@ -5,65 +5,51 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;    
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
     use AuthenticatesUsers;
 
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/dashboard';
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
-        $this->middleware('auth')->only('logout');
     }
 
-    public function login(Request $request)
+    /**
+     * Redirect users based on their Role.
+     */
+    protected function redirectTo()
     {
-        $this->validateLogin($request);
+        $user = Auth::user();
 
-        // Debug: Check if user exists
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user) {
-            return back()->withErrors([
-                'email' => 'No user found with this email address.',
-            ]);
+        if ($user->hasRole('admin')) {
+            return route('admin.dashboard');
         }
 
-        // Debug: Check password
-        if (!Hash::check($request->password, $user->password)) {
-            return back()->withErrors([
-                'password' => 'Password does not match.',
-            ]);
+        if ($user->hasRole('chef')) {
+            // Check if they need to complete their profile
+            if (!$user->chefProfile) {
+                return route('chef.profile.edit');
+            }
+            return route('chef.dashboard');
         }
 
-        // If we get here, credentials should work
-        return $this->attemptLogin($request)
-            ? $this->sendLoginResponse($request)
-            : $this->sendFailedLoginResponse($request);
+        // Default for customers
+        return route('dashboard');
+    }
+
+    /**
+     * Check status after the user has been authenticated.
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        // Block login if account is not active
+        if (in_array($user->status, ['suspended', 'inactive'])) {
+            Auth::logout();
+
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Your account is currently ' . $user->status . '. Please contact support.']);
+        }
     }
 }
