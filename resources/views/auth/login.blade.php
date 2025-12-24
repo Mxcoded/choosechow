@@ -6,8 +6,10 @@
 <div class="auth-container">
     <div class="auth-card row g-0">
         <div class="col-lg-5 auth-left">
-            <div class="brand-logo"><img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
-                         class="h-24 w-24 rounded-full shadow-md transition-transform duration-300 hover:scale-105"></div>
+            <div class="brand-logo">
+                <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
+                     class="h-24 w-24 rounded-full shadow-md transition-transform duration-300 hover:scale-105">
+            </div>
             <h1 class="brand-name">ChooseChow</h1>
             <p class="brand-tagline">Discover amazing homemade meals from talented local chefs</p>
             
@@ -25,28 +27,28 @@
                 <p class="auth-subtitle">Sign in to your account to continue</p>
             </div>
 
-            <!-- Laravel Validation Errors -->
             @if ($errors->any())
-                <div class="alert alert-danger">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <ul class="mb-0">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
-            <!-- Success Message -->
             @if (session('status'))
-                <div class="alert alert-success">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('status') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
             <form method="POST" action="{{ route('login') }}">
                 @csrf
                 
-                <div class="form-floating">
+                <div class="form-floating mb-3">
                     <input type="email" class="form-control @error('email') is-invalid @enderror" 
                            id="email" name="email" placeholder="name@example.com" 
                            value="{{ old('email') }}" required autocomplete="email" autofocus>
@@ -56,43 +58,46 @@
                     @enderror
                 </div>
 
-                <div class="form-floating">
+                <div class="form-floating mb-3">
                     <input type="password" class="form-control @error('password') is-invalid @enderror" 
                            id="password" name="password" placeholder="Password" required autocomplete="current-password">
                     <label for="password">Password</label>
-                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                        <i class="fas fa-eye" id="passwordEye"></i>
+                    
+                    <button type="button" class="password-toggle btn btn-link position-absolute top-50 end-0 translate-middle-y text-decoration-none" 
+                            style="right: 10px; z-index: 5;" onclick="togglePassword('password')">
+                        <i class="fas fa-eye text-muted" id="passwordEye"></i>
                     </button>
+                    
                     @error('password')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" name="remember" id="remember" 
-                           {{ old('remember') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="remember">
-                        Remember me
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-primary mb-3">
-                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                </button>
-
-                <div class="text-center">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="remember" id="remember" 
+                               {{ old('remember') ? 'checked' : '' }}>
+                        <label class="form-check-label text-muted" for="remember">
+                            Remember me
+                        </label>
+                    </div>
+                    
                     @if (Route::has('password.request'))
-                        <a class="auth-link" href="{{ route('password.request') }}">
-                            Forgot your password?
+                        <a class="auth-link small" href="{{ route('password.request') }}">
+                            Forgot Password?
                         </a>
                     @endif
                 </div>
 
-                <div class="divider">
-                    <span>Don't have an account?</span>
+                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+
+                <div class="divider text-center my-3">
+                    <span class="text-muted">Don't have an account?</span>
                 </div>
 
-                <a href="{{ route('register') }}" class="btn btn-outline-primary">
+                <a href="{{ route('register') }}" class="btn btn-outline-primary w-100 py-2">
                     <i class="fas fa-user-plus me-2"></i>Create Account
                 </a>
             </form>

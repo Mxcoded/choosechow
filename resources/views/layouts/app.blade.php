@@ -10,9 +10,7 @@
     <title>@yield('title', 'ChooseChow - Delicious Homemade Meals')</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -101,6 +99,22 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.2rem rgba(220, 20, 60, 0.25);
         }
+        
+        /* --- Password Toggle (Eye Icon) Position --- */
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            cursor: pointer;
+            z-index: 10;
+            padding: 0;
+            color: #6c757d;
+        }
+        
+        .password-toggle:hover { color: var(--primary-color); }
 
         /* Buttons */
         .btn-primary {
@@ -173,7 +187,6 @@
             background: #fff5f5;
         }
 
-        /* Active State - This makes the selection VISIBLE */
         .user-type-option.active {
             border-color: var(--primary-color);
             background: #fff0f0;
@@ -203,7 +216,27 @@
     <script>
         // Global Helpers
         
-        // Auto-hide alerts after 5 seconds
+        // 1. Password Toggle Function (ADDED)
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(inputId + 'Eye');
+            
+            if (input.type === "password") {
+                input.type = "text";
+                if(icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            } else {
+                input.type = "password";
+                if(icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+
+        // 2. Auto-hide alerts
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 document.querySelectorAll('.alert').forEach(alert => {
