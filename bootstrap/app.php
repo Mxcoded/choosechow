@@ -12,9 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            // --- Custom Middleware ---
             'chef' => \App\Http\Middleware\ChefMiddleware::class,
             'customer' => \App\Http\Middleware\CustomerMiddleware::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+
+            // --- Spatie Permission Middleware (ADD THESE) ---
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

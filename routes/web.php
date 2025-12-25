@@ -66,8 +66,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Menus
         Route::resource('menus', MenuController::class);
-        Route::patch('/menus/{menu}/toggle', [MenuController::class, 'toggleAvailability'])->name('menus.toggle');
-        Route::post('/menus/bulk-update', [MenuController::class, 'bulkUpdate'])->name('menus.bulk-update');
+
+        // --- Custom Menu Actions ---
+        Route::prefix('menus/{menu}')->name('menus.')->group(function () {
+            Route::patch('toggle', [MenuController::class, 'toggleAvailability'])->name('toggle');
+            Route::post('toggle-featured', [MenuController::class, 'toggleFeatured'])->name('toggle-featured'); // <--- ADD THIS
+        });
+
+        Route::post('menus/bulk-update', [MenuController::class, 'bulkUpdate'])->name('menus.bulk-update');
 
         // Orders
         Route::resource('orders', OrderController::class)->only(['index', 'show']);

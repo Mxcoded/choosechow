@@ -28,17 +28,17 @@ class MenuController extends Controller
     {
         $chef = Auth::user();
 
-        // 2. Performance: Eager load relationships to prevent N+1 query issues
-        $menus = $chef->Menu->menus()
+        // FIXED: Changed $chef->Menu->menus() to $chef->menus()
+        $menus = $chef->menus()
             ->with(['category', 'cuisines'])
             ->latest()
             ->paginate(12);
 
-        // 3. Stats for the Dashboard View
+        // FIXED: Updated stats queries as well
         $stats = [
-            'total' => $chef->Menu->menus()->count(),
-            'active' => $chef->Menu->menus()->where('is_available', true)->count(),
-            'featured' => $chef->Menu->menus()->where('is_featured', true)->count(),
+            'total' => $chef->menus()->count(),
+            'active' => $chef->menus()->where('is_available', true)->count(),
+            'featured' => $chef->menus()->where('is_featured', true)->count(),
         ];
 
         return view('chefs.menu.index', compact('menus', 'stats'));
@@ -161,6 +161,20 @@ class MenuController extends Controller
         return response()->json([
             'success' => true,
             'message' => $menu->is_available ? 'Item is now available' : 'Item is unavailable'
+        ]);
+    }
+    public function toggleFeatured(Request $request, Menu $menu)
+    {
+        $this->authorize('update', $menu);
+        
+        // Toggle the status
+        $newState = !$menu->is_featured;
+        $menu->update(['is_featured' => $newState]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $newState ? 'Item marked as Featured' : 'Item removed from Featured',
+            'is_featured' => $newState
         ]);
     }
 
