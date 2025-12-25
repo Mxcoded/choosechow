@@ -2,30 +2,31 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Roles
-        $adminRole = Role::create(['name' => 'admin']);
-        $chefRole = Role::create(['name' => 'chef']);
-        $customerRole = Role::create(['name' => 'customer']);
+        // 1. Roles & Permissions
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $chefRole = Role::firstOrCreate(['name' => 'chef']);
+        $customerRole = Role::firstOrCreate(['name' => 'customer']);
 
-        // 2. Create Permissions
-        Permission::create(['name' => 'manage_platform']);
-        Permission::create(['name' => 'create_menu']);
-        Permission::create(['name' => 'order_food']);
+        Permission::firstOrCreate(['name' => 'manage_platform']);
+        Permission::firstOrCreate(['name' => 'create_menu']);
+        Permission::firstOrCreate(['name' => 'order_food']);
 
-        // 3. Assign Permissions
         $adminRole->givePermissionTo('manage_platform');
         $chefRole->givePermissionTo('create_menu');
         $customerRole->givePermissionTo('order_food');
 
-        // 4. Create the Admin User
-        $this->call(AdminUserSeeder::class); // <--- ADD THIS LINE
+        // 2. Run Taxonomies (NEW)
+        $this->call(TaxonomySeeder::class);
+
+        // 3. Create Admin User
+        $this->call(AdminUserSeeder::class);
     }
 }

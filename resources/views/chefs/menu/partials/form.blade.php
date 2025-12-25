@@ -11,136 +11,99 @@
             <div class="col-md-6">
                 <label for="name" class="form-label">Item Name *</label>
                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" 
-                       value="{{ old('name', $menu->name ?? '') }}" placeholder="e.g., Jollof Rice with Grilled Chicken" required>
+                       value="{{ old('name', $menu->name ?? '') }}" placeholder="e.g., Jollof Rice Special" required>
                 @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-3">
                 <label for="price" class="form-label">Price (₦) *</label>
                 <input type="number" class="form-control @error('price') is-invalid @enderror" id="price" name="price" 
-                       value="{{ old('price', $menu->price ?? '') }}" step="0.01" min="0.01" max="9999999.99" placeholder="2500.00" required>
-                @error('price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                       value="{{ old('price', $menu->price ?? '') }}" step="0.01" min="0" required>
             </div>
             <div class="col-md-3">
-                <label for="discounted_price" class="form-label">Sale Price (₦)</label>
-                <input type="number" class="form-control @error('discounted_price') is-invalid @enderror" id="discounted_price" name="discounted_price" 
-                       value="{{ old('discounted_price', $menu->discounted_price ?? '') }}" step="0.01" min="0.01" max="9999999.99" placeholder="2000.00">
-                @error('discounted_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                <label for="discounted_price" class="form-label">Sale Price (Optional)</label>
+                <input type="number" class="form-control" id="discounted_price" name="discounted_price" 
+                       value="{{ old('discounted_price', $menu->discounted_price ?? '') }}" step="0.01" min="0">
             </div>
         </div>
 
         <div class="mb-4">
             <label for="description" class="form-label">Description *</label>
             <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="4" 
-                      maxlength="2000" placeholder="Describe your dish, its flavors, and what makes it special..." required>{{ old('description', $menu->description ?? '') }}</textarea>
-            @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            <div class="character-counter">
-                <span id="descriptionCount">0</span>/2000 characters
-            </div>
+                      required>{{ old('description', $menu->description ?? '') }}</textarea>
         </div>
     </div>
 
     <div class="form-section">
-        <div class="form-section-title">Category & Details</div>
+        <div class="form-section-title">Categorization</div>
         
+        {{-- Category Dropdown --}}
         <div class="row mb-4">
-            <div class="col-md-4">
-                <label for="category" class="form-label">Category *</label>
-                <select class="form-select @error('category') is-invalid @enderror" id="category" name="category" required>
+            <div class="col-md-6">
+                <label for="category_id" class="form-label">Category *</label>
+                <select class="form-select @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>
                     <option value="">Select Category</option>
-                    @php
-                        $categories = ['appetizer' => 'Appetizer', 'main' => 'Main Course', 'dessert' => 'Dessert', 'beverage' => 'Beverage', 'snack' => 'Snack'];
-                        $selectedCategory = old('category', $menu->category ?? '');
-                    @endphp
-                    @foreach($categories as $value => $label)
-                        <option value="{{ $value }}" {{ $selectedCategory == $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" 
+                            {{ (old('category_id', $menu->category_id ?? '') == $category->id) ? 'selected' : '' }}>
+                            {{ $category->name }}
+                        </option>
                     @endforeach
                 </select>
-                @error('category')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                @error('category_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
-            <div class="col-md-4">
-                <label for="preparation_time_minutes" class="form-label">Prep Time (minutes)</label>
-                <input type="number" class="form-control @error('preparation_time_minutes') is-invalid @enderror" id="preparation_time_minutes" 
-                       name="preparation_time_minutes" value="{{ old('preparation_time_minutes', $menu->preparation_time_minutes ?? '') }}" min="1" max="1440" placeholder="30">
-                @error('preparation_time_minutes')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            
+            <div class="col-md-3">
+                <label class="form-label">Prep Time (Mins)</label>
+                <input type="number" class="form-control" name="preparation_time_minutes" 
+                       value="{{ old('preparation_time_minutes', $menu->preparation_time_minutes ?? 30) }}">
             </div>
-            <div class="col-md-4">
-                <label for="serves_count" class="form-label">Serves *</label>
-                <input type="number" class="form-control @error('serves_count') is-invalid @enderror" id="serves_count" name="serves_count" 
-                       value="{{ old('serves_count', $menu->serves_count ?? 1) }}" min="1" max="50" placeholder="1" required>
-                @error('serves_count')<div class="invalid-feedback">{{ $message }}</div>@enderror
+             <div class="col-md-3">
+                <label class="form-label">Serves (People)</label>
+                <input type="number" class="form-control" name="serves_count" 
+                       value="{{ old('serves_count', $menu->serves_count ?? 1) }}">
             </div>
         </div>
 
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <label for="cuisine_types" class="form-label">Cuisine Types</label>
-                @php
-                    $cuisineTypes = old('cuisine_types', $menu ? (is_array($menu->cuisine_types) ? implode(', ', $menu->cuisine_types) : $menu->cuisine_types) : '');
-                @endphp
-                <input type="text" class="form-control @error('cuisine_types') is-invalid @enderror" id="cuisine_types" name="cuisine_types" 
-                       value="{{ $cuisineTypes }}" placeholder="Nigerian, Continental, Asian">
-                @error('cuisine_types')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                <div class="form-text">Separate multiple cuisines with commas</div>
-            </div>
-            <div class="col-md-6">
-                <label for="dietary_info" class="form-label">Dietary Information</label>
-                @php
-                    $dietaryInfo = old('dietary_info', $menu ? (is_array($menu->dietary_info) ? implode(', ', $menu->dietary_info) : $menu->dietary_info) : '');
-                @endphp
-                <input type="text" class="form-control @error('dietary_info') is-invalid @enderror" id="dietary_info" name="dietary_info" 
-                       value="{{ $dietaryInfo }}" placeholder="Vegetarian, Gluten-Free, Halal">
-                @error('dietary_info')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                <div class="form-text">Separate multiple dietary tags with commas</div>
+        {{-- Cuisines Checkboxes --}}
+        <div class="mb-4">
+            <label class="form-label fw-bold">Cuisines / Ethnicity</label>
+            <div class="card p-3 bg-light border-0">
+                <div class="row">
+                    @foreach($cuisines as $cuisine)
+                        <div class="col-md-4 col-sm-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="cuisine_ids[]" 
+                                       value="{{ $cuisine->id }}" id="cuisine_{{ $cuisine->id }}"
+                                       {{ (is_array(old('cuisine_ids')) && in_array($cuisine->id, old('cuisine_ids'))) || ($menu && $menu->cuisines->contains($cuisine->id)) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="cuisine_{{ $cuisine->id }}">
+                                    {{ $cuisine->name }}
+                                </label>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                @error('cuisine_ids')<div class="text-danger small mt-2">{{ $message }}</div>@enderror
             </div>
         </div>
 
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <label for="spice_level" class="form-label">Spice Level</label>
-                <select class="form-select @error('spice_level') is-invalid @enderror" id="spice_level" name="spice_level">
-                    @php
-                        $spiceLevels = ['' => 'Not Applicable', '0' => 'Mild', '1' => 'Low', '2' => 'Medium', '3' => 'Hot', '4' => 'Very Hot', '5' => 'Extremely Hot'];
-                        $selectedSpice = old('spice_level', $menu->spice_level ?? '');
-                    @endphp
-                    @foreach($spiceLevels as $value => $label)
-                        <option value="{{ $value }}" {{ (string)$selectedSpice === (string)$value ? 'selected' : '' }}>{{ $label }}</option>
+        {{-- Dietary Checkboxes --}}
+        <div class="mb-4">
+            <label class="form-label fw-bold">Dietary Preferences</label>
+            <div class="card p-3 bg-light border-0">
+                <div class="row">
+                    @foreach($dietaries as $dietary)
+                        <div class="col-md-4 col-sm-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="dietary_ids[]" 
+                                       value="{{ $dietary->id }}" id="dietary_{{ $dietary->id }}"
+                                       {{ (is_array(old('dietary_ids')) && in_array($dietary->id, old('dietary_ids'))) || ($menu && $menu->dietaryPreferences->contains($dietary->id)) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="dietary_{{ $dietary->id }}">
+                                    {{ $dietary->name }}
+                                </label>
+                            </div>
+                        </div>
                     @endforeach
-                </select>
-                @error('spice_level')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
-            <div class="col-md-6">
-                <label for="stock_quantity" class="form-label">Stock Quantity</label>
-                <input type="number" class="form-control @error('stock_quantity') is-invalid @enderror" id="stock_quantity" name="stock_quantity" 
-                       value="{{ old('stock_quantity', $menu->stock_quantity ?? '') }}" min="0" placeholder="Leave empty for unlimited">
-                @error('stock_quantity')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                <div class="form-text">Leave empty for unlimited stock</div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="form-section">
-        <div class="form-section-title">Ingredients & Allergens</div>
-        
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <label for="ingredients" class="form-label">Ingredients</label>
-                @php
-                    $ingredients = old('ingredients', $menu ? (is_array($menu->ingredients) ? implode(', ', $menu->ingredients) : $menu->ingredients) : '');
-                @endphp
-                <textarea class="form-control @error('ingredients') is-invalid @enderror" id="ingredients" name="ingredients" rows="3"
-                          placeholder="Rice, chicken, tomatoes, onions, spices">{{ $ingredients }}</textarea>
-                @error('ingredients')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                <div class="form-text">Separate ingredients with commas</div>
-            </div>
-            <div class="col-md-6">
-                <label for="allergens" class="form-label">Allergens</label>
-                @php
-                    $allergens = old('allergens', $menu ? (is_array($menu->allergens) ? implode(', ', $menu->allergens) : $menu->allergens) : '');
-                @endphp
-                <textarea class="form-control @error('allergens') is-invalid @enderror" id="allergens" name="allergens" rows="3"
-                          placeholder="Gluten, dairy, nuts">{{ $allergens }}</textarea>
-                @error('allergens')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                <div class="form-text">Separate allergens with commas</div>
+                </div>
             </div>
         </div>
     </div>
@@ -148,176 +111,30 @@
     <div class="form-section">
         <div class="form-section-title">Images</div>
         
-        @if($menu && $menu->images && count($menu->images) > 0)
-            <div class="mb-3">
-                <label class="form-label">Current Images</label>
-                <div class="current-images">
-                    @foreach($menu->images as $image)
-                        <div class="current-image">
-                            <img src="{{ Storage::url($image) }}" alt="Current image">
-                        </div>
-                    @endforeach
-                </div>
+        @if($menu && $menu->images)
+            <div class="d-flex gap-2 mb-3">
+                @foreach($menu->images as $img)
+                    <img src="{{ asset('storage/' . $img) }}" class="rounded" width="80" height="80" style="object-fit: cover;">
+                @endforeach
             </div>
         @endif
         
-        <div class="mb-4">
-            <label for="images" class="form-label">{{ $menu ? 'Replace Images' : 'Menu Item Images' }}</label>
-            <div class="image-upload-area" onclick="document.getElementById('images').click()">
-                <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
-                <p class="mb-1">Click to upload images or drag and drop</p>
-                <small class="text-muted">Upload up to 5 images (JPEG, PNG, WebP, max 2MB each)</small>
-                @if($menu)
-                    <small class="d-block text-warning">Uploading new images will replace all current images</small>
-                @endif
-            </div>
-            <input type="file" class="form-control d-none @error('images.*') is-invalid @enderror" id="images" name="images[]" 
-                   multiple accept="image/jpeg,image/png,image/jpg,image/webp">
-            @error('images.*')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            <div id="imagePreview" class="current-images"></div>
-        </div>
+        <input type="file" class="form-control" name="images[]" multiple accept="image/*">
+        <div class="form-text">Upload up to 5 images. First image will be the cover.</div>
     </div>
 
     <div class="form-section">
-        <div class="form-section-title">Daily Availability Schedule 📅</div>
-        <p class="form-text mb-3">Check a day to make this item available and set its daily hours.</p>
-        
-        <div id="availabilityScheduleInputs" class="schedule-grid">
-            @php
-                $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-                // Use old data first, then existing menu data, then set a default structure
-                $currentSchedule = old('availability_schedule', $menu->availability_schedule ?? []);
-            @endphp
-            
-            @foreach($days as $day)
-                @php
-                    // Get data for the current day
-                    $dayData = $currentSchedule[$day] ?? [];
-                    // Check if available (true, 1, or just key existence if old/menu data had it)
-                    $isChecked = $dayData['available'] ?? (isset($currentSchedule[$day]) && !empty($dayData));
-                    $startTime = $dayData['start_time'] ?? '09:00';
-                    $endTime = $dayData['end_time'] ?? '17:00';
-                    $isDisabled = !$isChecked ? 'disabled' : '';
-                @endphp
-                
-                <div class="schedule-day row mb-2 align-items-center border-bottom pb-2">
-                    <div class="col-3">
-                        <div class="form-check">
-                            <input class="form-check-input schedule-toggle" type="checkbox" id="{{ $day }}_available" name="availability_schedule[{{ $day }}][available]" value="1" {{ $isChecked ? 'checked' : '' }}>
-                            <label class="form-check-label" for="{{ $day }}_available">
-                                {{ ucfirst($day) }}
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <input type="time" class="form-control @error("availability_schedule.$day.start_time") is-invalid @enderror" name="availability_schedule[{{ $day }}][start_time]" value="{{ $startTime }}" {{ $isDisabled }}>
-                    </div>
-                    <div class="col-1 text-center">-</div>
-                    <div class="col-4">
-                        <input type="time" class="form-control @error("availability_schedule.$day.end_time") is-invalid @enderror" name="availability_schedule[{{ $day }}][end_time]" value="{{ $endTime }}" {{ $isDisabled }}>
-                    </div>
-                    @error("availability_schedule.$day.*")<div class="text-danger small mt-1">Please ensure start time is before end time.</div>@enderror
-                </div>
-            @endforeach
+        <div class="form-section-title">Availability</div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="is_available" name="is_available" value="1"
+                   {{ old('is_available', $menu->is_available ?? true) ? 'checked' : '' }}>
+            <label class="form-check-label" for="is_available">Available for ordering now</label>
         </div>
     </div>
+
+    <hr class="my-4">
     
-    <div class="form-section">
-        <div class="form-section-title">Nutritional Information 💪 (Add Nutrients)</div>
-        <p class="form-text mb-3">Enter nutrient details (e.g., Calories: 450, Protein: 35g). Use the button to add more rows.</p>
-        
-        <div id="nutritionalInfoContainer">
-            @php
-                $nutritionalInfo = old('nutritional_info', $menu->nutritional_info ?? []);
-                // If there's old data (validation failed) use it directly, otherwise use menu data
-                if (empty($nutritionalInfo) && $menu && is_array($menu->nutritional_info)) {
-                    $nutritionalInfo = $menu->nutritional_info;
-                }
-                
-                $dataExists = !empty($nutritionalInfo);
-            @endphp
-
-            @if ($dataExists)
-                @foreach($nutritionalInfo as $key => $value)
-                    <div class="row mb-2 nutritional-row">
-                        <div class="col-5">
-                            <input type="text" class="form-control" name="nutritional_info_key[]" placeholder="e.g., Calories" value="{{ is_array(old('nutritional_info_key')) ? old('nutritional_info_key')[$loop->index] : $key }}">
-                        </div>
-                        <div class="col-5">
-                            <input type="text" class="form-control" name="nutritional_info_value[]" placeholder="e.g., 450" value="{{ is_array(old('nutritional_info_value')) ? old('nutritional_info_value')[$loop->index] : $value }}">
-                        </div>
-                        <div class="col-2 d-flex align-items-center">
-                            <button type="button" class="btn btn-sm btn-danger remove-nutrient">X</button>
-                        </div>
-                    </div>
-                @endforeach
-            @else
-                <div class="row mb-2 nutritional-row">
-                    <div class="col-5"><input type="text" class="form-control" name="nutritional_info_key[]" placeholder="e.g., Calories" value=""></div>
-                    <div class="col-5"><input type="text" class="form-control" name="nutritional_info_value[]" placeholder="e.g., 450" value=""></div>
-                    <div class="col-2 d-flex align-items-center"><button type="button" class="btn btn-sm btn-danger remove-nutrient">X</button></div>
-                </div>
-            @endif
-        </div>
-        <button type="button" id="addNutrientButton" class="btn btn-sm btn-outline-primary mt-2">
-            <i class="fas fa-plus me-1"></i> Add Nutrient
-        </button>
-    </div>
-    
-    <div class="form-section">
-        <div class="form-section-title">Preparation Details</div>
-        
-        <div class="mb-4">
-            <label for="cooking_instructions" class="form-label">Cooking Instructions</label>
-            <textarea class="form-control @error('cooking_instructions') is-invalid @enderror" id="cooking_instructions" name="cooking_instructions" rows="4"
-                      placeholder="Detailed steps for cooking or preparation...">{{ old('cooking_instructions', $menu->cooking_instructions ?? '') }}</textarea>
-            @error('cooking_instructions')<div class="invalid-feedback">{{ $message }}</div>@enderror
-        </div>
-
-        <div class="mb-4">
-            <label for="storage_instructions" class="form-label">Storage Instructions</label>
-            <textarea class="form-control @error('storage_instructions') is-invalid @enderror" id="storage_instructions" name="storage_instructions" rows="3"
-                      placeholder="How should the customer store the item?">{{ old('storage_instructions', $menu->storage_instructions ?? '') }}</textarea>
-            @error('storage_instructions')<div class="invalid-feedback">{{ $message }}</div>@enderror
-        </div>
-    </div>
-
-
-    <div class="form-section">
-        <div class="form-section-title">Options</div>
-        
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="is_available" 
-                           name="is_available" {{ old('is_available', $menu->is_available ?? true) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="is_available">
-                        Available for ordering
-                    </label>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="is_featured" 
-                           name="is_featured" {{ old('is_featured', $menu->is_featured ?? false) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="is_featured">
-                        Featured item
-                    </label>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <label for="featured_until" class="form-label">Featured Until</label>
-                <input type="date" class="form-control @error('featured_until') is-invalid @enderror" id="featured_until" name="featured_until"
-                       value="{{ old('featured_until', $menu && $menu->featured_until ? $menu->featured_until->format('Y-m-d') : '') }}">
-                @error('featured_until')<div class="invalid-feedback">{{ $message }}</div>@enderror
-            </div>
-        </div>
-    </div>
-
-    <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save me-2"></i>{{ $menu ? 'Update' : 'Create' }} Menu Item
-        </button>
-        <a href="{{ route('chef.menus') }}" class="btn btn-outline-secondary">Cancel</a>
-    </div>
+    <button type="submit" class="btn btn-primary btn-lg">
+        <i class="fas fa-save me-2"></i>{{ $menu ? 'Update Menu Item' : 'Create Menu Item' }}
+    </button>
 </form>
