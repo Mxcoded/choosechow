@@ -24,11 +24,21 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            // FIXED: Split name into first and last
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
+
             'email' => fake()->unique()->safeEmail(),
+
+            // ADDED: Phone is required in your migration
+            'phone' => fake()->unique()->phoneNumber(),
+
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+
+            // ADDED: Default to active so tests don't get blocked by 'pending' status
+            'status' => 'active',
         ];
     }
 
@@ -37,7 +47,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }
