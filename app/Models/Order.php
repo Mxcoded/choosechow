@@ -16,7 +16,7 @@ class Order extends Model
         'order_number',
         'customer_id',
         'chef_id',
-        'status', // pending, confirmed, preparing, ready, out_for_delivery, delivered, cancelled
+        'status',
         'subtotal',
         'delivery_fee',
         'service_fee',
@@ -25,7 +25,7 @@ class Order extends Model
         'payment_method',
         'payment_status',
         'payment_reference',
-        'delivery_address', // JSON
+        'delivery_address',
         'special_instructions',
         'estimated_delivery_time',
         'confirmed_at',
@@ -33,15 +33,23 @@ class Order extends Model
         'delivered_at',
         'cancelled_at',
         'cancellation_reason',
+        'cancelled_by',
+        'metadata',
     ];
 
     protected $casts = [
         'delivery_address' => 'array',
+        'metadata' => 'array',
         'estimated_delivery_time' => 'datetime',
         'confirmed_at' => 'datetime',
         'prepared_at' => 'datetime',
         'delivered_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'subtotal' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'delivery_fee' => 'decimal:2',
+        'service_fee' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
     ];
 
     // --- RELATIONSHIPS ---
@@ -61,7 +69,42 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    // --- HELPERS ---
+    // Optional: If you track payments in a separate table
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    // --- HELPERS (Required by Controller/View) ---
+
+    public function confirm()
+    {
+        $this->update([
+            'status' => 'confirmed',
+            'confirmed_at' => now(),
+        ]);
+    }
+
+    public function markAsDelivered()
+    {
+        $this->update([
+            'status' => 'delivered',
+            'delivered_at' => now(),
+            'payment_status' => 'paid', // Assume cash on delivery is paid now, or verify online payment
+        ]);
+    }
+
+    public function getChefEarnings()
+    {
+        // Logic: Chef gets Subtotal - Platform Fees (if any). 
+        // For now, let's return Subtotal. 
+        return $this->subtotal;
+    }
+
+    public function isPaid()
+    {
+        return $this->payment_status === 'paid';
+    }
 
     public function getStatusColorAttribute(): string
     {

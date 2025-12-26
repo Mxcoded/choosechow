@@ -4,42 +4,45 @@
 
 @section('content')
 <div class="dashboard-container">
-    <div class="dashboard-header">
+    <div class="dashboard-header mb-4">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="dashboard-title">Order Management 📝</h1>
-                <p class="dashboard-subtitle">Track and update the status of all customer orders</p>
+                <h1 class="dashboard-title h2 fw-bold text-dark">Order Management 📝</h1>
+                <p class="text-muted">Track and update the status of all customer orders</p>
             </div>
-            <div class="col-md-4 text-end">
-                <a href="{{ route('chef.menus') }}" class="btn btn-outline-secondary">
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{{ route('chef.menus.index') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-utensils me-2"></i>Manage Menus
                 </a>
             </div>
         </div>
     </div>
 
-    <div class="row mb-4">
+    <div class="row g-3 mb-4">
         @php
             $cardStatuses = [
                 'pending' => ['label' => 'New Orders', 'icon' => 'fas fa-bell', 'color' => 'danger'],
                 'confirmed' => ['label' => 'Confirmed', 'icon' => 'fas fa-check-double', 'color' => 'warning'],
                 'preparing' => ['label' => 'Preparing', 'icon' => 'fas fa-fire-alt', 'color' => 'info'],
                 'delivered' => ['label' => 'Delivered', 'icon' => 'fas fa-truck-loading', 'color' => 'success'],
-                'all' => ['label' => 'Total Orders', 'icon' => 'fas fa-shopping-bag', 'color' => 'primary'],
+                'all' => ['label' => 'All Orders', 'icon' => 'fas fa-list', 'color' => 'secondary'],
             ];
         @endphp
 
         @foreach($cardStatuses as $key => $card)
-            <div class="col-lg-2-4 col-md-6 mb-3"> {{-- Use col-lg-2-4 for a nice 5-column layout --}}
-                <a href="{{ route('chef.orders', ['status' => $key]) }}" class="text-decoration-none">
-                    <div class="dashboard-card stat-card {{ $status == $key ? 'border-' . $card['color'] . ' border-3 shadow' : '' }}">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h3 class="stat-number mb-0 text-{{ $card['color'] }}">{{ $stats[$key] ?? 0 }}</h3>
-                                <p class="stat-label mb-0">{{ $card['label'] }}</p>
-                            </div>
-                            <div class="stat-icon bg-{{ $card['color'] }} opacity-75">
-                                <i class="{{ $card['icon'] }}"></i>
+            <div class="col">
+                {{-- ROUTE FIX: chef.orders.index --}}
+                <a href="{{ route('chef.orders.index', ['status' => $key]) }}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 {{ $status == $key ? 'ring-2 ring-primary' : '' }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0 fw-bold text-{{ $card['color'] }}">{{ $stats[$key] ?? 0 }}</h3>
+                                    <small class="text-muted">{{ $card['label'] }}</small>
+                                </div>
+                                <div class="bg-{{ $card['color'] }} bg-opacity-10 text-{{ $card['color'] }} rounded-circle p-3">
+                                    <i class="{{ $card['icon'] }}"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -48,109 +51,66 @@
         @endforeach
     </div>
 
-    <div class="dashboard-card">
-        <div class="card-header">
-            <h5 class="card-title">
-                {{ $cardStatuses[$status]['label'] ?? 'Order List' }}
-                <span class="badge bg-secondary ms-2">{{ $stats[$status] ?? 0 }}</span>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="card-title mb-0 fw-bold">
+                {{ $cardStatuses[$status]['label'] ?? 'Orders' }}
             </h5>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                @if($orders->count() > 0)
-                    <table class="table table-hover align-middle">
-                        <thead>
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Order #</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($orders as $order)
                             <tr>
-                                <th>Order #</th>
-                                <th>Customer</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                                <td class="ps-4 fw-bold">#{{ $order->order_number }}</td>
+                                <td>{{ $order->customer->full_name ?? $order->customer->first_name }}</td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ $order->items->count() }} items</span>
+                                </td>
+                                <td class="fw-bold">₦{{ number_format($order->total_amount) }}</td>
+                                <td>
+                                    <span class="badge bg-{{ $order->status_color }} text-uppercase">
+                                        {{ str_replace('_', ' ', $order->status) }}
+                                    </span>
+                                </td>
+                                <td class="text-muted small">
+                                    {{ $order->created_at->format('M d, H:i') }}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a href="{{ route('chef.orders.show', $order) }}" class="btn btn-sm btn-outline-primary">
+                                        View
+                                    </a>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($orders as $order)
-                                <tr>
-                                    <td class="fw-bold">{{ $order->order_number }}</td>
-                                    <td>{{ $order->customer->name }}</td>
-                                    <td>{{ $order->items->count() }} item(s)</td>
-                                    <td>&#8358;{{ number_format($order->total_amount, 2) }}</td>
-                                    <td>
-                                        {{-- NOTE: This assumes Order model has getStatusColorAttribute implemented --}}
-                                        <span class="badge bg-{{ $order->status_color }}">
-                                            {{ ucfirst($order->status) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('chef.orders.show', $order) }}" class="btn btn-sm btn-outline-primary">
-                                            View Details
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <div class="text-center py-5 text-muted">
-                        <i class="fas fa-box-open fa-3x mb-3"></i>
-                        <p>No {{ strtolower($cardStatuses[$status]['label'] ?? 'orders') }} found.</p>
-                    </div>
-                @endif
-            </div>
-
-            <div class="d-flex justify-content-center">
-                {{ $orders->links() }}
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="fas fa-clipboard-list fa-3x mb-3 opacity-25"></i>
+                                    <p>No orders found.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
+        @if($orders->hasPages())
+            <div class="card-footer bg-white">
+                {{ $orders->links() }}
+            </div>
+        @endif
     </div>
 </div>
-
-<style>
-/* Add Custom Styles to support the 5-column layout and card consistency */
-
-/* Custom class to simulate col-2.4 (5 equal columns in a 12-column grid) */
-@media (min-width: 992px) {
-    .col-lg-2-4 {
-        width: 20%; 
-        flex: 0 0 auto;
-        padding-right: var(--bs-gutter-x, 0.75rem);
-        padding-left: var(--bs-gutter-x, 0.75rem);
-    }
-}
-
-/* Base Stat Card Style (consistent with dashboard structure) */
-.dashboard-card.stat-card {
-    transition: all 0.2s ease-in-out;
-    padding: 10px;
-    min-height: 95px;
-}
-
-.dashboard-card.stat-card:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-
-.dashboard-card.stat-card .stat-number {
-    font-size: 1.8rem;
-    font-weight: bold;
-    line-height: 1.2;
-}
-
-.dashboard-card.stat-card .stat-label {
-    font-size: 0.9rem;
-    color: #6c757d;
-}
-
-.dashboard-card.stat-card .stat-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.3rem;
-    /* Opacity is set in the template for better color blending */
-}
-</style>
 @endsection

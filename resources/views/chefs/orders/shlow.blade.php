@@ -1,229 +1,192 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Order Details #' . $order->order_number)
+@section('title', 'Order #' . $order->order_number)
 
 @section('content')
 <div class="dashboard-container">
-    <div class="dashboard-header">
+    <div class="dashboard-header mb-4">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="dashboard-title">Order #{{ $order->order_number }} Details </h1>
-                <p class="dashboard-subtitle">Status: 
-                    <span class="badge fs-6 bg-{{ $order->status_color }}">{{ ucfirst($order->status) }}</span>
-                    @if($order->payment_status !== 'paid')
-                        <span class="badge bg-danger ms-2">{{ ucfirst($order->payment_status) }}</span>
-                    @endif
+                <div class="d-flex align-items-center gap-3">
+                    <h1 class="h2 fw-bold text-dark mb-0">Order #{{ $order->order_number }}</h1>
+                    <span class="badge bg-{{ $order->status_color }} fs-6 rounded-pill">
+                        {{ ucfirst(str_replace('_', ' ', $order->status)) }}
+                    </span>
+                </div>
+                <p class="text-muted mt-2 mb-0">
+                    Placed on {{ $order->created_at->format('F j, Y \a\t g:i A') }} by {{ $order->customer->name }}
                 </p>
             </div>
-            <div class="col-md-4 text-end">
-                <a href="{{ route('chef.orders', ['status' => 'pending']) }}" class="btn btn-outline-secondary">
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                {{-- ROUTE FIX: chef.orders.index --}}
+                <a href="{{ route('chef.orders.index') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Orders
                 </a>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row g-4">
+        {{-- Left Column: Actions & Items --}}
         <div class="col-lg-8">
-            <div class="dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title">Update Status</h5>
-                </div>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold">Update Status</h5></div>
                 <div class="card-body">
-                    <p class="text-muted small mb-3">Move the order to the next stage after completing a step.</p>
-                    
-                    <div class="d-flex gap-2 justify-content-start">
+                    <div class="d-flex flex-wrap gap-2">
                         @php
-                            $nextStatuses = match($order->status) {
-                                'pending' => ['confirmed' => 'Confirm Order'],
-                                'confirmed' => ['preparing' => 'Start Preparation'],
-                                'preparing' => ['ready' => 'Mark as Ready'],
-                                'ready' => ['out_for_delivery' => 'Out for Delivery'],
-                                'out_for_delivery' => ['delivered' => 'Mark as Delivered'],
-                                default => []
-                            };
+                            $transitions = [
+                                'pending' => ['confirmed' => ['Confirm Order', 'btn-primary']],
+                                'confirmed' => ['preparing' => ['Start Preparation', 'btn-info text-white']],
+                                'preparing' => ['ready' => ['Mark Ready', 'btn-primary']],
+                                'ready' => ['out_for_delivery' => ['Out for Delivery', 'btn-warning text-dark']],
+                                'out_for_delivery' => ['delivered' => ['Mark Delivered', 'btn-success']],
+                            ];
+                            $actions = $transitions[$order->status] ?? [];
                         @endphp
 
-                        @foreach($nextStatuses as $key => $label)
-                            <button type="button" class="btn btn-{{ $key === 'delivered' ? 'success' : 'primary' }}" 
-                                    onclick="updateOrderStatus('{{ $key }}', '{{ $label }}')">
-                                <i class="fas fa-sync-alt me-2"></i>{{ $label }}
+                        @foreach($actions as $status => $details)
+                            <button class="btn {{ $details[1] }} btn-lg" onclick="updateStatus('{{ $status }}', '{{ $details[0] }}')">
+                                {{ $details[0] }}
                             </button>
                         @endforeach
 
-                        @if($order->status !== 'cancelled' && $order->status !== 'delivered')
-                            <button type="button" class="btn btn-outline-danger" onclick="showCancelModal()">
-                                <i class="fas fa-times me-2"></i>Cancel
+                        @if(!in_array($order->status, ['delivered', 'cancelled', 'refunded']))
+                            <button class="btn btn-outline-danger btn-lg ms-auto" onclick="alert('Cancellation requires admin approval or customer request.')">
+                                Cancel Order
                             </button>
+                        @endif
+                        
+                        @if(empty($actions) && $order->status === 'delivered')
+                            <div class="alert alert-success w-100 mb-0">
+                                <i class="fas fa-check-circle me-2"></i> This order has been completed.
+                            </div>
                         @endif
                     </div>
                 </div>
             </div>
-            
-            <div class="dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title">Items ({{ $order->items->count() }})</h5>
-                </div>
-                <div class="card-body">
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold">Order Items</h5></div>
+                <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @foreach($order->items as $item)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-0">{{ $item->menu_name }} (x{{ $item->quantity }})</h6>
-                                    <small class="text-muted">{{ $item->menu->cuisine_types[0] ?? '' }}</small>
-                                    @if($item->customizations)
-                                        <p class="small text-warning mb-0 mt-1">
-                                            <i class="fas fa-tools me-1"></i>Customized
-                                        </p>
-                                    @endif
+                            <li class="list-group-item p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="d-flex gap-3">
+                                        <div class="bg-light rounded p-2 text-center" style="width: 50px; height: 50px;">
+                                            <span class="fw-bold text-muted">x{{ $item->quantity }}</span>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold">{{ $item->menu_name }}</h6>
+                                            {{-- Safe check for deleted menu --}}
+                                            <small class="text-muted">{{ $item->menu ? $item->menu->category->name : 'Item Removed' }}</small>
+                                            
+                                            @if(!empty($item->customizations))
+                                                <div class="mt-1 p-2 bg-light rounded small text-secondary">
+                                                    <strong>Note:</strong> {{ json_encode($item->customizations) }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="fw-bold">₦{{ number_format($item->total_price) }}</div>
                                 </div>
-                                <span class="fw-bold">₦{{ number_format($item->total_price, 2) }}</span>
                             </li>
                         @endforeach
                     </ul>
                 </div>
             </div>
-
+            
             @if($order->special_instructions)
-                <div class="dashboard-card mb-4">
-                    <div class="card-header">
-                        <h5 class="card-title text-warning"><i class="fas fa-exclamation-triangle me-2"></i>Special Instructions</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-0">{{ $order->special_instructions }}</p>
-                    </div>
+                <div class="alert alert-warning border-0 shadow-sm">
+                    <h6 class="fw-bold"><i class="fas fa-comment-alt me-2"></i>Customer Instructions</h6>
+                    <p class="mb-0">{{ $order->special_instructions }}</p>
                 </div>
             @endif
         </div>
 
+        {{-- Right Column: Summary --}}
         <div class="col-lg-4">
-            <div class="dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title">Financial Summary</h5>
-                </div>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold">Customer Details</h5></div>
                 <div class="card-body">
-                    <ul class="list-unstyled fw-medium">
-                        <li class="d-flex justify-content-between mb-1">
-                            <span>Subtotal:</span>
-                            <span>₦{{ number_format($order->subtotal, 2) }}</span>
-                        </li>
-                        <li class="d-flex justify-content-between mb-1">
-                            <span>Delivery Fee:</span>
-                            <span>₦{{ number_format($order->delivery_fee, 2) }}</span>
-                        </li>
-                        <li class="d-flex justify-content-between mb-1">
-                            <span>Service Fee:</span>
-                            <span>₦{{ number_format($order->service_fee, 2) }}</span>
-                        </li>
-                        @if($order->discount_amount > 0)
-                        <li class="d-flex justify-content-between mb-1 text-danger">
-                            <span>Discount:</span>
-                            <span>-₦{{ number_format($order->discount_amount, 2) }}</span>
-                        </li>
-                        @endif
-                        <li class="d-flex justify-content-between fw-bold pt-2 border-top mt-2">
-                            <span>Total Payable:</span>
-                            <span>₦{{ number_format($order->total_amount, 2) }}</span>
-                        </li>
-                        <li class="d-flex justify-content-between pt-2 border-top mt-2">
-                            <span>Your Net Earning:</span>
-                            <span class="text-success">₦{{ number_format($order->getChefEarnings(), 2) }}</span>
-                        </li>
-                    </ul>
-                    <p class="small mt-3 mb-0">
-                        Payment: <strong>{{ ucfirst($order->payment_method) }}</strong>, 
-                        Status: <span class="badge bg-{{ $order->isPaid() ? 'success' : 'danger' }}">{{ ucfirst($order->payment_status) }}</span>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ $order->customer->name }}</h6>
+                            <small class="text-muted">{{ $order->customer->phone }}</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6 class="small text-uppercase text-muted fw-bold">Delivery Address</h6>
+                    <p class="mb-0 small">
+                        {{ $order->delivery_address['street'] ?? 'N/A' }}<br>
+                        {{ $order->delivery_address['city'] ?? '' }}
                     </p>
                 </div>
             </div>
 
-            <div class="dashboard-card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title">Customer & Delivery</h5>
-                </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold">Payment Summary</h5></div>
                 <div class="card-body">
-                    <p class="mb-1"><strong>Customer:</strong> {{ $order->customer->name }}</p>
-                    <p class="mb-1"><strong>Phone:</strong> {{ $order->customer->phone ?? 'N/A' }}</p>
-                    <p class="mb-1"><strong>Address:</strong></p>
-                    <p class="small text-muted ps-2">
-                        {{ $order->delivery_address['street'] ?? 'N/A' }}, 
-                        {{ $order->delivery_address['city'] ?? 'N/A' }}, 
-                        {{ $order->delivery_address['state'] ?? 'N/A' }}
-                    </p>
-                    @if($order->estimated_delivery_time)
-                        <p class="mt-3 mb-0">
-                            <i class="fas fa-clock me-1"></i>Est. Delivery: {{ $order->estimated_delivery_time->format('h:i A, D') }}
-                        </p>
-                    @endif
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span>₦{{ number_format($order->subtotal) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Service Fee</span>
+                        <span>₦{{ number_format($order->service_fee) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Discount</span>
+                        <span class="text-danger">-₦{{ number_format($order->discount_amount) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-top pt-3 mb-4">
+                        <span class="fw-bold h5 mb-0">Total</span>
+                        <span class="fw-bold h5 mb-0 text-primary">₦{{ number_format($order->total_amount) }}</span>
+                    </div>
+
+                    <div class="bg-light p-3 rounded">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold">Payment Status</span>
+                            <span class="badge bg-{{ $order->isPaid() ? 'success' : 'warning' }}">
+                                {{ ucfirst($order->payment_status) }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small text-muted">Method</span>
+                            <span class="small fw-bold text-uppercase">{{ $order->payment_method }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="statusUpdateModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="statusUpdateModalLabel">Confirm Status Update</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="statusUpdateModalBody">
-                Are you sure you want to change the order status to <strong id="newStatusLabel"></strong>?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="confirmStatusChange">Confirm</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section('scripts')
+{{-- Status Update Script --}}
 <script>
-    // Global variable to hold the new status key
-    let targetStatusKey = '';
-
-    function updateOrderStatus(newStatus, label) {
-        targetStatusKey = newStatus;
-        document.getElementById('newStatusLabel').textContent = label;
-        const modal = new bootstrap.Modal(document.getElementById('statusUpdateModal'));
-        modal.show();
-    }
-
-    document.getElementById('confirmStatusChange').addEventListener('click', function() {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('statusUpdateModal'));
-        modal.hide();
+    function updateStatus(status, label) {
+        if(!confirm(`Are you sure you want to change status to: ${label}?`)) return;
 
         fetch(`{{ route('chef.orders.update-status', $order) }}`, {
             method: 'PATCH',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify({
-                status: targetStatusKey
-            })
+            body: JSON.stringify({ status: status })
         })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                alert(data.message);
-                location.reload(); // Reload to see the new status and next available actions
+            if(data.success) {
+                location.reload();
             } else {
-                alert('Update failed: ' + (data.message || 'Unknown error.'));
+                alert('Error: ' + data.message);
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An unexpected error occurred during update.');
-        });
-    });
-
-    function showCancelModal() {
-        // A placeholder for a future modal that collects a cancellation reason
-        alert('Cancellation logic needs a dedicated modal to collect the reason.');
+        .catch(err => alert('Something went wrong.'));
     }
 </script>
 @endsection
