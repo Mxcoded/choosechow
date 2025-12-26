@@ -4,6 +4,15 @@
         <input type="text" name="business_name" class="form-control" value="{{ old('business_name', $profile->business_name) }}" required>
     </div>
 
+    {{-- ADDED: Kitchen Address (Required by DB) --}}
+    <div class="col-md-12">
+        <label class="form-label">Kitchen Address *</label>
+        <input type="text" name="kitchen_address" class="form-control" 
+               value="{{ old('kitchen_address', $profile->kitchen_address) }}" 
+               placeholder="Full address where meals are prepared" required>
+        <div class="form-text text-muted">This is used to calculate delivery zones.</div>
+    </div>
+
     <div class="col-md-6">
         <label class="form-label">First Name</label>
         <input type="text" name="first_name" class="form-control" value="{{ old('first_name', $chef->first_name) }}" required>

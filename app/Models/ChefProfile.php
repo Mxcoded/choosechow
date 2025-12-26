@@ -75,4 +75,20 @@ class ChefProfile extends Model
         $now = now()->format('H:i');
         return $now >= $schedule['open'] && $now <= $schedule['close'];
     }
+    /**
+     * Check if the chef profile is verified.
+     * * @return bool
+     */
+    public function isVerified()
+    {
+        return $this->verification_status === 'verified';
+    }
+
+    /**
+     * Helper to check if accepting orders (maps to is_online column)
+     */
+    public function isAcceptingOrders()
+    {
+        return (bool) $this->is_online;
+    }
 }

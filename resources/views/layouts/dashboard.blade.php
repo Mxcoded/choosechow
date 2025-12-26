@@ -14,10 +14,10 @@
     <style>
         /* === FOOD PSYCHOLOGY THEME (Red/Warm) === */
         :root {
-            --primary-color: #DC143C;  /* Crimson: Stimulates appetite */
+            --primary-color: #DC143C;  /* Crimson */
             --primary-hover: #b90e30;
-            --secondary-color: #F75270; /* Soft Red/Pink */
-            --accent-color: #FFF5E6;   /* Warm Beige Background */
+            --secondary-color: #F75270;
+            --accent-color: #FFF5E6;   /* Warm Beige */
             --text-dark: #2D3436;
             --text-muted: #636e72;
             --sidebar-width: 260px;
@@ -27,7 +27,7 @@
             background-color: var(--accent-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text-dark);
-            overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+            overflow-x: hidden;
         }
 
         /* === SIDEBAR === */
@@ -68,7 +68,8 @@
             overflow-y: auto;
         }
 
-        .nav-link {
+        /* FIXED: Scoped these styles to .sidebar-nav only */
+        .sidebar-nav .nav-link {
             color: rgba(255,255,255,0.85);
             padding: 0.85rem 1.5rem;
             font-weight: 500;
@@ -79,24 +80,41 @@
             border-left: 4px solid transparent;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .sidebar-nav .nav-link:hover, 
+        .sidebar-nav .nav-link.active {
             background: rgba(255,255,255,0.15);
             color: white;
             border-left-color: #fff;
         }
 
-        .nav-link i {
+        .sidebar-nav .nav-link i {
             width: 25px;
             font-size: 1.1rem;
             margin-right: 10px;
             text-align: center;
         }
 
-        /* Logout Section at Bottom */
+        /* Logout Section */
         .sidebar-footer {
             padding: 1rem;
             border-top: 1px solid rgba(255,255,255,0.1);
             background: rgba(0,0,0,0.1);
+        }
+        
+        /* Logout Link Style */
+        .sidebar-footer .nav-link {
+            color: rgba(255,255,255,0.9);
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+        .sidebar-footer .nav-link:hover {
+            color: white;
+        }
+        .sidebar-footer .nav-link i {
+            margin-right: 10px;
         }
 
         /* === MAIN CONTENT === */
@@ -108,20 +126,18 @@
             flex-direction: column;
         }
 
-        /* Top Bar */
         .topbar {
             background: white;
             padding: 1rem 2rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             display: flex;
-            justify-content: space-between; /* Space between Toggle and User Info */
+            justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1030;
         }
 
-        /* User Profile in Topbar */
         .user-dropdown {
             display: flex;
             align-items: center;
@@ -137,19 +153,27 @@
             padding: 2px;
         }
 
+        /* === CUSTOM TABS STYLING (Fix for Profile Page) === */
+        .nav-tabs .nav-link {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link:hover {
+            color: var(--primary-color);
+            border-color: transparent;
+        }
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color) !important; /* Force Red */
+            font-weight: bold;
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+
         /* === MOBILE RESPONSIVENESS === */
         @media (max-width: 991px) {
-            .sidebar {
-                transform: translateX(-100%); /* Hide Sidebar by default */
-            }
-            .sidebar.show {
-                transform: translateX(0); /* Slide in */
-            }
-            .main-content {
-                margin-left: 0; /* Full width content */
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; }
             
-            /* Overlay when sidebar is open */
             .sidebar-overlay {
                 display: none;
                 position: fixed;
@@ -157,12 +181,10 @@
                 background: rgba(0,0,0,0.5);
                 z-index: 1035;
             }
-            .sidebar-overlay.show {
-                display: block;
-            }
+            .sidebar-overlay.show { display: block; }
         }
 
-        /* Buttons & Cards Theme Override */
+        /* Buttons & Overrides */
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
@@ -172,8 +194,7 @@
             border-color: var(--primary-hover);
         }
         .text-primary { color: var(--primary-color) !important; }
-        .bg-primary { background-color: var(--primary-color) !important; }
-
+        
         @yield('styles')
     </style>
 </head>
@@ -196,10 +217,12 @@
                     </a>
                 </li>
 
+                {{-- ADMIN LINKS --}}
                 @if(Auth::user()->hasRole('admin'))
                     <li class="nav-item"><a href="{{ route('admin.users') }}" class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}"><i class="fas fa-users"></i> Users</a></li>
                     <li class="nav-item"><a href="{{ route('admin.orders') }}" class="nav-link {{ request()->routeIs('admin.orders*') ? 'active' : '' }}"><i class="fas fa-receipt"></i> Orders</a></li>
                 
+                {{-- CHEF LINKS --}}
                 @elseif(Auth::user()->hasRole('chef'))
                     <li class="nav-item">
                         <a href="{{ route('chef.menus.index') }}" class="nav-link {{ request()->routeIs('chef.menus*') ? 'active' : '' }}">
@@ -213,10 +236,11 @@
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('chef.profile') }}" class="nav-link {{ request()->routeIs('chef.profile*') ? 'active' : '' }}">
-                            <i class="fas fa-user-chef"></i> Profile
+                            <i class="fas fa-user-circle"></i> Store Profile
                         </a>
                     </li>
 
+                {{-- CUSTOMER LINKS --}}
                 @else
                     <li class="nav-item"><a href="{{ route('chefs.index') }}" class="nav-link"><i class="fas fa-search"></i> Find Food</a></li>
                     <li class="nav-item"><a href="{{ route('customer.orders') }}" class="nav-link"><i class="fas fa-shopping-bag"></i> My Orders</a></li>
@@ -225,7 +249,7 @@
         </nav>
 
         <div class="sidebar-footer">
-            <a href="{{ route('logout') }}" class="nav-link text-white"
+            <a href="{{ route('logout') }}" class="nav-link"
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
@@ -238,7 +262,7 @@
                 <i class="fas fa-bars fa-lg"></i>
             </button>
 
-            <h5 class="m-0 d-none d-lg-block fw-bold text-muted">@yield('page_title', '')</h5>
+            <h5 class="m-0 d-none d-lg-block fw-bold text-muted">@yield('page_title')</h5>
 
             <div class="dropdown">
                 <div class="user-dropdown" data-bs-toggle="dropdown">
@@ -267,13 +291,10 @@
         </div>
     </div>
 
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-        @csrf
-    </form>
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Mobile Sidebar Logic
         const toggleBtn = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
