@@ -7,8 +7,6 @@ use App\Models\ChefProfile;
 use App\Models\User;
 use App\Models\Cuisine;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Order;
 
 class CustomerController extends Controller
 {
@@ -72,42 +70,6 @@ class CustomerController extends Controller
      */
     public function dashboard()
     {
-        $user = Auth::user();
-
-        // 1. Calculate Stats
-        $stats = [
-            'total_orders' => Order::where('customer_id', $user->id)->count(),
-            'total_spent' => Order::where('customer_id', $user->id)
-                ->whereIn('payment_status', ['paid', 'completed'])
-                ->sum('total_amount'),
-            // Assuming you have a favorites relationship set up
-            'favorite_chefs' => $user->favorites()->where('favoritable_type', 'App\Models\ChefProfile')->count(),
-            'loyalty_points' => 0, // Placeholder for future logic
-        ];
-
-        // 2. Fetch Recent Orders (Real Data)
-        $recentOrders = Order::where('customer_id', $user->id)
-            ->with(['chef.chefProfile', 'items']) // Eager load chef details
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return view('customers.dashboard', compact('user', 'stats', 'recentOrders'));
+        return view('customers.dashboard');
     }
-    public function orders()
-    {
-        $orders = Order::where('customer_id', Auth::id())->latest()->paginate(10);
-        return view('customers.orders.index', compact('orders'));
-    }
-
-    public function profile()
-    {
-        return view('customers.profile.edit', ['user' => Auth::user()]);
-    }
-
-    public function favorites()
-    {
-        // Placeholder
-        return view('customers.favorites.index');
-    }    
 }
