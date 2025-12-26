@@ -32,8 +32,9 @@ Route::controller(PageController::class)->group(function () {
 Auth::routes(['verify' => true]);
 
 // Public Chef Discovery
-Route::get('/chefs', [ChefProfileController::class, 'index'])->name('chefs.index');
-Route::get('/chefs/{slug}', [ChefProfileController::class, 'showPublic'])->name('chefs.show');
+// Public Chef Routes (No auth required to view)
+Route::get('/chefs', [CustomerController::class, 'index'])->name('chefs.index');
+Route::get('/chefs/{chef}', [CustomerController::class, 'show'])->name('chefs.show');
 
 // Subscriptions (Public Plans)
 Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
@@ -86,6 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/profile', 'profile')->name('profile');
             Route::get('/orders', 'orders')->name('orders');
             Route::get('/favorites', 'favorites')->name('favorites');
+            Route::get('/dashboard', [CustomerController::class, 'dashboard'])->name('dashboard');
         });
     });
 });

@@ -16,9 +16,8 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    /**
-     * Redirect users based on their Role.
-     */
+    // In LoginController.php
+
     protected function redirectTo()
     {
         $user = Auth::user();
@@ -28,15 +27,14 @@ class LoginController extends Controller
         }
 
         if ($user->hasRole('chef')) {
-            // Check if they need to complete their profile
             if (!$user->chefProfile) {
                 return route('chef.profile.edit');
             }
             return route('chef.dashboard');
         }
 
-        // Default for customers
-        return route('dashboard');
+        // FIXED: Redirect to the specific customer dashboard
+        return route('customer.dashboard');
     }
 
     /**
