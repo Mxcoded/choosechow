@@ -12,17 +12,18 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'menu_id',
-        'name', // Snapshot of name at time of order
-        'price', // Snapshot of price
+        'menu_name',        // Matches migration
+        'menu_description', // Matches migration
+        'unit_price',       // Matches migration
         'quantity',
-        'options', // JSON: {"spiciness": "high", "extras": ["cheese"]}
-        'subtotal'
+        'total_price',      // Matches migration
+        'customizations',   // Matches migration (JSON)
     ];
 
     protected $casts = [
-        'options' => 'array',
-        'price' => 'decimal:2',
-        'subtotal' => 'decimal:2',
+        'customizations' => 'array',
+        'unit_price' => 'decimal:2',
+        'total_price' => 'decimal:2',
     ];
 
     public function order()
@@ -32,6 +33,6 @@ class OrderItem extends Model
 
     public function menu()
     {
-        return $this->belongsTo(Menu::class)->withTrashed(); // Keep linking even if menu is soft-deleted
+        return $this->belongsTo(Menu::class)->withTrashed();
     }
 }

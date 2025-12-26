@@ -166,7 +166,7 @@ class MenuController extends Controller
     public function toggleFeatured(Request $request, Menu $menu)
     {
         $this->authorize('update', $menu);
-        
+
         // Toggle the status
         $newState = !$menu->is_featured;
         $menu->update(['is_featured' => $newState]);
