@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // --- CHEF ROUTES ---
     Route::prefix('chef')->name('chef.')->middleware(['role:chef'])->group(function () {
+        Route::get('/dashboard', [ChefProfileController::class, 'dashboard'])->name('dashboard');
         // Profile
         Route::controller(ChefProfileController::class)->group(function () {
             Route::get('/profile', 'show')->name('profile');
