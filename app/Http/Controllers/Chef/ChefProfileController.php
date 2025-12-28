@@ -152,11 +152,5 @@ class ChefProfileController extends Controller
                 ->withInput();
         }
     }
-    /**
-     * Display the chef's dashboard.
-     */
-    public function dashboard()
-    {
-        return view('chefs.dashboard');
-    }
+    
 }

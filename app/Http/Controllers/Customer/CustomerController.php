@@ -65,11 +65,4 @@ class CustomerController extends Controller
         return view('chefs.show', compact('chef', 'menus'));
     }
 
-    /**
-     * Customer Dashboard (Protected).
-     */
-    public function dashboard()
-    {
-        return view('customers.dashboard');
-    }
 }

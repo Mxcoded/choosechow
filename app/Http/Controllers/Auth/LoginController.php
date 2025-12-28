@@ -4,50 +4,25 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
     use AuthenticatesUsers;
 
+    /**
+     * Where to redirect users after login.
+     * * We redirect EVERYONE to the main dashboard route.
+     * The DashboardController will handle the role-based logic.
+     */
+    protected function redirectTo()
+    {
+        return route('dashboard');
+    }
+
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
-    }
-
-    // In LoginController.php
-
-    protected function redirectTo()
-    {
-        $user = Auth::user();
-
-        if ($user->hasRole('admin')) {
-            return route('admin.dashboard');
-        }
-
-        if ($user->hasRole('chef')) {
-            if (!$user->chefProfile) {
-                return route('chef.profile.edit');
-            }
-            return route('chef.dashboard');
-        }
-
-        // FIXED: Redirect to the specific customer dashboard
-        return route('customer.dashboard');
-    }
-
-    /**
-     * Check status after the user has been authenticated.
-     */
-    protected function authenticated(Request $request, $user)
-    {
-        // Block login if account is not active
-        if (in_array($user->status, ['suspended', 'inactive'])) {
-            Auth::logout();
-
-            return redirect()->route('login')
-                ->withErrors(['email' => 'Your account is currently ' . $user->status . '. Please contact support.']);
-        }
+        $this->middleware('auth')->only('logout');
     }
 }

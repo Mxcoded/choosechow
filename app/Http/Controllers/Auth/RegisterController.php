@@ -18,9 +18,6 @@ class RegisterController extends Controller
      */
     protected function redirectTo()
     {
-        if (auth()->user()->hasRole('chef')) {
-            return route('chef.profile.edit'); // Redirect new chefs to complete profile
-        }
         return route('dashboard');
     }
 
