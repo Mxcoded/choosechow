@@ -4,34 +4,37 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
 class ChefProfile extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
         'business_name',
         'slug',
         'bio',
-        'years_of_experience',
         'kitchen_address',
-        'is_online',        // Now matches DB
-        'minimum_order',    // Now matches DB
-        'delivery_radius_km',
+        'cover_image',
+        'profile_image',
+        'years_of_experience',
+        'minimum_order',
+        'delivery_fee',
         'operating_hours',
+        'is_online',
         'bank_name',
         'account_number',
         'account_name',
+        'cuisines',
+        'is_verified', // <--- ADDED: This allows the Admin Verification to save
     ];
 
     protected $casts = [
         'operating_hours' => 'array',
+        'cuisines' => 'array',
         'is_online' => 'boolean',
+        'is_verified' => 'boolean', // <--- ADDED: Ensures true/false behavior
         'minimum_order' => 'decimal:2',
-        'is_featured' => 'boolean',
     ];
 
     public function user()
@@ -39,56 +42,29 @@ class ChefProfile extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function cuisines()
-    {
-        return $this->belongsToMany(Cuisine::class, 'chef_cuisine');
-    }
-
-    public function deliveryZones()
-    {
-        return $this->hasMany(DeliveryZone::class);
-    }
-
-    // Auto-generate Slug
-    protected static function boot()
-    {
-        parent::boot();
-        static::saving(function ($profile) {
-            if ($profile->isDirty('business_name') && empty($profile->slug)) {
-                $profile->slug = Str::slug($profile->business_name);
-            }
-        });
-    }
-
-    // Helper
-    public function isOpenNow()
-    {
-        if (!$this->is_online) return false;
-
-        $today = strtolower(now()->format('l'));
-        $schedule = $this->operating_hours[$today] ?? null;
-
-        if (!$schedule || ($schedule['closed'] ?? true)) {
-            return false;
-        }
-
-        $now = now()->format('H:i');
-        return $now >= $schedule['open'] && $now <= $schedule['close'];
-    }
     /**
-     * Check if the chef profile is verified.
-     * * @return bool
-     */
-    public function isVerified()
-    {
-        return $this->verification_status === 'verified';
-    }
-
-    /**
-     * Helper to check if accepting orders (maps to is_online column)
+     * Check if the chef is currently accepting orders.
      */
     public function isAcceptingOrders()
     {
-        return (bool) $this->is_online;
+        if (!$this->is_online) {
+            return false;
+        }
+        if (is_null($this->operating_hours)) {
+            return true;
+        }
+        return true;
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Automatically generate slug whenever a profile is Created or Updated
+        static::saving(function ($profile) {
+            if (empty($profile->slug)) {
+                $profile->slug = \Illuminate\Support\Str::slug($profile->business_name . '-' . $profile->user_id);
+            }
+        });
     }
 }

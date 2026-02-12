@@ -15,15 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('menu_id')->constrained()->onDelete('cascade');
-            $table->string('menu_name'); // Store name at time of order
-            $table->text('menu_description'); // Store description at time of order
-            $table->decimal('unit_price', 8, 2);
+            
+            // Snapshot Data (In case Chef changes name/price later)
+            $table->string('menu_name');
+            $table->decimal('price', 10, 2);
             $table->integer('quantity');
-            $table->decimal('total_price', 10, 2);
-            $table->json('customizations')->nullable(); // Special requests, modifications
+            
             $table->timestamps();
-
-            $table->index('order_id');
         });
     }
 

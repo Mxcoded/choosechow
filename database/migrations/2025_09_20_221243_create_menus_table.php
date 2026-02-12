@@ -9,48 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('chef_id')->constrained('users')->onDelete('cascade');
-
-            // CHANGED: From string to Foreign Key
-            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('set null');
-
+            // Ensure this is user_id, NOT chef_id
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
             $table->string('name');
-            $table->string('slug');
+            $table->string('slug')->nullable(); // Ensure Slug is here
             $table->text('description');
-            $table->decimal('price', 8, 2);
-            $table->decimal('discounted_price', 8, 2)->nullable();
-
-            // REMOVED: cuisine_types, dietary_info (Moved to Pivot Tables)
-
-            $table->integer('preparation_time_minutes')->nullable();
-            $table->integer('serves_count')->default(1);
-            $table->json('ingredients')->nullable();
-            $table->json('allergens')->nullable();
-            $table->json('nutritional_info')->nullable();
-            $table->text('cooking_instructions')->nullable();
-            $table->text('storage_instructions')->nullable();
-            $table->string('spice_level')->nullable();
-            $table->json('images');
+            $table->decimal('price', 10, 2);
+            $table->string('image')->nullable();
+            $table->string('category');
             $table->boolean('is_available')->default(true);
-            $table->boolean('is_featured')->default(false);
-            $table->date('featured_until')->nullable();
-            $table->unsignedBigInteger('view_count')->default(0);
-            $table->integer('stock_quantity')->nullable();
-            $table->json('availability_schedule')->nullable();
-            $table->decimal('average_rating', 3, 2)->default(0);
-            $table->integer('total_reviews')->default(0);
-            $table->integer('order_count')->default(0);
-
-            $table->softDeletes(); // ADDED: Soft Deletes
             $table->timestamps();
-
-            $table->unique(['chef_id', 'slug']);
-            $table->index(['chef_id', 'is_available']);
-            $table->index('average_rating');
         });
     }
 

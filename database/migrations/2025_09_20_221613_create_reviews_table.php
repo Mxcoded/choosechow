@@ -13,26 +13,19 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('customer_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('chef_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('menu_id')->nullable()->constrained()->onDelete('set null');
-            $table->integer('rating'); // 1-5 stars
+            $table->foreignId('order_id')->constrained()->onDelete('cascade'); // Link to specific order
+            
+            $table->integer('rating'); // 1 to 5
             $table->text('comment')->nullable();
-            $table->json('rating_breakdown')->nullable(); // Food quality, delivery time, etc.
-            $table->json('images')->nullable(); // Customer photos
-            $table->boolean('is_verified')->default(true); // From actual order
-            $table->boolean('is_featured')->default(false);
-            $table->text('chef_response')->nullable();
-            $table->timestamp('chef_responded_at')->nullable();
+            
             $table->timestamps();
-
-            $table->unique('order_id'); // One review per order
-            $table->index(['chef_id', 'rating']);
-            $table->index(['menu_id', 'rating']);
+            
+            // Prevent spam: One review per order
+            $table->unique('order_id');
         });
     }
-
     /**
      * Reverse the migrations.
      */

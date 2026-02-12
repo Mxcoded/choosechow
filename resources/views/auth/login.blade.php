@@ -1,107 +1,77 @@
 @extends('layouts.app')
 
-@section('title', 'Login - ChooseChow')
+@section('title', 'Sign In')
 
 @section('content')
-<div class="auth-container">
-    <div class="auth-card row g-0">
-        <div class="col-lg-5 auth-left">
-            <div class="brand-logo">
-                <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
-                     class="h-24 w-24 rounded-full shadow-md transition-transform duration-300 hover:scale-105">
-            </div>
-            <h1 class="brand-name">ChooseChow</h1>
-            <p class="brand-tagline">Discover amazing homemade meals from talented local chefs</p>
-            
-            <ul class="auth-features">
-                <li><i class="fas fa-utensils"></i> Fresh homemade meals</li>
-                <li><i class="fas fa-star"></i> Rated local chefs</li>
-                <li><i class="fas fa-truck"></i> Fast delivery</li>
-                <li><i class="fas fa-heart"></i> Made with love</li>
-            </ul>
-        </div>
+<div class="min-h-screen flex items-center justify-center bg-red-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
         
-        <div class="col-lg-7 auth-right">
-            <div class="auth-header">
-                <h2 class="auth-title">Welcome Back!</h2>
-                <p class="auth-subtitle">Sign in to your account to continue</p>
+        {{-- Header --}}
+        <div class="text-center">
+            <a href="{{ route('welcome') }}">
+                <img class="mx-auto h-16 w-auto" src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow">
+            </a>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+                Welcome Back
+            </h2>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                New here? <a href="{{ route('register') }}" class="font-medium text-red-600 hover:text-red-500">Create an account</a>
+            </p>
+        </div>
+
+        <form class="mt-8 space-y-6" method="POST" action="{{ route('login') }}">
+            @csrf
+
+            <div class="rounded-md shadow-sm space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium dark:text-gray-300 mb-1">Email address</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </div>
+                        <input id="email" name="email" type="email" autocomplete="email" required class="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm @error('email') border-red-500 @enderror" placeholder="you@example.com" value="{{ old('email') }}">
+                    </div>
+                    @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium dark:text-gray-300 mb-1">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm @error('password') border-red-500 @enderror" placeholder="••••••••">
+                    </div>
+                    @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
             </div>
 
-            @if ($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            @if (session('status'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('status') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
-                
-                <div class="form-floating mb-3">
-                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                           id="email" name="email" placeholder="name@example.com" 
-                           value="{{ old('email') }}" required autocomplete="email" autofocus>
-                    <label for="email">Email Address</label>
-                    @error('email')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input id="remember_me" name="remember" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded cursor-pointer">
+                    <label for="remember_me" class="ml-2 block text-sm text-gray-900 dark:text-gray-100 cursor-pointer">
+                        Remember me
+                    </label>
                 </div>
 
-                <div class="form-floating mb-3">
-                    <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                           id="password" name="password" placeholder="Password" required autocomplete="current-password">
-                    <label for="password">Password</label>
-                    
-                    <button type="button" class="password-toggle btn btn-link position-absolute top-50 end-0 translate-middle-y text-decoration-none" 
-                            style="right: 10px; z-index: 5;" onclick="togglePassword('password')">
-                        <i class="fas fa-eye text-muted" id="passwordEye"></i>
-                    </button>
-                    
-                    @error('password')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remember" id="remember" 
-                               {{ old('remember') ? 'checked' : '' }}>
-                        <label class="form-check-label text-muted" for="remember">
-                            Remember me
-                        </label>
-                    </div>
-                    
+                <div class="text-sm">
                     @if (Route::has('password.request'))
-                        <a class="auth-link small" href="{{ route('password.request') }}">
-                            Forgot Password?
+                        <a href="{{ route('password.request') }}" class="font-medium text-red-600 hover:text-red-500">
+                            Forgot password?
                         </a>
                     @endif
                 </div>
+            </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
-                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-lg transform transition hover:-translate-y-0.5">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-sign-in-alt text-red-500 group-hover:text-red-400"></i>
+                    </span>
+                    Sign in
                 </button>
-
-                <div class="divider text-center my-3">
-                    <span class="text-muted">Don't have an account?</span>
-                </div>
-
-                <a href="{{ route('register') }}" class="btn btn-outline-primary w-100 py-2">
-                    <i class="fas fa-user-plus me-2"></i>Create Account
-                </a>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
 @endsection

@@ -4,96 +4,117 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Models\Menu;
 use App\Models\Order;
+use App\Models\User;
+use App\Models\Withdrawal;
+use App\Models\ChefProfile;
+use App\Models\Menu;
+use App\Models\Newsletter;
+use App\Models\ContactSubmission;
 
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'verified']);
-    }
-
     public function index()
     {
         $user = Auth::user();
 
+        // ==========================================
+        //    1. ADMIN DASHBOARD
+        // ==========================================
         if ($user->hasRole('admin')) {
-            return $this->adminDashboard();
-        } elseif ($user->hasRole('chef')) {
-            return $this->chefDashboard();
-        } else {
-            return $this->customerDashboard();
+            $totalSales = Order::where('payment_status', 'paid')->sum('total_amount');
+            $platformProfit = $totalSales * 0.05; 
+            
+            $stats = [
+                'revenue' => $platformProfit, 
+                'total_flow' => $totalSales,
+                'total_users' => User::role('customer')->count(),
+                'total_chefs' => User::role('chef')->count(),
+                'pending_payouts' => Withdrawal::where('status', 'pending')->count(),
+                'pending_verifications' => ChefProfile::where('is_verified', false)->count(),
+                'newsletter_subscribers' => Newsletter::count(),
+                'pending_contacts' => ContactSubmission::where('status', 'new')->count(),
+            ];
+
+            $recentOrders = Order::with('user', 'chef')->latest()->take(5)->get();
+
+            return view('admin.dashboard', compact('stats', 'recentOrders'));
         }
-    }
 
-    // --- CHEF DASHBOARD ---
-    private function chefDashboard()
-    {
-        $chef = Auth::user();
+        // ==========================================
+        //    2. CHEF DASHBOARD
+        // ==========================================
+        if ($user->hasRole('chef')) {
+            $orders = Order::where('chef_id', $user->id);
+            
+            $totalSales = $orders->where('payment_status', 'paid')->sum('total_amount');
+            $earnings = $totalSales * 0.95; 
 
-        // 1. Base Queries
-        $ordersQuery = Order::where('chef_id', $chef->id);
+            $activeOrdersCount = Order::where('chef_id', $user->id)
+                ->whereIn('status', ['pending_payment', 'pending', 'preparing', 'ready'])
+                ->count();
+                
+            $completedOrdersCount = Order::where('chef_id', $user->id)
+                ->where('status', 'completed')
+                ->count();
 
-        // 2. Calculate Stats
-        $stats = [
-            'total_orders' => $ordersQuery->count(),
-            'pending_orders' => $ordersQuery->clone()->whereIn('status', ['pending', 'confirmed'])->count(),
-            'total_revenue' => $ordersQuery->clone()->where('payment_status', 'paid')->sum('total_amount'),
-            'avg_rating' => round($chef->chefProfile?->rating ?? 0, 1),
-            'total_menus' => $chef->menus()->count(),
-            'active_menus' => $chef->menus()->where('is_available', true)->count(),
-        ];
+            $activeMenusCount = Menu::where('user_id', $user->id)
+                ->where('is_available', true)
+                ->count();
 
-        // 3. Recent Orders
-        $recentOrders = Order::where('chef_id', $chef->id)
-            ->with(['customer', 'items'])
-            ->latest()
-            ->take(5)
-            ->get();
+            $recentOrders = Order::where('chef_id', $user->id)
+                ->with('user')
+                ->latest()
+                ->take(5)
+                ->get();
 
-        // 4. Popular Menus
-        $popularMenus = Menu::where('chef_id', $chef->id)
-            ->orderByDesc('order_count')
-            ->take(5)
-            ->get();
+            return view('dashboard', compact(
+                'earnings', 'activeOrdersCount', 'completedOrdersCount', 'activeMenusCount', 'recentOrders'
+            )); 
+        }
 
-        return view('chefs.dashboard', compact('chef', 'stats', 'recentOrders', 'popularMenus'));
-    }
+        // ==========================================
+        //    3. CUSTOMER DASHBOARD (UPDATED)
+        // ==========================================
+        if ($user->hasRole('customer')) {
+            
+            // 1. Calculate Stats
+            $stats = [
+                'total_orders' => Order::where('user_id', $user->id)->count(),
+                // Sum only paid orders
+                'total_spent' => Order::where('user_id', $user->id)
+                                      ->where('payment_status', 'paid')
+                                      ->sum('total_amount'),
+                // Count unique chefs they have ordered from
+                'favorite_chefs' => Order::where('user_id', $user->id)
+                                         ->distinct('chef_id')
+                                         ->count('chef_id')
+            ];
 
-    // --- ADMIN DASHBOARD ---
-    private function adminDashboard()
-    {
-        // You can simply redirect to the dedicated Admin Controller
-        return redirect()->route('admin.users');
-        // Or implement similar logic here if you have a specific dashboard view
-        // return view('admin.dashboard');
-    }
+            // 2. Get Recent Orders
+            $recentOrders = Order::where('user_id', $user->id)
+                ->with(['chef.chefProfile', 'items']) // Load chef profile for avatars
+                ->latest()
+                ->take(5)
+                ->get();
+            
+            // 3. Add Status Colors (Helper logic for the view)
+            foreach($recentOrders as $order) {
+                $order->status_color = match($order->status) {
+                    'pending_payment' => 'warning',
+                    'pending' => 'warning',
+                    'preparing' => 'info',
+                    'ready' => 'info',
+                    'completed' => 'success',
+                    'cancelled' => 'danger',
+                    default => 'secondary'
+                };
+            }
 
-    // --- CUSTOMER DASHBOARD ---
-    private function customerDashboard()
-    {
-        $user = Auth::user();
+            return view('customer.dashboard', compact('user', 'stats', 'recentOrders'));
+        }
 
-        // 1. Calculate Stats
-        $stats = [
-            'total_orders' => Order::where('customer_id', $user->id)->count(),
-            'total_spent' => Order::where('customer_id', $user->id)
-                ->whereIn('payment_status', ['paid', 'completed'])
-                ->sum('total_amount'),
-            'favorite_chefs' => $user->favorites()->where('favoritable_type', 'App\Models\ChefProfile')->count(),
-            'loyalty_points' => 0,
-        ];
-
-        // 2. Fetch Recent Orders
-        $recentOrders = Order::where('customer_id', $user->id)
-            ->with(['chef.chefProfile', 'items'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        // FIXED: Passing data to the view
-        return view('customers.dashboard', compact('user', 'stats', 'recentOrders'));
+        // Fallback
+        return redirect()->route('welcome');
     }
 }

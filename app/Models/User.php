@@ -8,11 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Spatie\Permission\Traits\HasRoles; // <--- IMPORT THIS
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles; // <--- ADD TRAIT
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
         'first_name',
@@ -20,7 +20,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'phone',
         'password',
-        // 'user_type', <--- REMOVED (Now handled by Roles)
         'status',
         'avatar',
         'date_of_birth',
@@ -44,7 +43,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'preferences' => 'array',
     ];
 
-    // Relationships
+    // --- RELATIONSHIPS ---
+
     public function addresses()
     {
         return $this->hasMany(UserAddress::class);
@@ -67,45 +67,62 @@ class User extends Authenticatable implements MustVerifyEmail
             ->latest();
     }
 
-    // ... (Keep existing Order/Review relationships) ...
-    public function customerOrders()
+    // --- ORDER RELATIONSHIPS (CRITICAL FIXES) ---
+
+    // As a Customer (Buying food) - Maps to 'user_id' in orders table
+    public function ordersPlaced()
     {
-        return $this->hasMany(Order::class, 'customer_id');
+        return $this->hasMany(Order::class, 'user_id');
     }
-    public function chefOrders()
+
+    // As a Chef (Selling food) - Maps to 'chef_id' in orders table
+    public function ordersReceived()
     {
         return $this->hasMany(Order::class, 'chef_id');
     }
+
+    // --- OTHER RELATIONSHIPS ---
+
     public function menus()
     {
-        return $this->hasMany(Menu::class, 'chef_id');
+        return $this->hasMany(Menu::class, 'user_id');
     }
+
     public function reviews()
     {
         return $this->hasMany(Review::class, 'customer_id');
     }
+
+     /**
+     * Reviews received by this user (as a Chef).
+     */
     public function receivedReviews()
     {
         return $this->hasMany(Review::class, 'chef_id');
     }
+
     public function payments()
     {
         return $this->hasMany(Payment::class);
     }
+
     public function payouts()
     {
-        return $this->hasMany(ChefPayout::class, 'chef_id');
+        return $this->hasMany(ChefPayout::class, 'user_id');
     }
+
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
     }
+
     public function referrals()
     {
         return $this->hasMany(User::class, 'referred_by', 'referral_code');
     }
 
-    // Accessors & Mutators
+    // --- ACCESSORS & MUTATORS ---
+
     protected function fullName(): Attribute
     {
         return Attribute::make(
@@ -129,7 +146,7 @@ class User extends Authenticatable implements MustVerifyEmail
         );
     }
 
-    // --- REFACTORED HELPERS (Using Spatie) ---
+    // --- HELPERS ---
 
     public function isCustomer(): bool
     {
@@ -146,7 +163,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasRole('admin');
     }
 
-    // Keep business logic helpers
     public function hasActiveSubscription(): bool
     {
         return $this->activeSubscription()->exists();
@@ -165,5 +181,45 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $this->update(['referral_code' => $code]);
         return $code;
+    }
+
+    // Get the average rating from the reviews table
+    public function getAverageRatingAttribute()
+    {
+        // If no reviews, return 0
+        if ($this->receivedReviews()->count() == 0) {
+            return 0;
+        }
+        
+        // Calculate average and round to 1 decimal (e.g., 4.5)
+        return round($this->receivedReviews()->avg('rating'), 1);
+    }
+
+    // Get the total number of reviews
+    public function getReviewCountAttribute()
+    {
+        return $this->receivedReviews()->count();
+    }
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class)->latest();
+    }
+
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class)->latest();
+    }
+
+    /**
+     * Relationship: Orders received by this user (as a Chef).
+     */
+    public function chefOrders()
+    {
+        return $this->hasMany(Order::class, 'chef_id');
     }
 }

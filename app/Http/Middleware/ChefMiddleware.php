@@ -9,12 +9,26 @@ use Illuminate\Support\Facades\Auth;
 
 class ChefMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || Auth::user()->user_type !== 'chef') {
-            abort(403, 'Access denied. Chef access required.');
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login');
         }
-
-        return $next($request);
+        
+        $user = Auth::user();
+        
+        // Check Spatie Role first (NEW SYSTEM)
+        if ($user->hasRole('chef')) {
+            return $next($request);
+        }
+        
+        // Fallback to user_type for backward compatibility (OLD SYSTEM)
+        if (isset($user->user_type) && $user->user_type === 'chef') {
+            return $next($request);
+        }
+        
+        // Neither condition met - unauthorized
+        abort(403, 'Access denied. Chef access required.');
     }
 }

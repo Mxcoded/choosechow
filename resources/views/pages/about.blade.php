@@ -1,71 +1,74 @@
-@extends('layouts.master')
+@extends('layouts.app')
 
 @section('title', 'About Us - ChooseChow')
 
 @section('content')
-<!-- Hero Section -->
-<section class="py-20 bg-white">
-    <div class="max-w-4xl mx-auto px-4 text-center">
-        <h1 class="text-5xl font-bold text-gray-900 mb-6">
-            About <span class="gradient-text">ChooseChow</span>
+
+{{-- 1. HERO SECTION --}}
+<div class="relative bg-white dark:bg-gray-900 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center relative z-10">
+        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
+            We are <span class="text-red-600">ChooseChow</span>
         </h1>
-        <p class="text-xl text-gray-600 mb-8">
-            We're passionate about connecting food lovers with talented home chefs, creating a community 
-            where authentic flavors meet modern convenience.
+        <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500 dark:text-gray-300">
+            Connecting food lovers with talented home chefs, creating a community where authentic flavors meet modern convenience.
         </p>
-
-        <!-- Centered Logo -->
-        <div class="mb-8">
-            <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo"
-                 class="h-24 w-24 mx-auto rounded-full shadow-lg transition-transform duration-300 hover:scale-105">
-        </div>
     </div>
-</section>
+    
+    {{-- Background decoration --}}
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-0 opacity-10">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="absolute w-full h-full text-red-50 dark:text-gray-800 fill-current">
+            <path d="M0 100 C 20 0 50 0 100 100 Z"></path>
+        </svg>
+    </div>
+</div>
 
-<!-- Our Story -->
-<section class="py-20">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="grid lg:grid-cols-2 gap-16 items-center">
-            <div class="fade-in">
-                <h2 class="text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
-                <div class="space-y-6 text-lg text-gray-600">
+{{-- 2. OUR STORY & STATS --}}
+<section class="py-16 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            
+            {{-- Text Content --}}
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Our Story</h2>
+                <div class="space-y-4 text-lg text-gray-600 dark:text-gray-300">
                     <p>
-                        ChooseChow was born from a simple observation: some of the most incredible meals come from 
-                        passionate home cooks who pour their heart into every dish. Yet, these talented chefs often 
-                        remained hidden gems in their communities.
+                        ChooseChow was born from a simple observation: some of the most incredible meals come from passionate home cooks who pour their heart into every dish. Yet, these talented chefs often remained hidden gems in their communities.
                     </p>
                     <p>
-                        Founded in 2024 in Lagos, Nigeria, we set out to bridge this gap. We wanted to create a 
-                        platform where food lovers could discover authentic, home-cooked meals while supporting 
-                        local culinary entrepreneurs.
+                        Founded in 2024 in Abuja, Nigeria, we set out to bridge this gap. We wanted to create a platform where food lovers could discover authentic, home-cooked meals while supporting local culinary entrepreneurs.
                     </p>
                     <p>
-                        Today, we're proud to connect hundreds of verified home chefs with thousands of satisfied 
-                        customers across Nigeria, fostering a vibrant community built around the love of great food.
+                        Today, we're proud to connect verified home chefs with satisfied customers across Nigeria, fostering a vibrant community built around the love of great food.
                     </p>
                 </div>
             </div>
-            <div class="fade-in">
-                <div class="bg-gradient-to-br from-red-100 to-orange-100 rounded-2xl p-12 text-center">
-                    <div class="text-6xl mb-6">🌟</div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Impact</h3>
-                    <div class="grid grid-cols-2 gap-6">
-                        <div>
-                            <div class="text-3xl font-bold text-red-600 mb-2">500+</div>
-                            <div class="text-gray-600">Home Chefs</div>
-                        </div>
-                        <div>
-                            <div class="text-3xl font-bold text-red-600 mb-2">10K+</div>
-                            <div class="text-gray-600">Happy Customers</div>
-                        </div>
-                        <div>
-                            <div class="text-3xl font-bold text-red-600 mb-2">25+</div>
-                            <div class="text-gray-600">Cities Served</div>
-                        </div>
-                        <div>
-                            <div class="text-3xl font-bold text-red-600 mb-2">50K+</div>
-                            <div class="text-gray-600">Meals Delivered</div>
-                        </div>
+
+            {{-- Dynamic Stats Card --}}
+            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-xl p-8 transform hover:-translate-y-1 transition-transform duration-300">
+                <div class="text-center mb-8">
+                    <div class="inline-block p-3 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 mb-2">
+                        <i class="fas fa-chart-line text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Our Impact</h3>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                        <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ $stats['verified_chefs'] }}+</div>
+                        <div class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide mt-1">Home Chefs</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                        <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ $stats['happy_customers'] }}+</div>
+                        <div class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide mt-1">Happy Eaters</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                        <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ $stats['cities_covered'] }}</div>
+                        <div class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide mt-1">Cities</div>
+                    </div>
+                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                        <div class="text-3xl font-bold text-red-600 dark:text-red-400">{{ $stats['average_rating'] }}</div>
+                        <div class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wide mt-1">Avg Rating</div>
                     </div>
                 </div>
             </div>
@@ -73,242 +76,156 @@
     </div>
 </section>
 
-<!-- Mission & Vision -->
-<section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="grid lg:grid-cols-2 gap-16">
-            <!-- Mission -->
-            <div class="fade-in">
-                <div class="bg-red-50 rounded-2xl p-8">
-                    <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                        <span class="text-2xl">🎯</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
-                    <p class="text-lg text-gray-600 leading-relaxed">
-                        To connect food lovers with talented home chefs, creating a community where authentic, 
-                        delicious meals are accessible to everyone while supporting local culinary entrepreneurs 
-                        in building sustainable businesses.
-                    </p>
+{{-- 3. MISSION & VISION --}}
+<section class="py-20 bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid md:grid-cols-2 gap-8">
+            {{-- Mission --}}
+            <div class="bg-red-50 dark:bg-gray-800 rounded-2xl p-8 border border-red-100 dark:border-gray-700">
+                <div class="w-14 h-14 bg-red-100 dark:bg-red-900/50 rounded-xl flex items-center justify-center mb-6">
+                    <i class="fas fa-bullseye text-2xl text-red-600 dark:text-red-400"></i>
                 </div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Mission</h3>
+                <p class="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+                    To democratize access to authentic homemade food by empowering home chefs with the tools they need to succeed, while offering consumers healthy, diverse, and affordable meal options.
+                </p>
             </div>
 
-            <!-- Vision -->
-            <div class="fade-in">
-                <div class="bg-blue-50 rounded-2xl p-8">
-                    <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                        <span class="text-2xl">🔮</span>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
-                    <p class="text-lg text-gray-600 leading-relaxed">
-                        To become Nigeria's leading platform for home-cooked meal delivery, fostering a vibrant 
-                        ecosystem of culinary creativity and cultural exchange that celebrates our diverse food 
-                        heritage while embracing innovation.
-                    </p>
+            {{-- Vision --}}
+            <div class="bg-blue-50 dark:bg-gray-800 rounded-2xl p-8 border border-blue-100 dark:border-gray-700">
+                <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center mb-6">
+                    <i class="fas fa-eye text-2xl text-blue-600 dark:text-blue-400"></i>
                 </div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Vision</h3>
+                <p class="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+                    To become the leading culinary marketplace in Africa, fostering a vibrant ecosystem where culture is celebrated through food and every home kitchen can become a thriving business.
+                </p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Our Values -->
-<section class="py-20">
-    <div class="max-w-7xl mx-auto px-4">
+{{-- 4. CORE VALUES --}}
+<section class="py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 mb-4">Our Core Values</h2>
-            <p class="text-xl text-gray-600">The principles that guide everything we do</p>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Our Core Values</h2>
+            <p class="mt-2 text-xl text-gray-500 dark:text-gray-400">The principles that guide every order.</p>
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <!-- Quality First -->
-            <div class="text-center fade-in hover-scale">
-                <div class="bg-yellow-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-3xl">⭐</span>
+            <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-sm text-center">
+                <div class="w-16 h-16 mx-auto bg-yellow-100 dark:bg-yellow-900/50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-star text-2xl text-yellow-600 dark:text-yellow-400"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Quality First</h3>
-                <p class="text-gray-600">
-                    We maintain the highest standards for food quality, safety, and chef verification. 
-                    Every meal reflects our commitment to excellence.
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Quality First</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-300">
+                    Strict verification for every chef. We only deliver food we would eat ourselves.
                 </p>
             </div>
 
-            <!-- Community Focused -->
-            <div class="text-center fade-in hover-scale">
-                <div class="bg-green-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-3xl">🤝</span>
+            <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-sm text-center">
+                <div class="w-16 h-16 mx-auto bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-users text-2xl text-green-600 dark:text-green-400"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Community Focused</h3>
-                <p class="text-gray-600">
-                    Building strong connections between chefs and customers in local communities. 
-                    We believe food brings people together.
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Community</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-300">
+                    We build bridges between neighbors through the universal language of food.
                 </p>
             </div>
 
-            <!-- Cultural Celebration -->
-            <div class="text-center fade-in hover-scale">
-                <div class="bg-purple-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-3xl">🌍</span>
+            <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-sm text-center">
+                <div class="w-16 h-16 mx-auto bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-fingerprint text-2xl text-purple-600 dark:text-purple-400"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Cultural Celebration</h3>
-                <p class="text-gray-600">
-                    Promoting and preserving diverse culinary traditions and cultural heritage 
-                    through authentic home-cooked meals.
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Authenticity</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-300">
+                    Real food, real people. No factories, just genuine home cooking.
                 </p>
             </div>
 
-            <!-- Innovation Driven -->
-            <div class="text-center fade-in hover-scale">
-                <div class="bg-blue-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-3xl">🚀</span>
+            <div class="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-sm text-center">
+                <div class="w-16 h-16 mx-auto bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-rocket text-2xl text-blue-600 dark:text-blue-400"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-4">Innovation Driven</h3>
-                <p class="text-gray-600">
-                    Continuously improving our platform to enhance user experience and convenience 
-                    while staying true to our core mission.
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Innovation</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-300">
+                    Leveraging technology to make home food delivery seamless and reliable.
                 </p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Meet Our Team -->
-<section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
+{{-- 5. TEAM SECTION --}}
+<section class="py-20 bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
-            <p class="text-xl text-gray-600">The passionate people behind ChooseChow</p>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Meet The Team</h2>
+            <p class="mt-2 text-xl text-gray-500 dark:text-gray-400">The passionate people behind ChooseChow.</p>
         </div>
 
         <div class="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
-            <!-- CEO -->
-            <div class="text-center fade-in hover-scale">
-                <div class="bg-gradient-to-br from-blue-400 to-purple-400 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-5xl">👨‍💼</span>
+            <div class="text-center group">
+                <div class="w-32 h-32 mx-auto bg-gray-200 dark:bg-gray-700 rounded-full mb-6 overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg group-hover:scale-105 transition-transform">
+                    {{-- Placeholder Icon since no real images yet --}}
+                    <div class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                        <i class="fas fa-user-tie text-4xl text-gray-400"></i>
+                    </div>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">Adebayo Johnson</h3>
-                <p class="text-red-600 font-medium mb-4">CEO & Founder</p>
-                <p class="text-gray-600">
-                    Passionate about connecting communities through food and supporting local entrepreneurs. 
-                    Previously worked in tech and hospitality sectors.
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Oluwaseyi Daniel</h3>
+                <p class="text-red-600 font-medium mb-3">CEO & Co-Founder</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 px-4">
+                    Tech veteran passionate about empowering local entrepreneurs.
                 </p>
             </div>
 
-            <!-- Head of Chef Relations -->
-            <div class="text-center fade-in hover-scale">
-                <div class="bg-gradient-to-br from-green-400 to-teal-400 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-5xl">👩‍🍳</span>
+            <div class="text-center group">
+                <div class="w-32 h-32 mx-auto bg-gray-200 dark:bg-gray-700 rounded-full mb-6 overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg group-hover:scale-105 transition-transform">
+                    <div class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                        <i class="fas fa-utensils text-4xl text-gray-400"></i>
+                    </div>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">Fatima Abdullahi</h3>
-                <p class="text-red-600 font-medium mb-4">Head of Chef Relations</p>
-                <p class="text-gray-600">
-                    Experienced chef and culinary consultant dedicated to supporting our chef community. 
-                    Ensures quality standards and chef success.
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Fatima Abdullahi</h3>
+                <p class="text-red-600 font-medium mb-3">Head of Chef Relations</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 px-4">
+                    Experienced culinary consultant ensuring quality standards.
                 </p>
             </div>
 
-            <!-- Head of Technology -->
-            <div class="text-center fade-in hover-scale">
-                <div class="bg-gradient-to-br from-red-400 to-orange-400 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-6">
-                    <span class="text-5xl">👨‍💻</span>
+            <div class="text-center group">
+                <div class="w-32 h-32 mx-auto bg-gray-200 dark:bg-gray-700 rounded-full mb-6 overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg group-hover:scale-105 transition-transform">
+                    <div class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                        <i class="fas fa-code text-4xl text-gray-400"></i>
+                    </div>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">Chidi Okonkwo</h3>
-                <p class="text-red-600 font-medium mb-4">Head of Technology</p>
-                <p class="text-gray-600">
-                    Tech enthusiast focused on creating seamless user experiences and platform reliability. 
-                    Leads our development and innovation efforts.
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Chidi Okonkwo</h3>
+                <p class="text-red-600 font-medium mb-3">Head of Technology</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 px-4">
+                    Building a seamless and reliable platform for our users.
                 </p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Why We Started -->
-<section class="py-20">
-    <div class="max-w-4xl mx-auto px-4 text-center">
-        <div class="bg-gradient-to-br from-red-50 to-orange-50 rounded-2xl p-12">
-            <div class="text-5xl mb-6">💡</div>
-            <h2 class="text-3xl font-bold text-gray-900 mb-6">Why We Started ChooseChow</h2>
-            <div class="text-lg text-gray-600 space-y-4">
-                <p>
-                    "We noticed that some of the best meals we'd ever had came from friends' homes, family gatherings, 
-                    and small local cooks who weren't running restaurants. These talented chefs had incredible skills 
-                    but limited ways to share their passion with a broader audience."
-                </p>
-                <p>
-                    "ChooseChow was created to solve this problem - connecting these amazing home chefs with food lovers 
-                    who appreciate authentic, freshly prepared meals. We're not just a delivery platform; we're a 
-                    community that celebrates culinary creativity and cultural diversity."
-                </p>
-            </div>
-            <div class="mt-8">
-                <span class="text-gray-500 italic">- The ChooseChow Team</span>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Join Our Community -->
-<section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="grid lg:grid-cols-2 gap-16 items-center">
-            <div class="fade-in">
-                <h2 class="text-4xl font-bold text-gray-900 mb-6">Join Our Growing Community</h2>
-                <p class="text-lg text-gray-600 mb-8">
-                    Whether you're a food lover looking for authentic meals or a talented home chef ready to 
-                    share your culinary skills, there's a place for you in the ChooseChow community.
-                </p>
-                <div class="space-y-4">
-                    <div class="flex items-center">
-                        <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-600">Connect with like-minded food enthusiasts</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-600">Discover new flavors and cooking styles</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-600">Support local culinary entrepreneurs</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-600">Be part of Nigeria's food revolution</span>
-                    </div>
-                </div>
-            </div>
-            <div class="fade-in">
-                <div class="bg-gradient-to-br from-red-100 to-orange-100 rounded-2xl p-8 text-center">
-                    <div class="text-4xl mb-6">🎉</div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Ready to Get Started?</h3>
-                    <div class="space-y-4">
-                        <a href="{{ route('chefs.index') }}" class="block bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-                            🔍 Explore Amazing Chefs
-                        </a>
-                        <a href="#" class="block bg-white hover:bg-gray-50 text-gray-700 px-8 py-3 rounded-lg font-semibold border-2 border-gray-200 transition-colors">
-                            👨‍🍳 Become a Chef Partner
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Contact Us -->
-<section class="py-20 bg-gradient-to-r from-red-600 to-orange-600">
-    <div class="max-w-4xl mx-auto px-4 text-center">
-        <h2 class="text-4xl font-bold text-white mb-6">Have Questions? We'd Love to Hear From You</h2>
-        <p class="text-xl text-red-100 mb-8">
-            Our team is always here to help. Whether you have questions about our platform, 
-            need support, or want to share feedback, don't hesitate to reach out.
+{{-- 6. CTA / CONTACT --}}
+<section class="py-20 bg-red-700 dark:bg-red-900 text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/food.png')]"></div>
+    <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+        <h2 class="text-3xl font-bold mb-6">Have Questions? We'd Love to Hear From You</h2>
+        <p class="text-lg text-red-100 mb-8 max-w-2xl mx-auto">
+            Our team is always here to help. Whether you have questions about our platform, need support, or want to share feedback.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ route('contact') }}" class="bg-white text-red-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors">
-                📧 Contact Our Team
+            <a href="{{ route('contact') }}" class="bg-white text-red-600 px-8 py-3 rounded-full text-lg font-bold hover:bg-gray-100 transition-colors shadow-lg">
+                <i class="fas fa-envelope mr-2"></i> Contact Us
             </a>
-            <a href="{{ route('how-it-works') }}" class="bg-red-800 hover:bg-red-900 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
-                📋 Learn How It Works
+            <a href="{{ route('chef.index') }}" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full text-lg font-bold hover:bg-white hover:text-red-600 transition-colors">
+                Browse Chefs
             </a>
         </div>
     </div>
 </section>
+
 @endsection

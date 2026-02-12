@@ -1,243 +1,84 @@
-@extends('layouts.master')
+@extends('layouts.app')
 
-@section('title', 'How It Works - ChooseChow')
+@section('title', 'How It Works')
 
 @section('content')
-<!-- Hero Section -->
-<section class="py-20 bg-white">
-    <div class="max-w-4xl mx-auto px-4 text-center">
-        <h1 class="text-5xl font-bold text-gray-900 mb-6">
-            How <span class="gradient-text">ChooseChow</span> Works
+<div class="bg-white dark:bg-gray-900 transition-colors duration-300">
+    
+    {{-- HEADER --}}
+    <div class="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
+        <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl sm:tracking-tight lg:text-6xl">
+            Food delivery, <span class="text-red-600">reimagined.</span>
         </h1>
-        <p class="text-xl text-gray-600 mb-8">
-            Connecting you with amazing home chefs is simple, transparent, and delicious. 
-            Here's how our platform brings fresh, authentic meals right to your door.
+        <p class="mt-4 max-w-xl mx-auto text-xl text-gray-500 dark:text-gray-300">
+            From a chef's kitchen directly to your dining table. No factories, no frozen meals—just authentic cooking.
         </p>
     </div>
-</section>
 
-<!-- Main Process Steps -->
-<section class="py-20">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 mb-4">Simple Steps to Great Food</h2>
-            <p class="text-xl text-gray-600">From discovery to delivery in three easy steps</p>
-        </div>
+    {{-- STEPS --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+        <div class="relative">
+            {{-- Connector Line (Desktop) --}}
+            <div class="hidden md:block absolute top-12 left-0 w-full h-1 bg-red-100 dark:bg-gray-700 -z-10"></div>
 
-        <div class="grid md:grid-cols-3 gap-12">
-            <!-- Step 1 -->
-            <div class="text-center fade-in">
-                <div class="bg-red-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-8">
-                    <span class="text-4xl"><i class="fas fa-search"></i></span>
-                </div>
-                <div class="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-4 text-sm font-bold">1</div>
-                <h3 class="text-2xl font-semibold mb-6">Discover Amazing Chefs</h3>
-                <div class="text-left space-y-4">
-                    <p class="text-gray-600">• Browse verified home chef profiles in your area</p>
-                    <p class="text-gray-600">• View specialties, ratings, and customer reviews</p>
-                    <p class="text-gray-600">• Check out sample menus and pricing</p>
-                    <p class="text-gray-600">• Filter by cuisine type, dietary preferences, and location</p>
-                    <p class="text-gray-600">• Read chef stories and cooking philosophies</p>
-                </div>
-            </div>
-
-            <!-- Step 2 -->
-            <div class="text-center fade-in">
-                <div class="bg-blue-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-8">
-                    <span class="text-4xl"><i class="fas fa-utensils"></i></span>
-                </div>
-                <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-4 text-sm font-bold">2</div>
-                <h3 class="text-2xl font-semibold mb-6">Order Your Perfect Meal</h3>
-                <div class="text-left space-y-4">
-                    <p class="text-gray-600">• Choose from daily menus or request custom meals</p>
-                    <p class="text-gray-600">• Set your preferred delivery time and location</p>
-                    <p class="text-gray-600">• Specify dietary restrictions and preferences</p>
-                    <p class="text-gray-600">• Add special instructions or requests</p>
-                    <p class="text-gray-600">• Secure payment through our platform</p>
-                </div>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="text-center fade-in">
-                <div class="bg-green-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-8">
-                    <span class="text-4xl"><i class="fas fa-truck"></i></span>
-                </div>
-                <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto mb-4 text-sm font-bold">3</div>
-                <h3 class="text-2xl font-semibold mb-6">Enjoy Fresh, Delicious Meals</h3>
-                <div class="text-left space-y-4">
-                    <p class="text-gray-600">• Receive freshly prepared meals at your chosen time</p>
-                    <p class="text-gray-600">• Track your order in real-time</p>
-                    <p class="text-gray-600">• Enjoy authentic, home-cooked flavors</p>
-                    <p class="text-gray-600">• Rate your experience and leave feedback</p>
-                    <p class="text-gray-600">• Reorder favorites or discover new chefs</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Why Choose ChooseChow -->
-<section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold text-gray-900 mb-4">Why Choose ChooseChow?</h2>
-            <p class="text-xl text-gray-600">More than just food delivery - we're building a community</p>
-        </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Quality Assurance -->
-            <div class="bg-gray-50 rounded-xl p-8 hover-scale">
-                <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl"><i class="fas fa-check"></i></span>
-                </div>
-                <h3 class="text-xl font-semibold mb-4">Quality Assurance</h3>
-                <p class="text-gray-600">All our chefs are verified and rated by the community. We ensure consistent quality and food safety standards through regular reviews and feedback.</p>
-            </div>
-
-            <!-- Flexible Ordering -->
-            <div class="bg-gray-50 rounded-xl p-8 hover-scale">
-                <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl"><i class="fas fa-sync-alt"></i></span>
-                </div>
-                <h3 class="text-xl font-semibold mb-4">Flexible Ordering</h3>
-                <p class="text-gray-600">Order individual meals when you want them, or subscribe to regular deliveries. Pause, modify, or cancel your subscription anytime with no penalties.</p>
-            </div>
-
-            <!-- Support Local Chefs -->
-            <div class="bg-gray-50 rounded-xl p-8 hover-scale">
-                <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl"><i class="fas fa-heart"></i></span>
-                </div>
-                <h3 class="text-xl font-semibold mb-4">Support Local Chefs</h3>
-                <p class="text-gray-600">Help talented home chefs build their businesses while enjoying authentic, home-cooked meals. Every order supports local culinary entrepreneurs.</p>
-            </div>
-
-            <!-- Fresh & Authentic -->
-            <div class="bg-gray-50 rounded-xl p-8 hover-scale">
-                <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl"><i class="fas fa-star"></i></span>
-                </div>
-                <h3 class="text-xl font-semibold mb-4">Fresh & Authentic</h3>
-                <p class="text-gray-600">Every meal is prepared fresh to order using quality ingredients. Experience authentic flavors and traditional cooking methods from passionate home chefs.</p>
-            </div>
-
-            <!-- Easy & Convenient -->
-            <div class="bg-gray-50 rounded-xl p-8 hover-scale">
-                <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl"><i class="fas fa-mobile-alt"></i></span>
-                </div>
-                <h3 class="text-xl font-semibold mb-4">Easy & Convenient</h3>
-                <p class="text-gray-600">Our user-friendly platform makes ordering simple. Browse, order, and track your meals with just a few clicks. Available on web and mobile.</p>
-            </div>
-
-            <!-- Affordable Pricing -->
-            <div class="bg-gray-50 rounded-xl p-8 hover-scale">
-                <div class="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                    <span class="text-2xl"><i class="fas fa-naira-sign"></i></span>
-                </div>
-                <h3 class="text-xl font-semibold mb-4">Affordable Pricing</h3>
-                <p class="text-gray-600">Enjoy restaurant-quality meals at home-cooking prices. No hidden fees, transparent pricing, and great value for authentic, freshly prepared food.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- For Customers & Chefs -->
-<section class="py-20">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="grid lg:grid-cols-2 gap-16">
-            <!-- For Customers -->
-            <div class="fade-in">
-                <div class="bg-white rounded-xl shadow-lg p-8">
-                    <div class="flex items-center mb-6">
-                        <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mr-4">
-                            <span class="text-2xl"><i class="fas fa-users"></i></span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900">For Food Lovers</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                
+                {{-- STEP 1 --}}
+                <div class="bg-white dark:bg-gray-900 p-6">
+                    <div class="w-24 h-24 bg-red-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg shadow-red-200 dark:shadow-none relative z-10">
+                        1
                     </div>
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Access to hundreds of verified home chefs</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Fresh, authentic meals delivered to your door</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Flexible ordering and subscription options</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Discover new cuisines and flavors</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Support local culinary entrepreneurs</span>
-                        </li>
-                    </ul>
-                    <a href="{{ route('chefs.index') }}" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors inline-block">
-                        Start Exploring Chefs
-                    </a>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Browse Local Kitchens</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Explore verified home chefs in your neighborhood. Filter by cuisine, dietary needs, or rating.
+                    </p>
                 </div>
-            </div>
 
-            <!-- For Chefs -->
-            <div class="fade-in">
-                <div class="bg-white rounded-xl shadow-lg p-8">
-                    <div class="flex items-center mb-6">
-                        <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mr-4">
-                            <span class="text-2xl"><i class="fas fa-hat-chef"></i></span>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900">For Home Chefs</h3>
+                {{-- STEP 2 --}}
+                <div class="bg-white dark:bg-gray-900 p-6">
+                    <div class="w-24 h-24 bg-red-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg shadow-red-200 dark:shadow-none relative z-10">
+                        2
                     </div>
-                    <ul class="space-y-4 mb-8">
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Turn your passion for cooking into income</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Flexible schedule - cook when you want</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Build your customer base and reputation</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Set your own prices and menu</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-500 mr-3 mt-1">✓</span>
-                            <span class="text-gray-600">Marketing and platform support included</span>
-                        </li>
-                    </ul>
-                    <a href="#" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors inline-block">
-                        Become a Chef
-                    </a>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Customize & Order</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Select your meals for today or schedule them for the week. Pay securely via Paystack.
+                    </p>
+                </div>
+
+                {{-- STEP 3 --}}
+                <div class="bg-white dark:bg-gray-900 p-6">
+                    <div class="w-24 h-24 bg-red-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6 shadow-lg shadow-red-200 dark:shadow-none relative z-10">
+                        3
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Enjoy Fresh Food</h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Your meal is prepared fresh upon order and delivered hot to your doorstep.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-</section>
 
-<!-- CTA Section -->
-<section class="py-20 bg-gradient-to-r from-red-600 to-orange-600">
-    <div class="max-w-4xl mx-auto px-4 text-center">
-        <h2 class="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
-        <p class="text-xl text-red-100 mb-8">
-            Join thousands of food lovers who have discovered the joy of authentic, home-cooked meals delivered fresh to their door.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ route('chefs.index') }}" class="bg-white text-red-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors">
-                <i class="fas fa-search"></i> Find Chefs Near Me
-            </a>
-            <a href="{{ route('subscriptions.index') }}" class="bg-red-800 hover:bg-red-900 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
-                <i class="fas fa-clipboard-list"></i> View Subscription Plans
-            </a>
+    {{-- FAQ SECTION --}}
+    <div class="bg-gray-50 dark:bg-gray-800 py-16 transition-colors duration-300">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white text-center mb-8">Frequently Asked Questions</h2>
+            
+            <div class="space-y-6">
+                <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Is the food really homemade?</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Yes! Every chef on ChooseChow cooks from their own inspected home kitchen or a dedicated small commercial space.</p>
+                </div>
+                <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-white mb-2">How long does delivery take?</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Since meals are cooked fresh, preparation usually takes 30-45 mins. Delivery depends on your distance, but we aim for under an hour total.</p>
+                </div>
+                <div class="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-white mb-2">Can I order for the whole week?</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Absolutely. You can place pre-orders for specific days or subscribe to a weekly meal plan.</p>
+                </div>
+            </div>
         </div>
     </div>
-</section>
+</div>
 @endsection

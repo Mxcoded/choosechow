@@ -1,215 +1,91 @@
 @extends('layouts.app')
 
-@section('title', 'Sign Up - ChooseChow')
+@section('title', 'Create Account')
 
 @section('content')
-<div class="auth-container">
-    <div class="auth-card row g-0">
-        <div class="col-lg-5 auth-left">
-            <div class="brand-logo">
-                <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
-                     class="h-24 w-24 rounded-full shadow-md transition-transform duration-300 hover:scale-105">
-            </div>
-            <h1 class="brand-name">ChooseChow</h1>
-            <p class="brand-tagline">Join our community of food lovers and talented chefs</p>
-            
-            <ul class="auth-features">
-                <li><i class="fas fa-users"></i> Join our community</li>
-                <li><i class="fas fa-chef-hat"></i> Become a chef</li>
-                <li><i class="fas fa-mobile-alt"></i> Order on the go</li>
-                <li><i class="fas fa-gift"></i> Exclusive offers</li>
-            </ul>
-        </div>
+<div class="min-h-screen flex items-center justify-center bg-red-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
         
-        <div class="col-lg-7 auth-right">
-            <div class="auth-header">
-                <h2 class="auth-title">Create Account</h2>
-                <p class="auth-subtitle">Join ChooseChow and start your culinary journey</p>
-            </div>
+        {{-- Header --}}
+        <div class="text-center">
+            <img class="mx-auto h-16 w-auto" src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow">
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+                Join ChooseChow
+            </h2>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Or <a href="{{ route('login') }}" class="font-medium text-red-600 hover:text-red-500">sign in to your account</a>
+            </p>
+        </div>
 
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+        <form class="mt-8 space-y-6" method="POST" action="{{ route('register') }}">
+            @csrf
 
-            <form method="POST" action="{{ route('register') }}" id="signupForm">
-                @csrf
-
-                <div class="user-type-selector d-flex justify-content-center gap-3 mb-4">
-                    <div class="user-type-option {{ old('user_type', 'customer') == 'customer' ? 'active' : '' }}" data-type="customer">
-                        <i class="fas fa-utensils fa-2x mb-2"></i>
-                        <div class="title fw-bold">Customer</div>
-                        <div class="description small text-muted">Order delicious meals</div>
-                    </div>
-                    <div class="user-type-option {{ old('user_type') == 'chef' ? 'active' : '' }}" data-type="chef">
-                        <i class="fas fa-chef-hat fa-2x mb-2"></i>
-                        <div class="title fw-bold">Chef</div>
-                        <div class="description small text-muted">Share your culinary skills</div>
-                    </div>
-                </div>
-                <input type="hidden" name="user_type" id="userType" value="{{ old('user_type', 'customer') }}">
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control @error('first_name') is-invalid @enderror" 
-                                   id="firstName" name="first_name" placeholder="First Name" 
-                                   value="{{ old('first_name') }}" required autocomplete="given-name">
-                            <label for="firstName">First Name</label>
-                            @error('first_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control @error('last_name') is-invalid @enderror" 
-                                   id="lastName" name="last_name" placeholder="Last Name" 
-                                   value="{{ old('last_name') }}" required autocomplete="family-name">
-                            <label for="lastName">Last Name</label>
-                            @error('last_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                           id="signupEmail" name="email" placeholder="name@example.com" 
-                           value="{{ old('email') }}" required autocomplete="email">
-                    <label for="signupEmail">Email Address</label>
-                    @error('email')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="tel" class="form-control @error('phone') is-invalid @enderror" 
-                           id="phone" name="phone" placeholder="Phone Number" 
-                           value="{{ old('phone') }}" required autocomplete="tel">
-                    <label for="phone">Phone Number</label>
-                    @error('phone')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                           id="signupPassword" name="password" placeholder="Password" 
-                           required autocomplete="new-password">
-                    <label for="signupPassword">Password</label>
-                    <button type="button" class="password-toggle btn btn-link position-absolute top-50 end-0 translate-middle-y text-decoration-none" 
-                            style="right: 10px; z-index: 5;" onclick="togglePassword('signupPassword')">
-                        <i class="fas fa-eye text-muted" id="signupPasswordEye"></i>
-                    </button>
-                    @error('password')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="password" class="form-control" 
-                           id="passwordConfirmation" name="password_confirmation" 
-                           placeholder="Confirm Password" required autocomplete="new-password">
-                    <label for="passwordConfirmation">Confirm Password</label>
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control @error('referred_by') is-invalid @enderror" 
-                           id="referralCode" name="referred_by" placeholder="Referral Code (Optional)" 
-                           value="{{ old('referred_by') }}">
-                    <label for="referralCode">Referral Code (Optional)</label>
-                </div>
-
-                <div class="form-check mb-3">
-                    <input class="form-check-input @error('terms') is-invalid @enderror" 
-                           type="checkbox" name="terms" id="terms" required {{ old('terms') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="terms">
-                        I agree to the <a href="{{ route('terms.of.service') }}" class="auth-link">Terms of Service</a> and 
-                        <a href="{{ route('privacy.policy') }}" class="auth-link">Privacy Policy</a>
+            {{-- Role Selector (Customer vs Chef) --}}
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <input type="radio" name="role" id="role_customer" value="customer" class="peer hidden" checked>
+                    <label for="role_customer" class="block text-center px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl cursor-pointer hover:border-red-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 transition-all">
+                        <i class="fas fa-user mb-1 text-lg"></i>
+                        <div class="text-sm font-bold">I want to Eat</div>
                     </label>
                 </div>
+                <div>
+                    <input type="radio" name="role" id="role_chef" value="chef" class="peer hidden">
+                    <label for="role_chef" class="block text-center px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl cursor-pointer hover:border-red-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 transition-all">
+                        <i class="fas fa-utensils mb-1 text-lg"></i>
+                        <div class="text-sm font-bold">I want to Cook</div>
+                    </label>
+                </div>
+            </div>
 
-                <button type="submit" class="btn btn-primary w-100 mb-3 py-2">
-                    <i class="fas fa-user-plus me-2"></i>Create Account
-                </button>
-
-                <div class="divider text-center my-3">
-                    <span class="text-muted">Already have an account?</span>
+            {{-- Name Fields --}}
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="mb-4">
+                        <label for="first_name" class="block text-sm font-medium dark:text-gray-300 mb-1">First Name</label>
+                        <input id="first_name" name="first_name" type="text" required class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm @error('first_name') border-red-500 @enderror" placeholder="John" value="{{ old('first_name') }}">
+                        @error('first_name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="mb-4">
+                        <label for="last_name" class="block text-sm font-medium dark:text-gray-300 mb-1">Last Name</label>
+                        <input id="last_name" name="last_name" type="text" required class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm @error('last_name') border-red-500 @enderror" placeholder="Doe" value="{{ old('last_name') }}">
+                        @error('last_name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
                 </div>
 
-                <a href="{{ route('login') }}" class="btn btn-outline-primary w-100 py-2">
-                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                </a>
-            </form>
-        </div>
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium dark:text-gray-300 mb-1">Email address</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm @error('email') border-red-500 @enderror" placeholder="john@example.com" value="{{ old('email') }}">
+                    @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="phone" class="block text-sm font-medium dark:text-gray-300 mb-1">Phone Number</label>
+                    <input id="phone" name="phone" type="tel" required class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm @error('phone') border-red-500 @enderror" placeholder="08012345678" value="{{ old('phone') }}">
+                    @error('phone') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium dark:text-gray-300 mb-1">Password</label>
+                    <input id="password" name="password" type="password" required class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm @error('password') border-red-500 @enderror" placeholder="••••••••">
+                    @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="password-confirm" class="block text-sm font-medium dark:text-gray-300 mb-1">Confirm Password</label>
+                    <input id="password-confirm" name="password_confirmation" type="password" required class="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm" placeholder="••••••••">
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-lg transform transition hover:-translate-y-0.5">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-user-plus text-red-500 group-hover:text-red-400"></i>
+                    </span>
+                    Create Account
+                </button>
+            </div>
+        </form>
     </div>
 </div>
-@endsection
-
-@section('scripts')
-{{-- IMPORTANT: Logic must be wrapped in script tags --}}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        // 1. Handle User Type Selection
-        const userTypeInput = document.getElementById('userType');
-        const options = document.querySelectorAll('.user-type-option');
-
-        options.forEach(option => {
-            option.addEventListener('click', function() {
-                // Remove active class from all
-                options.forEach(opt => opt.classList.remove('active'));
-                
-                // Add active class to clicked
-                this.classList.add('active');
-                
-                // Update hidden input
-                userTypeInput.value = this.dataset.type;
-            });
-        });
-
-        // 2. Handle Phone Number Formatting
-        const phoneInput = document.getElementById('phone');
-        if(phoneInput) {
-            phoneInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length >= 10) {
-                    value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
-                } else if (value.length >= 6) {
-                    value = value.replace(/(\d{3})(\d{3})/, '($1) $2-');
-                } else if (value.length >= 3) {
-                    value = value.replace(/(\d{3})/, '($1) ');
-                }
-                e.target.value = value;
-            });
-        }
-
-        // 3. Password Toggle Logic
-        window.togglePassword = function(id) {
-            const input = document.getElementById(id);
-            const icon = document.getElementById(id + 'Eye'); // Target specific icon ID
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                if(icon) {
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                }
-            } else {
-                input.type = 'password';
-                if(icon) {
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            }
-        }
-    });
-</script>
 @endsection

@@ -12,18 +12,9 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'menu_id',
-        'menu_name',        // Matches migration
-        'menu_description', // Matches migration
-        'unit_price',       // Matches migration
-        'quantity',
-        'total_price',      // Matches migration
-        'customizations',   // Matches migration (JSON)
-    ];
-
-    protected $casts = [
-        'customizations' => 'array',
-        'unit_price' => 'decimal:2',
-        'total_price' => 'decimal:2',
+        'menu_name', // We save the name in case the chef changes it later
+        'price',     // We save the price at time of purchase
+        'quantity'
     ];
 
     public function order()
@@ -33,6 +24,6 @@ class OrderItem extends Model
 
     public function menu()
     {
-        return $this->belongsTo(Menu::class)->withTrashed();
+        return $this->belongsTo(Menu::class);
     }
 }

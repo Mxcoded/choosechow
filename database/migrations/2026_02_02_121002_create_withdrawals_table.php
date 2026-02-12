@@ -1,0 +1,37 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up()
+    {
+        Schema::create('withdrawals', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->decimal('amount', 15, 2);
+            
+            // Bank Details (Snapshot at time of request)
+            $table->string('bank_name');
+            $table->string('account_number');
+            $table->string('account_name');
+            
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->string('admin_note')->nullable(); // If rejected, why?
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('withdrawals');
+    }
+};

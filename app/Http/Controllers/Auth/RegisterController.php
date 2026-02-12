@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
+use Illuminate\Http\Request; // Import Request
 
 class RegisterController extends Controller
 {
@@ -18,7 +18,10 @@ class RegisterController extends Controller
      */
     protected function redirectTo()
     {
-        return route('dashboard');
+        if (auth()->user()->hasRole('chef')) {
+            return route('dashboard'); // Chefs go to dashboard to set up profile
+        }
+        return route('chef.index'); // Customers go to Find Chow
     }
 
     public function __construct()
@@ -37,9 +40,7 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['required', 'string', 'max:20', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'user_type' => ['required', 'string', 'in:customer,chef'], // Matches your blade form
-            'terms' => ['required', 'accepted'],
-            'referred_by' => ['nullable', 'string', 'exists:users,referral_code'], // Validates referral code
+            'role' => ['required', 'in:customer,chef'], // Ensure valid role
         ]);
     }
 
@@ -48,20 +49,17 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        // 1. Create User (Pass Plain Password -> Model Mutator handles hashing)
         $user = User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
-            'password' => $data['password'], // Plain text here!
-            'phone' => $data['phone'] ?? null,
-            'referred_by' => $data['referred_by'] ?? null,
-            'status' => 'active', // Ensure status is active so they can login
+            'phone' => $data['phone'],
+            'password' => $data['password'], // Mutator in User model handles bcrypt
+            'status' => 'active', // Default status
         ]);
 
-        // 2. Assign Spatie Role (CRITICAL: DB column 'user_type' is gone, so we must use Roles)
-        $role = $data['user_type'] ?? 'customer';
-        $user->assignRole($role);
+        // Assign Role (Spatie)
+        $user->assignRole($data['role']);
 
         return $user;
     }

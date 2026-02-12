@@ -4,260 +4,166 @@ namespace App\Http\Controllers\Chef;
 
 use App\Http\Controllers\Controller;
 use App\Models\Menu;
-use App\Models\Category;
-use App\Models\Cuisine;
-use App\Models\DietaryPreference;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class MenuController extends Controller
 {
-    public function __construct()
-    {
-        // 1. Security: Only allow Chefs
-        // 'verified' middleware ensures they have completed their profile
-        $this->middleware(['auth', 'role:chef', 'verified']);
-    }
-
     /**
-     * Display a listing of the resource.
+     * Display a listing of the menu items.
      */
     public function index()
     {
-        $chef = Auth::user();
+        // Get only this Chef's menus, ordered by newest
+        $menus = Menu::where('user_id', Auth::id())
+                    ->orderBy('created_at', 'desc')
+                    ->get();
 
-        // FIXED: Changed $chef->Menu->menus() to $chef->menus()
-        $menus = $chef->menus()
-            ->with(['category', 'cuisines'])
-            ->latest()
-            ->paginate(12);
-
-        // FIXED: Updated stats queries as well
-        $stats = [
-            'total' => $chef->menus()->count(),
-            'active' => $chef->menus()->where('is_available', true)->count(),
-            'featured' => $chef->menus()->where('is_featured', true)->count(),
-        ];
-
-        return view('chefs.menu.index', compact('menus', 'stats'));
+        return view('chef.menus.index', compact('menus'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new menu item.
      */
     public function create()
     {
-        // 4. Populate Dropdowns: Fetch data from our new Models
-        $categories = Category::orderBy('name')->get();
-        $cuisines = Cuisine::orderBy('name')->get();
-        $dietaries = DietaryPreference::orderBy('name')->get();
-
-        return view('chefs.menu.create', compact('categories', 'cuisines', 'dietaries'));
+        return view('chef.menus.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created menu item in storage.
      */
     public function store(Request $request)
     {
-        // 5. Validation
-        $validated = $this->validateMenuData($request);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'category' => 'required|string', // Changed from category_id to string 'category' for simplicity
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB Max
+            'preparation_time' => 'nullable|integer|min:0',
+        ]);
 
-        // 6. Handle Images
-        $validated['images'] = $this->handleImageUploads($request);
+        $data = $request->all();
+        $data['user_id'] = Auth::id();
+        $data['is_available'] = $request->has('is_available'); // Handle checkbox
 
-        // 7. Set Owner
-        $validated['chef_id'] = Auth::id();
-
-        // 8. Create Menu (Mass Assignment)
-        $menu = Menu::create($validated);
-
-        // 9. Sync Relationships (The Core "Pivot" Logic)
-        if (!empty($request->cuisine_ids)) {
-            $menu->cuisines()->sync($request->cuisine_ids);
-        }
-        if (!empty($request->dietary_ids)) {
-            $menu->dietaryPreferences()->sync($request->dietary_ids);
+        // Handle Image Upload
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('menus', 'public');
         }
 
-        return redirect()->route('chef.menus.index')
-            ->with('success', 'Menu item created successfully!');
+        Menu::create($data);
+
+        return redirect()->route('chef.menus.index')->with('success', 'Menu item added successfully!');
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Menu $menu)
-    {
-        $this->authorize('view', $menu);
-        // Load all related data for the detail view
-        $menu->load(['category', 'cuisines', 'dietaryPreferences', 'reviews']);
-
-        return view('chefs.menu.show', compact('menu'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified menu item.
      */
     public function edit(Menu $menu)
     {
-        $this->authorize('update', $menu);
-
-        // Fetch data for dropdowns again
-        $categories = Category::orderBy('name')->get();
-        $cuisines = Cuisine::orderBy('name')->get();
-        $dietaries = DietaryPreference::orderBy('name')->get();
-
-        return view('chefs.menu.edit', compact('menu', 'categories', 'cuisines', 'dietaries'));
+        // Security: Ensure chef owns this menu item
+        if ($menu->user_id !== Auth::id()) {
+            abort(403);
+        }
+        return view('chef.menus.edit', compact('menu'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified menu item in storage.
      */
     public function update(Request $request, Menu $menu)
     {
-        $this->authorize('update', $menu);
-
-        $validated = $this->validateMenuData($request);
-
-        // 10. Handle Image Updates
-        if ($request->hasFile('images')) {
-            $validated['images'] = $this->handleImageUploads($request, $menu);
+        if ($menu->user_id !== Auth::id()) {
+            abort(403);
         }
 
-        // 11. Update Base Data
-        $menu->update($validated);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'category' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'preparation_time' => 'nullable|integer|min:0',
+        ]);
 
-        // 12. Sync Relationships (Attach/Detach automatically)
-        $menu->cuisines()->sync($request->input('cuisine_ids', []));
-        $menu->dietaryPreferences()->sync($request->input('dietary_ids', []));
+        $data = $request->all();
+        $data['is_available'] = $request->has('is_available');
 
-        return redirect()->route('chef.menus.index')
-            ->with('success', 'Menu updated successfully!');
+        // Handle Image Replacement
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($menu->image) {
+                Storage::disk('public')->delete($menu->image);
+            }
+            // Store new image
+            $data['image'] = $request->file('image')->store('menus', 'public');
+        }
+
+        $menu->update($data);
+
+        return redirect()->route('chef.menus.index')->with('success', 'Menu item updated successfully.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified menu item from storage.
      */
     public function destroy(Menu $menu)
     {
-        $this->authorize('delete', $menu);
-        $menu->delete(); // Soft Delete
+        if ($menu->user_id !== Auth::id()) {
+            abort(403);
+        }
 
-        return redirect()->route('chef.menus.index')
-            ->with('success', 'Menu item moved to trash.');
+        // Delete image file to save space
+        if ($menu->image) {
+            Storage::disk('public')->delete($menu->image);
+        }
+
+        $menu->delete();
+
+        return redirect()->route('chef.menus.index')->with('success', 'Dish deleted.');
     }
 
-    // --- AJAX ACTIONS (Toggles) ---
-
-    public function toggleAvailability(Request $request, Menu $menu)
+    /**
+     * Toggle "In Stock" / "Sold Out" via AJAX or Button
+     */
+    public function toggleAvailability(Menu $menu)
     {
-        $this->authorize('update', $menu);
+        if ($menu->user_id !== Auth::id()) {
+            abort(403);
+        }
 
-        $menu->update(['is_available' => $request->boolean('is_available')]);
+        $menu->is_available = !$menu->is_available;
+        $menu->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => $menu->is_available ? 'Item is now available' : 'Item is unavailable'
-        ]);
+        $status = $menu->is_available ? 'Available' : 'Sold Out';
+        return back()->with('success', "Item marked as $status.");
     }
-    public function toggleFeatured(Request $request, Menu $menu)
+    
+    /**
+     * Toggle "Featured" Status (Optional)
+     */
+    public function toggleFeatured(Menu $menu)
     {
-        $this->authorize('update', $menu);
-
-        // Toggle the status
-        $newState = !$menu->is_featured;
-        $menu->update(['is_featured' => $newState]);
-
-        return response()->json([
-            'success' => true,
-            'message' => $newState ? 'Item marked as Featured' : 'Item removed from Featured',
-            'is_featured' => $newState
-        ]);
+        if ($menu->user_id !== Auth::id()) {
+            abort(403);
+        }
+        
+        // Assuming you have 'is_featured' column. If not, ignore this.
+        // $menu->is_featured = !$menu->is_featured;
+        // $menu->save();
+        
+        return back();
     }
-
+    
+    /**
+     * Bulk Update (Optional - for bulk actions in table)
+     */
     public function bulkUpdate(Request $request)
     {
-        $request->validate([
-            'menu_ids' => 'required|array',
-            'menu_ids.*' => 'exists:menus,id',
-            'action' => 'required|in:make_available,make_unavailable,delete'
-        ]);
-
-        $ids = $request->menu_ids;
-
-        // Security: Ensure user owns these menus
-        $count = Menu::whereIn('id', $ids)->where('chef_id', Auth::id())->count();
-        if ($count !== count($ids)) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized access.'], 403);
-        }
-
-        // Perform Action
-        switch ($request->action) {
-            case 'make_available':
-                Menu::whereIn('id', $ids)->update(['is_available' => true]);
-                break;
-            case 'make_unavailable':
-                Menu::whereIn('id', $ids)->update(['is_available' => false]);
-                break;
-            case 'delete':
-                Menu::whereIn('id', $ids)->delete();
-                break;
-        }
-
-        return response()->json(['success' => true, 'message' => 'Bulk action applied.']);
-    }
-
-    // --- HELPER METHODS ---
-
-    private function validateMenuData(Request $request): array
-    {
-        return $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string|max:2000',
-            'price' => 'required|numeric|min:0',
-            'discounted_price' => 'nullable|numeric|lt:price',
-
-            // Relationships Validation
-            'category_id' => 'required|exists:categories,id',
-            'cuisine_ids' => 'nullable|array',
-            'cuisine_ids.*' => 'exists:cuisines,id',
-            'dietary_ids' => 'nullable|array',
-            'dietary_ids.*' => 'exists:dietary_preferences,id',
-
-            'preparation_time_minutes' => 'nullable|integer|min:1',
-            'serves_count' => 'required|integer|min:1',
-            'spice_level' => 'nullable|integer|between:0,5',
-            'stock_quantity' => 'nullable|integer|min:0',
-
-            // JSON Fields
-            'ingredients' => 'nullable|array',
-            'ingredients.*' => 'string',
-            'allergens' => 'nullable|array',
-            'allergens.*' => 'string',
-
-            'images' => 'nullable|array|max:5',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
-    }
-
-    private function handleImageUploads(Request $request, Menu $existingMenu = null): array
-    {
-        // If updating and no new images sent, preserve old ones
-        if (!$request->hasFile('images')) {
-            return $existingMenu ? ($existingMenu->images ?? []) : [];
-        }
-
-        $uploadedImages = [];
-        // Store new images
-        foreach ($request->file('images') as $image) {
-            $filename = 'menu_' . time() . '_' . Str::random(8) . '.' . $image->getClientOriginalExtension();
-            $path = $image->storeAs('menu-images', $filename, 'public');
-            $uploadedImages[] = $path;
-        }
-
-        return $uploadedImages;
+         // Placeholder for future bulk actions
+         return back();
     }
 }

@@ -1,256 +1,186 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" type="image/x-icon" href="{{ asset('storage/img/choosechowlogo.png') }}">
 
-    <title>@yield('title', 'ChooseChow - Delicious Homemade Meals')</title>
+    <title>@yield('title', 'ChooseChow')</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    {{-- LOAD ASSETS --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- FONTS & ICONS --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
-        :root {
-            --primary-color: #DC143C;
-            --secondary-color: #F75270;
-            --accent-color: #F7CAC9;
-            --background-color: #FDEBD0;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --dark-color: #343a40;
-        }
-
-        body {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-color) 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .auth-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .auth-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            max-width: 900px;
-            width: 100%;
-        }
-
-        /* --- Auth Left Side --- */
-        .auth-left {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 60px 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-        }
-
-        .auth-left::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
-            opacity: 0.4;
-        }
-
-        .auth-left > * { position: relative; z-index: 1; }
-
-        .brand-logo { margin-bottom: 1rem; }
-        .brand-name { font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem; }
-        .brand-tagline { font-size: 1.1rem; opacity: 0.9; margin-bottom: 2rem; }
-
-        .auth-features { list-style: none; padding: 0; margin: 0; text-align: left; }
-        .auth-features li { display: flex; align-items: center; margin-bottom: 1rem; font-size: 1rem; }
-        .auth-features i { margin-right: 12px; width: 25px; text-align: center; font-size: 1.2rem; }
-
-        /* --- Auth Right Side --- */
-        .auth-right { padding: 60px 40px; }
-        .auth-header { text-align: center; margin-bottom: 2rem; }
-        .auth-title { color: var(--dark-color); font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; }
-        .auth-subtitle { color: #6c757d; font-size: 1rem; }
-
-        /* Form Elements */
-        .form-floating { margin-bottom: 1rem; position: relative; }
-        
-        .form-control, .form-select {
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(220, 20, 60, 0.25);
-        }
-        
-        /* --- Password Toggle (Eye Icon) Position --- */
-        .password-toggle {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            transform: translateY(-50%);
-            border: none;
-            background: none;
-            cursor: pointer;
-            z-index: 10;
-            padding: 0;
-            color: #6c757d;
-        }
-        
-        .password-toggle:hover { color: var(--primary-color); }
-
-        /* Buttons */
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 12px;
-            padding: 12px 24px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(220, 20, 60, 0.3);
-        }
-
-        .btn-outline-primary {
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            border-radius: 12px;
-            padding: 12px 24px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .btn-outline-primary:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .divider {
-            text-align: center;
-            margin: 1.5rem 0;
-            position: relative;
-        }
-        .divider::before {
-            content: ''; position: absolute; top: 50%; left: 0; right: 0;
-            height: 1px; background: #dee2e6;
-        }
-        .divider span {
-            background: white; padding: 0 1rem; color: #6c757d; font-size: 0.9rem; position: relative;
-        }
-
-        .auth-link { color: var(--primary-color); text-decoration: none; font-weight: 600; }
-        .auth-link:hover { color: var(--secondary-color); text-decoration: underline; }
-
-        .alert { border-radius: 12px; border: none; margin-bottom: 1rem; }
-
-        /* --- USER TYPE SELECTOR (Chef vs Customer) --- */
-        .user-type-selector { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
-        
-        .user-type-option {
-            flex: 1;
-            padding: 1.5rem;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: white;
-        }
-        
-        .user-type-option:hover {
-            border-color: var(--accent-color);
-            background: #fff5f5;
-        }
-
-        .user-type-option.active {
-            border-color: var(--primary-color);
-            background: #fff0f0;
-            color: var(--primary-color);
-            box-shadow: 0 4px 12px rgba(220, 20, 60, 0.15);
-        }
-
-        .user-type-option i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
-        .user-type-option .title { font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 4px;}
-        .user-type-option .description { font-size: 0.85rem; color: #6c757d; }
-
-        @media (max-width: 768px) {
-            .auth-card { flex-direction: column; }
-            .auth-left, .auth-right { padding: 30px 20px; width: 100%; }
-            .brand-name { font-size: 2rem; }
-        }
-
-        @yield('styles')
+        a { text-decoration: none !important; }
+        body { font-family: sans-serif; }
     </style>
-</head>
 
-<body>
-    @yield('content')
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+    {{-- Initialize theme early to prevent flashing --}}
     <script>
-        // Global Helpers
-        
-        // 1. Password Toggle Function (ADDED)
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(inputId + 'Eye');
-            
-            if (input.type === "password") {
-                input.type = "text";
-                if(icon) {
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                }
-            } else {
-                input.type = "password";
-                if(icon) {
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
+        try {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
             }
-        }
-
-        // 2. Auto-hide alerts
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                document.querySelectorAll('.alert').forEach(alert => {
-                    if (typeof bootstrap !== 'undefined') {
-                        const alertInstance = bootstrap.Alert.getOrCreateInstance(alert);
-                        alertInstance.close();
-                    } else {
-                        alert.style.display = 'none';
-                    }
-                });
-            }, 5000);
-        });
+        } catch (e) {}
     </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-200">
 
-    @yield('scripts')
-</body>
+    {{-- NAVIGATION BAR --}}
+    <nav x-data="{ open: false }" class="bg-white sticky top-0 z-50 border-b border-gray-100 backdrop-blur-md bg-opacity-90">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                
+                {{-- LEFT: LOGO --}}
+                <div class="flex items-center">
+                    <a href="/" class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-utensils text-red-600 text-2xl mr-2"></i>
+                        <span class="font-extrabold text-2xl tracking-tighter text-gray-900">
+                            Choose<span class="text-red-600">Chow</span>
+                        </span>
+                    </a>
+                </div>
+
+                {{-- CENTER: DESKTOP MENU --}}
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-base font-medium {{ request()->is('/') ? 'text-red-600' : 'text-gray-600' }} hover:text-red-600 transition-colors">Home</a>
+                    <a href="{{ route('chef.index') }}" class="text-base font-medium {{ request()->routeIs('chef.*') ? 'text-red-600' : 'text-gray-600' }} hover:text-red-600 transition-colors">Find Chow</a>
+                    <a href="{{ route('how-it-works') }}" class="text-base font-medium {{ request()->routeIs('how-it-works') ? 'text-red-600' : 'text-gray-600' }} hover:text-red-600 transition-colors">How it Works</a>
+                    <a href="{{ route('about') }}" class="text-base font-medium {{ request()->routeIs('about') ? 'text-red-600' : 'text-gray-600' }} hover:text-red-600 transition-colors">About</a>
+                    <a href="{{ route('contact') }}" class="text-base font-medium {{ request()->routeIs('contact') ? 'text-red-600' : 'text-gray-600' }} hover:text-red-600 transition-colors">Contact</a>
+                </div>
+
+                {{-- RIGHT: ACTIONS --}}
+                <div class="hidden md:flex items-center space-x-4">
+                    {{-- Theme Toggle --}}
+                    <button id="theme-toggle" aria-label="Toggle theme" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <i class="fas fa-moon text-lg dark:hidden"></i>
+                        <i class="fas fa-sun text-lg hidden dark:inline"></i>
+                    </button>
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="text-base font-bold text-gray-900 hover:text-red-600">Dashboard</a>
+                    @else
+                        <a href="{{ route('login') }}" class="text-base font-bold text-gray-900 hover:text-red-600">Login</a>
+                        <a href="{{ route('register') }}" class="bg-red-600 text-white px-5 py-2.5 rounded-full font-bold hover:bg-red-700 transition shadow-lg shadow-red-600/30">Get Started</a>
+                    @endauth
+                </div>
+
+                {{-- MOBILE MENU BUTTON --}}
+                <div class="-mr-2 flex items-center md:hidden gap-4">
+                    <button @click="open = !open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <button id="mobile-theme-toggle" aria-label="Toggle theme" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
+                        <i class="fas fa-moon text-lg dark:hidden"></i>
+                        <i class="fas fa-sun text-lg hidden dark:inline"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- MOBILE MENU DROPDOWN --}}
+        <div x-show="open" class="md:hidden bg-white border-t shadow-xl transition-all" style="display: none;">
+            <div class="pt-2 pb-3 space-y-1 px-4">
+                <a href="/" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50">Home</a>
+                <a href="{{ route('chef.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50">Find Chow</a>
+                <a href="{{ route('how-it-works') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50">How it Works</a>
+                <a href="{{ route('about') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50">About</a>
+                <a href="{{ route('contact') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50">Contact</a>
+                
+                <div class="mt-4 border-t border-gray-100 pt-4">
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="block w-full text-center px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gray-900 hover:bg-gray-800">Dashboard</a>
+                    @else
+                        <a href="{{ route('login') }}" class="block w-full text-center px-4 py-3 mb-2 border border-gray-300 rounded-md text-base font-medium text-gray-700 bg-white hover:bg-gray-50">Log in</a>
+                        <a href="{{ route('register') }}" class="block w-full text-center px-4 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700">Get Started</a>
+                    @endauth
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {{-- PAGE CONTENT --}}
+    <main class="flex-grow">
+        @yield('content')
+    </main>
+
+    {{-- FOOTER --}}
+    <footer class="bg-white border-t border-gray-100 mt-auto">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                
+                {{-- Brand --}}
+                <div class="col-span-1">
+                    <span class="font-extrabold text-2xl tracking-tighter text-gray-900">
+                        Choose<span class="text-red-600">Chow</span>
+                    </span>
+                    <p class="mt-4 text-sm text-gray-500">
+                        Authentic homemade meals delivered to your doorstep.
+                    </p>
+                </div>
+
+                {{-- Company --}}
+                <div class="col-span-1">
+                    <h4 class="font-bold text-gray-900 mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{{ route('about') }}" class="text-sm text-gray-500 hover:text-red-600">About Us</a></li>
+                        <li><a href="{{ route('how-it-works') }}" class="text-sm text-gray-500 hover:text-red-600">How it Works</a></li>
+                        <li><a href="{{ route('chef.index') }}" class="text-sm text-gray-500 hover:text-red-600">Find Chefs</a></li>
+                    </ul>
+                </div>
+
+                {{-- Legal --}}
+                <div class="col-span-1">
+                    <h4 class="font-bold text-gray-900 mb-4">Support & Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{{ route('contact') }}" class="text-sm text-gray-500 hover:text-red-600">Contact Us</a></li>
+                        <li><a href="{{ route('privacy') }}" class="text-sm text-gray-500 hover:text-red-600">Privacy Policy</a></li>
+                        <li><a href="{{ route('terms') }}" class="text-sm text-gray-500 hover:text-red-600">Terms of Service</a></li>
+                    </ul>
+                </div>
+
+                {{-- Newsletter --}}
+                <div class="col-span-1">
+                    <h4 class="font-bold text-gray-900 mb-4">Newsletter</h4>
+                    <form action="{{ route('newsletter.subscribe') }}" method="POST" class="flex flex-col space-y-2">
+                        @csrf
+                        
+                        @if(session('success'))
+                            <div class="bg-green-50 text-green-700 px-3 py-2 rounded-lg text-xs font-bold border border-green-200 mb-2">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+                        
+                        @if(session('error'))
+                            <div class="bg-red-50 text-red-700 px-3 py-2 rounded-lg text-xs font-bold border border-red-200 mb-2">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+                        
+                        <input type="email" name="email" placeholder="Enter your email" required 
+                               class="px-4 py-2 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition">
+                            Subscribe
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-sm text-gray-400">&copy; {{ date('Y') }} ChooseChow. Abuja, Nigeria.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-gray-500"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-gray-500"><i class="fab fa-instagram fa-lg"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-gray-500"><i class="fab fa-twitter fa-lg"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    </body>
 </html>

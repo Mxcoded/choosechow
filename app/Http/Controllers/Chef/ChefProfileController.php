@@ -5,152 +5,163 @@ namespace App\Http\Controllers\Chef;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use App\Models\ChefProfile;
-use App\Models\Cuisine;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage; // <--- Critical for file operations
+use Illuminate\Support\Str; 
+use App\Models\ChefProfile; 
 
 class ChefProfileController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'role:chef']);
-    }
-
     /**
-     * Display the chef's profile.
+     * Display the Chef's Profile.
      */
     public function show()
     {
-        $chef = Auth::user();
-        $profile = $chef->chefProfile;
+        $user = Auth::user();
+        $this->ensureProfileExists($user); // Helper method to clean up code
 
-        // Redirect to edit if profile is incomplete
-        if (!$profile) {
-            return redirect()->route('chef.profile.edit')
-                ->with('info', 'Please complete your profile setup to start receiving orders.');
-        }
-
-        // Load relationships for the view
-        $profile->load(['cuisines']);
-
-        return view('chefs.profile.show', compact('chef', 'profile'));
+        return view('chef.profile.show', ['profile' => $user->chefProfile]);
     }
 
     /**
-     * Show the form for editing the profile.
+     * Show the edit form.
      */
     public function edit()
     {
-        $chef = Auth::user();
-        // Get existing profile or create a new instance (in memory)
-        $profile = $chef->chefProfile ?? new ChefProfile();
+        $user = Auth::user();
+        $this->ensureProfileExists($user);
 
-        // Fetch all cuisines for the checklist
-        $cuisines = Cuisine::orderBy('name')->get();
-
-        // Initialize default operating hours if specific data is missing
-        if (empty($profile->operating_hours)) {
-            $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-            $defaultHours = [];
-            foreach ($days as $day) {
-                $defaultHours[$day] = ['open' => '09:00', 'close' => '20:00', 'closed' => false];
-            }
-            $profile->operating_hours = $defaultHours;
-        }
-
-        return view('chefs.profile.edit', compact('chef', 'profile', 'cuisines'));
+        return view('chef.profile.edit', ['profile' => $user->chefProfile]);
     }
 
     /**
-     * Update or Create the chef's profile.
+     * Update the profile in the database.
      */
     public function update(Request $request)
     {
         $user = Auth::user();
+        $this->ensureProfileExists($user);
+        $profile = $user->chefProfile;
 
         // 1. Validation
-        $validated = $request->validate([
-            // User Account Info
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'avatar' => 'nullable|image|max:2048',
-
-            // Business Profile Info
+        $request->validate([
             'business_name' => 'required|string|max:255',
-            'bio' => 'required|string|max:1000',
-            'kitchen_address' => 'required|string|max:255', // Required by DB
-            'years_of_experience' => 'required|integer|min:0',
-
-            // Store Settings
-            'minimum_order' => 'required|numeric|min:0',
-            'operating_hours' => 'required|array',
-            'cuisine_ids' => 'required|array|min:1', // Must select at least 1 cuisine
-            'cuisine_ids.*' => 'exists:cuisines,id',
-            'is_online' => 'nullable', // Checkbox sends '1' or null
-
-            // Financial Info
+            'delivery_fee' => 'required|numeric|min:0',
+            'kitchen_address' => 'required|string|max:255',
+            'city' => 'required|string|max:100', // Added City
+            'bio' => 'nullable|string|max:1000',
+            'operating_hours' => 'nullable|array', 
+            'cuisines' => 'nullable|array',
+            'years_of_experience' => 'nullable|integer|min:0',
+            'minimum_order' => 'nullable|numeric|min:0',
             'bank_name' => 'nullable|string|max:255',
             'account_number' => 'nullable|string|max:20',
             'account_name' => 'nullable|string|max:255',
+            'cover_image' => 'nullable|image|max:4096', // 4MB Max
+            'profile_image' => 'nullable|image|max:2048', // 2MB Max
         ]);
 
-        DB::beginTransaction();
+        // 2. Assign Basic Fields
+        $profile->business_name = $request->business_name;
+        $profile->delivery_fee = $request->delivery_fee;
+        $profile->kitchen_address = $request->kitchen_address;
+        $profile->city = $request->city; // Save City
+        $profile->bio = $request->bio;
+        $profile->years_of_experience = $request->years_of_experience;
+        $profile->minimum_order = $request->minimum_order;
+        $profile->is_online = $request->has('is_online');
 
-        try {
-            // 2. Update User Table (Base Info)
-            if ($request->hasFile('avatar')) {
-                // Delete old avatar if exists (optional logic)
-                $user->avatar = $request->file('avatar')->store('avatars', 'public');
+        // 3. Bank Details
+        $profile->bank_name = $request->bank_name;
+        $profile->account_number = $request->account_number;
+        $profile->account_name = $request->account_name;
+        
+        // 4. Array Fields (Casting handled by Model)
+        $profile->operating_hours = $request->input('operating_hours');
+        $profile->cuisines = $request->input('cuisines');
+
+        // 5. Slug Logic (Update only if name changed)
+        if ($profile->isDirty('business_name')) {
+            $profile->slug = Str::slug($request->business_name . '-' . $user->id);
+        }
+
+        // 6. IMAGE HANDLING: COVER
+        if ($request->hasFile('cover_image')) {
+            // Delete old
+            if ($profile->cover_image) {
+                Storage::disk('public')->delete($profile->cover_image);
             }
+            // Save new
+            $profile->cover_image = $request->file('cover_image')->store('chef_covers', 'public');
+        }
 
-            $user->update([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'phone' => $request->phone,
+        // 7. IMAGE HANDLING: PROFILE/LOGO
+        if ($request->hasFile('profile_image')) {
+            // Delete old
+            if ($profile->profile_image) {
+                Storage::disk('public')->delete($profile->profile_image);
+            }
+            // Save new
+            $profile->profile_image = $request->file('profile_image')->store('chef_avatars', 'public');
+        }
+
+        $profile->save();
+
+        return redirect()->route('chef.profile')->with('success', 'Kitchen profile updated successfully!');
+    }
+
+    /**
+     * Show the Personal Info form.
+     */
+    public function editPersonal()
+    {
+        return view('chef.profile.personal', ['user' => Auth::user()]);
+    }
+
+    /**
+     * Update the Personal Info.
+     */
+    public function updatePersonal(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->phone = $request->phone;
+
+        if ($request->filled('password')) {
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Personal details updated successfully!');
+    }
+
+    /**
+     * Helper: Ensure a profile exists for the user.
+     */
+    private function ensureProfileExists($user)
+    {
+        if (!$user->chefProfile) {
+            $businessName = $user->first_name . "'s Kitchen";
+            ChefProfile::create([
+                'user_id' => $user->id,
+                'business_name' => $businessName,
+                'slug' => Str::slug($businessName . '-' . $user->id),
+                'bio' => 'Welcome to my kitchen!',
+                'delivery_fee' => 0,
+                'kitchen_address' => 'Update your address',
+                'is_online' => true,
+                'years_of_experience' => 0
             ]);
-
-            // 3. Prepare Profile Data
-            $profileData = $request->only([
-                'business_name',
-                'bio',
-                'kitchen_address',
-                'years_of_experience',
-                'minimum_order',
-                'operating_hours',
-                'bank_name',
-                'account_number',
-                'account_name'
-            ]);
-
-            // Explicitly handle fields that might need transformation
-            $profileData['is_online'] = $request->has('is_online'); // Convert checkbox to boolean
-
-            // Only generate slug if we are creating, or if you want to allow slug updates:
-            // $profileData['slug'] = Str::slug($request->business_name); 
-            // (Note: The Model boot() method also handles slug generation on save)
-
-            // 4. Update or Create Profile Record
-            $profile = $user->chefProfile()->updateOrCreate(
-                ['user_id' => $user->id],
-                $profileData
-            );
-
-            // 5. Sync Relationships (Cuisines)
-            $profile->cuisines()->sync($request->cuisine_ids);
-
-            DB::commit();
-
-            return redirect()->route('chef.profile')
-                ->with('success', 'Profile updated successfully!');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            // Log the error for debugging: \Log::error($e);
-            return back()
-                ->with('error', 'Error saving profile: ' . $e->getMessage())
-                ->withInput();
+            $user->refresh(); // Reload user to get the relation
         }
     }
-    
 }

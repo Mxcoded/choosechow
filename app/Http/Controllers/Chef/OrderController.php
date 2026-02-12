@@ -9,88 +9,52 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    public function __construct()
+    // 1. List all orders for this Chef
+    public function index()
     {
-        // Use standard Spatie role middleware
-        $this->middleware(['auth', 'role:chef']);
+        // FIX: Added 'preparing' and 'ready' so active orders don't disappear
+        $orders = Order::where('chef_id', Auth::id())
+            ->whereIn('status', ['pending', 'preparing', 'ready', 'completed', 'cancelled'])
+            ->with(['items', 'user']) // Eager load user to prevent "Attempt to read property of null"
+            ->latest()
+            ->paginate(10);
+
+        return view('chef.orders.index', compact('orders')); 
     }
 
-    /**
-     * Display a listing of the chef's orders.
-     */
-    public function index(Request $request)
+    // 2. Show Order Details
+    public function show($id)
     {
-        $chef = Auth::user();
-        $status = $request->get('status', 'all'); // Default to 'all' to see something initially
+        // We use findOrFail with eager loading for safety
+        $order = Order::with(['items', 'user'])->findOrFail($id);
 
-        $query = Order::where('chef_id', $chef->id);
-
-        // Filter by status if not 'all'
-        if ($status !== 'all') {
-            $query->where('status', $status);
-        }
-
-        $orders = $query->latest()
-            ->with(['customer', 'items'])
-            ->paginate(15);
-
-        // Calculate Stats
-        $stats = [
-            'pending' => Order::where('chef_id', $chef->id)->where('status', 'pending')->count(),
-            'confirmed' => Order::where('chef_id', $chef->id)->where('status', 'confirmed')->count(),
-            'preparing' => Order::where('chef_id', $chef->id)->where('status', 'preparing')->count(),
-            'delivered' => Order::where('chef_id', $chef->id)->where('status', 'delivered')->count(),
-            'all' => Order::where('chef_id', $chef->id)->count(),
-        ];
-
-        return view('chefs.orders.index', compact('orders', 'stats', 'status'));
-    }
-
-    /**
-     * Display the specified order details.
-     */
-    public function show(Order $order)
-    {
         if ($order->chef_id !== Auth::id()) {
-            abort(403, 'Unauthorized access to this order.');
+            abort(403, "Unauthorized access to this order.");
         }
 
-        $order->load(['customer', 'items.menu']);
-
-        return view('chefs.orders.show', compact('order'));
+        return view('chef.orders.show', compact('order'));
     }
 
-    /**
-     * Update the status of the specified order.
-     */
-    public function updateStatus(Request $request, Order $order)
+    // 3. Update Status (Unified Method)
+    public function update(Request $request, $id)
     {
+        $order = Order::findOrFail($id);
+
+        // 1. Security Check: Ensure this order belongs to the logged-in Chef
         if ($order->chef_id !== Auth::id()) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            abort(403, 'Unauthorized action.');
         }
 
+        // 2. Validate (Ensure these match the values in your View forms)
         $request->validate([
-            'status' => 'required|in:confirmed,preparing,ready,out_for_delivery,delivered,cancelled'
+            'status' => 'required|in:pending_payment,pending,preparing,ready,completed,cancelled'
         ]);
 
-        $newStatus = $request->status;
+        // 3. Update Status
+        $order->status = $request->status;
+        $order->save();
 
-        // Use the Model helpers we created
-        if ($newStatus === 'confirmed') {
-            $order->confirm();
-        } elseif ($newStatus === 'delivered') {
-            $order->markAsDelivered();
-        } else {
-            // For simple status changes
-            $order->update(['status' => $newStatus]);
-
-            // Optional: Set specific timestamps
-            if ($newStatus === 'preparing') $order->update(['prepared_at' => now()]);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => "Order #{$order->order_number} marked as " . ucfirst(str_replace('_', ' ', $newStatus))
-        ]);
+        // 4. Redirect Back
+        return redirect()->back()->with('success', 'Order status updated to ' . ucfirst($request->status));
     }
 }

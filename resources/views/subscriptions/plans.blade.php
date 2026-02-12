@@ -38,10 +38,10 @@
 <!-- Hero Section -->
 <section class="py-20 bg-white">
     <div class="max-w-6xl mx-auto px-4 text-center">
-        <h1 class="text-5xl font-bold text-gray-900 mb-6">
+        <h1 class="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
             Choose Your <span class="gradient-text">Plan</span>
         </h1>
-        <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+        <p class="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
             Whether you're a food lover or a chef entrepreneur, we have the perfect plan to enhance your ChooseChow experience. 
             Get more value with our subscription plans.
         </p>
@@ -49,7 +49,7 @@
         
         <!-- Billing Toggle -->
         <div class="flex items-center justify-center mb-12">
-            <span class="text-gray-600 mr-4">Monthly</span>
+            <span class="text-gray-600 dark:text-gray-400 mr-4">Monthly</span>
             <div class="relative">
                 <input type="checkbox" id="billingToggle" class="sr-only" onchange="toggleBilling()">
                 <label for="billingToggle" class="flex items-center cursor-pointer">
@@ -59,7 +59,7 @@
                     </div>
                 </label>
             </div>
-            <span class="text-gray-600 ml-4">Yearly</span>
+            <span class="text-gray-600 dark:text-gray-400 ml-4">Yearly</span>
             <span class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full ml-3">Save 20%</span>
         </div>
     </div>
@@ -69,45 +69,45 @@
 <section class="py-16 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Customer Plans</h2>
-            <p class="text-lg text-gray-600">Enjoy exclusive benefits and savings on your food orders</p>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Customer Plans</h2>
+            <p class="text-lg text-gray-600 dark:text-gray-400">Enjoy exclusive benefits and savings on your food orders</p>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
             
             <!-- Basic Plan -->
-            <div class="bg-white rounded-2xl p-8 plan-card border-2 border-gray-200">
+            <div class="bg-white rounded-2xl p-8 plan-card border-2 border-gray-200 dark:border-gray-700">
                 <div class="text-center mb-8">
                     <div class="text-4xl mb-4">🍽️</div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Basic</h3>
-                    <p class="text-gray-600 mb-6">Perfect for occasional food lovers</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-2">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Basic</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Perfect for occasional food lovers</p>
+                    <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         <span class="monthly-price">Free</span>
                         <span class="yearly-price hidden">Free</span>
                     </div>
-                    <p class="text-gray-500">Always free</p>
+                    <p class="tdark:text-gray-300">Always free</p>
                 </div>
 
                 <div class="space-y-4 mb-8">
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Browse all chefs and menus</span>
+                        <span class="dark:text-gray-300">Browse all chefs and menus</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Standard delivery options</span>
+                        <span class="dark:text-gray-300">Standard delivery options</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Basic customer support</span>
+                        <span class="dark:text-gray-300">Basic customer support</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Order tracking</span>
+                        <span class="dark:text-gray-300">Order tracking</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Reviews and ratings</span>
+                        <span class="dark:text-gray-300">Reviews and ratings</span>
                     </div>
                 </div>
 
@@ -124,40 +124,40 @@
                 
                 <div class="text-center mb-8">
                     <div class="text-4xl mb-4">🌟</div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Premium</h3>
-                    <p class="text-gray-600 mb-6">Great for regular food enthusiasts</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-2">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Premium</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Great for regular food enthusiasts</p>
+                    <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         <span class="monthly-price">₦2,500</span>
                         <span class="yearly-price hidden">₦24,000</span>
-                        <span class="text-lg text-gray-500">/month</span>
+                        <span class="text-lg tdark:text-gray-300">/month</span>
                     </div>
-                    <p class="text-gray-500 yearly-savings hidden">Save ₦6,000 yearly</p>
+                    <p class="tdark:text-gray-300 yearly-savings hidden">Save ₦6,000 yearly</p>
                 </div>
 
                 <div class="space-y-4 mb-8">
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Everything in Basic</span>
+                        <span class="dark:text-gray-300">Everything in Basic</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Free delivery on orders over ₦2,000</span>
+                        <span class="dark:text-gray-300">Free delivery on orders over ₦2,000</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">10% discount on all orders</span>
+                        <span class="dark:text-gray-300">10% discount on all orders</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Priority customer support</span>
+                        <span class="dark:text-gray-300">Priority customer support</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Early access to new chefs</span>
+                        <span class="dark:text-gray-300">Early access to new chefs</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Monthly exclusive deals</span>
+                        <span class="dark:text-gray-300">Monthly exclusive deals</span>
                     </div>
                 </div>
 
@@ -170,44 +170,44 @@
             <div class="bg-white rounded-2xl p-8 plan-card border-2 border-purple-500">
                 <div class="text-center mb-8">
                     <div class="text-4xl mb-4">👑</div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">VIP</h3>
-                    <p class="text-gray-600 mb-6">Ultimate experience for food connoisseurs</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-2">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">VIP</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Ultimate experience for food connoisseurs</p>
+                    <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         <span class="monthly-price">₦5,000</span>
                         <span class="yearly-price hidden">₦48,000</span>
-                        <span class="text-lg text-gray-500">/month</span>
+                        <span class="text-lg tdark:text-gray-300">/month</span>
                     </div>
-                    <p class="text-gray-500 yearly-savings hidden">Save ₦12,000 yearly</p>
+                    <p class="tdark:text-gray-300 yearly-savings hidden">Save ₦12,000 yearly</p>
                 </div>
 
                 <div class="space-y-4 mb-8">
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Everything in Premium</span>
+                        <span class="dark:text-gray-300">Everything in Premium</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Free delivery on all orders</span>
+                        <span class="dark:text-gray-300">Free delivery on all orders</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">15% discount on all orders</span>
+                        <span class="dark:text-gray-300">15% discount on all orders</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">24/7 VIP support hotline</span>
+                        <span class="dark:text-gray-300">24/7 VIP support hotline</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Exclusive chef experiences</span>
+                        <span class="dark:text-gray-300">Exclusive chef experiences</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Personal food concierge</span>
+                        <span class="dark:text-gray-300">Personal food concierge</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Monthly chef meetups</span>
+                        <span class="dark:text-gray-300">Monthly chef meetups</span>
                     </div>
                 </div>
 
@@ -224,54 +224,54 @@
 <section class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Chef Plans</h2>
-            <p class="text-lg text-gray-600">Grow your culinary business with our professional tools</p>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Chef Plans</h2>
+            <p class="text-lg text-gray-600 dark:text-gray-400">Grow your culinary business with our professional tools</p>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
             
             <!-- Starter Chef -->
-            <div class="bg-white rounded-2xl p-8 plan-card border-2 border-gray-200">
+            <div class="bg-white rounded-2xl p-8 plan-card border-2 border-gray-200 dark:border-gray-700">
                 <div class="text-center mb-8">
                     <div class="text-4xl mb-4">👨‍🍳</div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Starter Chef</h3>
-                    <p class="text-gray-600 mb-6">Perfect for new chefs getting started</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-2">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Starter Chef</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Perfect for new chefs getting started</p>
+                    <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         <span class="monthly-price">₦3,000</span>
                         <span class="yearly-price hidden">₦28,800</span>
-                        <span class="text-lg text-gray-500">/month</span>
+                        <span class="text-lg tdark:text-gray-300">/month</span>
                     </div>
-                    <p class="text-gray-500">
+                    <p class="tdark:text-gray-300">
                         <span class="monthly-commission">+ 8% commission</span>
                         <span class="yearly-commission hidden">+ 7% commission</span>
                     </p>
-                    <p class="text-gray-500 yearly-savings hidden">Save ₦7,200 yearly</p>
+                    <p class="tdark:text-gray-300 yearly-savings hidden">Save ₦7,200 yearly</p>
                 </div>
 
                 <div class="space-y-4 mb-8">
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Basic chef profile</span>
+                        <span class="dark:text-gray-300">Basic chef profile</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Up to 20 menu items</span>
+                        <span class="dark:text-gray-300">Up to 20 menu items</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Order management tools</span>
+                        <span class="dark:text-gray-300">Order management tools</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Basic analytics</span>
+                        <span class="dark:text-gray-300">Basic analytics</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Standard support</span>
+                        <span class="dark:text-gray-300">Standard support</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Weekly payouts</span>
+                        <span class="dark:text-gray-300">Weekly payouts</span>
                     </div>
                 </div>
 
@@ -288,48 +288,48 @@
                 
                 <div class="text-center mb-8">
                     <div class="text-4xl mb-4">🔥</div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Professional Chef</h3>
-                    <p class="text-gray-600 mb-6">For established culinary professionals</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-2">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Professional Chef</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">For established culinary professionals</p>
+                    <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         <span class="monthly-price">₦6,000</span>
                         <span class="yearly-price hidden">₦57,600</span>
-                        <span class="text-lg text-gray-500">/month</span>
+                        <span class="text-lg tdark:text-gray-300">/month</span>
                     </div>
-                    <p class="text-gray-500">
+                    <p class="tdark:text-gray-300">
                         <span class="monthly-commission">+ 6% commission</span>
                         <span class="yearly-commission hidden">+ 5% commission</span>
                     </p>
-                    <p class="text-gray-500 yearly-savings hidden">Save ₦14,400 yearly</p>
+                    <p class="tdark:text-gray-300 yearly-savings hidden">Save ₦14,400 yearly</p>
                 </div>
 
                 <div class="space-y-4 mb-8">
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Everything in Starter</span>
+                        <span class="dark:text-gray-300">Everything in Starter</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Unlimited menu items</span>
+                        <span class="dark:text-gray-300">Unlimited menu items</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Advanced analytics & insights</span>
+                        <span class="dark:text-gray-300">Advanced analytics & insights</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Priority listing in search</span>
+                        <span class="dark:text-gray-300">Priority listing in search</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Marketing tools & promotions</span>
+                        <span class="dark:text-gray-300">Marketing tools & promotions</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Daily payouts</span>
+                        <span class="dark:text-gray-300">Daily payouts</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Dedicated account manager</span>
+                        <span class="dark:text-gray-300">Dedicated account manager</span>
                     </div>
                 </div>
 
@@ -342,48 +342,48 @@
             <div class="bg-white rounded-2xl p-8 plan-card border-2 border-yellow-500">
                 <div class="text-center mb-8">
                     <div class="text-4xl mb-4">⭐</div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Master Chef</h3>
-                    <p class="text-gray-600 mb-6">For culinary entrepreneurs and brands</p>
-                    <div class="text-4xl font-bold text-gray-900 mb-2">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Master Chef</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">For culinary entrepreneurs and brands</p>
+                    <div class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                         <span class="monthly-price">₦12,000</span>
                         <span class="yearly-price hidden">₦115,200</span>
-                        <span class="text-lg text-gray-500">/month</span>
+                        <span class="text-lg tdark:text-gray-300">/month</span>
                     </div>
-                    <p class="text-gray-500">
+                    <p class="tdark:text-gray-300">
                         <span class="monthly-commission">+ 4% commission</span>
                         <span class="yearly-commission hidden">+ 3% commission</span>
                     </p>
-                    <p class="text-gray-500 yearly-savings hidden">Save ₦28,800 yearly</p>
+                    <p class="tdark:text-gray-300 yearly-savings hidden">Save ₦28,800 yearly</p>
                 </div>
 
                 <div class="space-y-4 mb-8">
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Everything in Professional</span>
+                        <span class="dark:text-gray-300">Everything in Professional</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Multiple restaurant locations</span>
+                        <span class="dark:text-gray-300">Multiple restaurant locations</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">White-label delivery options</span>
+                        <span class="dark:text-gray-300">White-label delivery options</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Custom branding & storefront</span>
+                        <span class="dark:text-gray-300">Custom branding & storefront</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">API access for integrations</span>
+                        <span class="dark:text-gray-300">API access for integrations</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">Instant payouts</span>
+                        <span class="dark:text-gray-300">Instant payouts</span>
                     </div>
                     <div class="flex items-center">
                         <span class="text-green-500 mr-3">✓</span>
-                        <span class="text-gray-700">24/7 priority support</span>
+                        <span class="dark:text-gray-300">24/7 priority support</span>
                     </div>
                 </div>
 
@@ -400,8 +400,8 @@
 <section class="py-16 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Compare All Features</h2>
-            <p class="text-lg text-gray-600">See what's included in each plan</p>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Compare All Features</h2>
+            <p class="text-lg text-gray-600 dark:text-gray-400">See what's included in each plan</p>
         </div>
 
         <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
@@ -409,8 +409,8 @@
                 <table class="w-full">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="text-left p-6 font-semibold text-gray-900">Features</th>
-                            <th class="text-center p-6 font-semibold text-gray-900">Basic</th>
+                            <th class="text-left p-6 font-semibold text-gray-900 dark:text-gray-100">Features</th>
+                            <th class="text-center p-6 font-semibold text-gray-900 dark:text-gray-100">Basic</th>
                             <th class="text-center p-6 font-semibold text-red-600">Premium</th>
                             <th class="text-center p-6 font-semibold text-purple-600">VIP</th>
                             <th class="text-center p-6 font-semibold text-blue-600">Starter Chef</th>
@@ -502,8 +502,8 @@
 <section class="py-16 bg-white">
     <div class="max-w-4xl mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p class="text-lg text-gray-600">Everything you need to know about our subscription plans</p>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Frequently Asked Questions</h2>
+            <p class="text-lg text-gray-600 dark:text-gray-400">Everything you need to know about our subscription plans</p>
         </div>
 
         <div class="space-y-6">
@@ -512,7 +512,7 @@
                     <span class="text-blue-600 mr-3">❓</span>
                     Can I change my plan anytime?
                 </h3>
-                <p class="text-gray-700">
+                <p class="dark:text-gray-300">
                     Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately for upgrades, 
                     or at the end of your current billing cycle for downgrades.
                 </p>
@@ -523,7 +523,7 @@
                     <span class="text-green-600 mr-3">💳</span>
                     What payment methods do you accept?
                 </h3>
-                <p class="text-gray-700">
+                <p class="dark:text-gray-300">
                     We accept all major credit cards, debit cards, bank transfers, and mobile money payments. 
                     All payments are processed securely through our certified payment partners.
                 </p>
@@ -534,7 +534,7 @@
                     <span class="text-red-600 mr-3">🔄</span>
                     Is there a refund policy?
                 </h3>
-                <p class="text-gray-700">
+                <p class="dark:text-gray-300">
                     We offer a 7-day money-back guarantee for all new subscriptions. If you're not satisfied, 
                     contact our support team within 7 days for a full refund.
                 </p>
@@ -545,7 +545,7 @@
                     <span class="text-purple-600 mr-3">👨‍🍳</span>
                     Do chef plans include customer features?
                 </h3>
-                <p class="text-gray-700">
+                <p class="dark:text-gray-300">
                     Chef plans focus on business tools and lower commission rates. If you want customer benefits too, 
                     you can subscribe to both a chef plan and a customer plan.
                 </p>
@@ -556,7 +556,7 @@
                     <span class="text-yellow-600 mr-3">📞</span>
                     How do I get support?
                 </h3>
-                <p class="text-gray-700">
+                <p class="dark:text-gray-300">
                     All subscribers get access to our support team. Premium and VIP customers get priority support, 
                     while VIP members have access to our 24/7 hotline.
                 </p>
