@@ -45,4 +45,3 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (btn) btn.addEventListener('click', toggleTheme);
 	if (mobileBtn) mobileBtn.addEventListener('click', toggleTheme);
 });
-});
