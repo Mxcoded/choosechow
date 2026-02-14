@@ -23,7 +23,11 @@
     {{-- SIDEBAR: Only visible on Desktop --}}
     <aside class="fixed top-0 left-0 z-50 h-screen w-64 bg-red-700 text-white flex flex-col shadow-xl hidden lg:flex">
         <div class="h-16 flex items-center px-6 border-b border-white/10 bg-black/10">
-            <a href="/" class="font-bold text-xl tracking-wider"><i class="fas fa-utensils mr-2"></i>ChooseChow</a>
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 group">
+                    <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
+                         class="h-12 w-12 rounded-full shadow-sm group-hover:scale-105 transition-transform duration-300">
+                    <span class="text-2xl font-bold text-red-600 tracking-tight group-hover:text-red-700 transition-colors">ChooseChow</span>
+                </a>
         </div>
 
         <nav class="flex-1 overflow-y-auto py-4">
