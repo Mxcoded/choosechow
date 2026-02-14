@@ -7,29 +7,18 @@
 
     <title>@yield('title', 'ChooseChow')</title>
 
-    {{-- LOAD ASSETS --}}
+    {{-- LOAD ASSETS (Includes Alpine.js via app.js) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     {{-- FONTS & ICONS --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
+    
     <style>
         a { text-decoration: none !important; }
         body { font-family: sans-serif; }
     </style>
-
-    {{-- Initialize theme early to prevent flashing --}}
-    <script>
-        try {
-            const theme = localStorage.getItem('theme');
-            if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            }
-        } catch (e) {}
-    </script>
 </head>
-<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-200">
+<body class="bg-white text-gray-900 flex flex-col min-h-screen">
 
     {{-- NAVIGATION BAR --}}
     <nav x-data="{ open: false }" class="bg-white sticky top-0 z-50 border-b border-gray-100 backdrop-blur-md bg-opacity-90">
@@ -57,11 +46,6 @@
 
                 {{-- RIGHT: ACTIONS --}}
                 <div class="hidden md:flex items-center space-x-4">
-                    {{-- Theme Toggle --}}
-                    <button id="theme-toggle" aria-label="Toggle theme" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-                        <i class="fas fa-moon text-lg dark:hidden"></i>
-                        <i class="fas fa-sun text-lg hidden dark:inline"></i>
-                    </button>
                     @auth
                         <a href="{{ route('dashboard') }}" class="text-base font-bold text-gray-900 hover:text-red-600">Dashboard</a>
                     @else
@@ -74,10 +58,6 @@
                 <div class="-mr-2 flex items-center md:hidden gap-4">
                     <button @click="open = !open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
                         <i class="fas fa-bars text-xl"></i>
-                    </button>
-                    <button id="mobile-theme-toggle" aria-label="Toggle theme" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none">
-                        <i class="fas fa-moon text-lg dark:hidden"></i>
-                        <i class="fas fa-sun text-lg hidden dark:inline"></i>
                     </button>
                 </div>
             </div>
