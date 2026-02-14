@@ -5,17 +5,10 @@ export default {
     "./resources/**/*.js",
     "./resources/**/*.vue",
   ],
-  darkMode: 'class', // <--- This enables the toggle button
+  // darkMode removed to enforce light mode only
   theme: {
     extend: {
-      colors: {
-        dark: {
-          bg: '#111827',
-          card: '#1f2937',
-          border: '#374151',
-          text: '#f3f4f6',
-        }
-      }
+      // Custom colors if needed, but dark mode colors removed
     },
   },
   plugins: [],
