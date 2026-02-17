@@ -16,7 +16,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $query = ChefProfile::where('is_online', true)
-                            ->with(['user.receivedReviews']);
+                            ->with(['user.receivedReviews', 'cuisines']);
 
         // 1. Search Logic (Name, Cuisine, Address, City OR MENU ITEMS)
         if ($request->filled('search')) {
@@ -51,10 +51,10 @@ class CustomerController extends Controller
     // 2. Show Chef Menu
     public function show($slug)
     {
-        // Fetch Chef Profile + User + Available Menus
+        // Fetch Chef Profile + User + Available Menus + Cuisines
         $chef = ChefProfile::where('slug', $slug)
                             ->orWhere('id', $slug)
-                            ->with(['user.receivedReviews', 'user.menus' => function($query) {
+                            ->with(['user.receivedReviews', 'cuisines', 'user.menus' => function($query) {
                                 $query->where('is_available', true);
                             }])
                             ->firstOrFail();

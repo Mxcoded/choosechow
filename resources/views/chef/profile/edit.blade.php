@@ -96,10 +96,11 @@
                     </h3>
                     
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        @php
-                            $allCuisines = ['Rice Dishes', 'Swallow & Soups', 'Pasta', 'Grills & BBQ', 'Pastries', 'Breakfast', 'Continental', 'Vegetarian', 'Drinks & Smoothies', 'Fast Food', 'Local Delicacies', 'Seafood'];
-                            $myCuisines = $profile->cuisines ?? [];
-                        @endphp
+                    @php
+                        $allCuisines = ['Rice Dishes', 'Swallow & Soups', 'Pasta', 'Grills & BBQ', 'Pastries', 'Breakfast', 'Continental', 'Vegetarian', 'Drinks & Smoothies', 'Fast Food', 'Local Delicacies', 'Seafood'];
+                        // Convert Eloquent Collection to array of cuisine names
+                        $myCuisines = $profile->cuisines ? $profile->cuisines->pluck('name')->toArray() : [];
+                    @endphp
 
                         @foreach($allCuisines as $cuisine)
                             <label class="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-red-50 transition-colors border border-transparent hover:border-red-100">

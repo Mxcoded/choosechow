@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         // 2. Run Taxonomies (NEW)
         $this->call(TaxonomySeeder::class);
         // 3. Run Chef Seeder (NEW)
-       // $this->call(ChefSeeder::class);
+        $this->call(ChefSeeder::class);
         // 4. Create Admin User
         $this->call(AdminUserSeeder::class);
     }

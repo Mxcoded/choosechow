@@ -50,14 +50,19 @@
 
                 <div>
                     <label class="block text-sm font-bold dark:text-gray-300 mb-1">Category <span class="text-red-600">*</span></label>
-                    <select name="category" class="w-full rounded-lg border-gray-300 focus:ring-red-500 focus:border-red-500 bg-white">
-                        <option value="Main Dish">Main Dish</option>
-                        <option value="Side Dish">Side Dish</option>
-                        <option value="Soup/Swallow">Soup / Swallow</option>
-                        <option value="Grills">Grills & Suya</option>
-                        <option value="Snacks">Snacks / Pastries</option>
-                        <option value="Drinks">Drinks</option>
-                        <option value="Combo">Combo Meal</option>
+                    <select name="category" class="w-full rounded-lg border-gray-300 focus:ring-red-500 focus:border-red-500 bg-white" required>
+                        <option value="">Select Category</option>
+                        <option value="Main Dish" {{ old('category') == 'Main Dish' ? 'selected' : '' }}>Main Dish</option>
+                        <option value="Side Dish" {{ old('category') == 'Side Dish' ? 'selected' : '' }}>Side Dish</option>
+                        <option value="Soup/Swallow" {{ old('category') == 'Soup/Swallow' ? 'selected' : '' }}>Soup / Swallow</option>
+                        <option value="Grills" {{ old('category') == 'Grills' ? 'selected' : '' }}>Grills & Suya</option>
+                        <option value="Snacks" {{ old('category') == 'Snacks' ? 'selected' : '' }}>Snacks / Pastries</option>
+                        <option value="Drinks" {{ old('category') == 'Drinks' ? 'selected' : '' }}>Drinks</option>
+                        <option value="Combo" {{ old('category') == 'Combo' ? 'selected' : '' }}>Combo Meal</option>
+                        <option value="Rice Dishes" {{ old('category') == 'Rice Dishes' ? 'selected' : '' }}>Rice Dishes</option>
+                        <option value="Pasta" {{ old('category') == 'Pasta' ? 'selected' : '' }}>Pasta</option>
+                        <option value="Continental" {{ old('category') == 'Continental' ? 'selected' : '' }}>Continental</option>
+                        <option value="Seafood" {{ old('category') == 'Seafood' ? 'selected' : '' }}>Seafood</option>
                     </select>
                 </div>
             </div>

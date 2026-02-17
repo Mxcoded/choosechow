@@ -1,12 +1,13 @@
-@extends('layouts.dashboard')
+@extends('layouts.app')
 
 @section('title', $chef->business_name . ' - ChooseChow')
 
 @section('content')
-<div class="max-w-7xl mx-auto pb-20">
+<div class="min-h-screen bg-chow-cream-50 dark:bg-gray-900 transition-colors">
+<div class="max-w-7xl mx-auto pb-20 px-4 sm:px-6 lg:px-8">
 
     {{-- 1. HEADER IMAGE & INFO --}}
-    <div class="relative bg-white rounded-b-3xl shadow-sm border-b border-gray-100 dark:border-gray-700 mb-8 overflow-hidden">
+    <div class="relative bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-chow-cream-200 dark:border-gray-700 mb-8 overflow-hidden mt-8">
         
         {{-- Cover Image --}}
         <div class="h-64 md:h-80 w-full relative">
@@ -14,9 +15,10 @@
                 <img src="{{ asset('storage/' . $chef->cover_image) }}" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
             @else
-                <div class="w-full h-full bg-gray-800 flex items-center justify-center">
-                    <i class="fas fa-store dark:text-gray-300 text-6xl"></i>
+                <div class="w-full h-full bg-gradient-to-br from-chow-red-600 to-chow-orange-500 flex items-center justify-center">
+                    <i class="fas fa-store text-white/30 text-6xl"></i>
                 </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
             @endif
 
             {{-- Back Button --}}
@@ -74,25 +76,25 @@
                 </div>
 
                 {{-- Order Info Box --}}
-                <div class="bg-white p-4 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 text-center min-w-[150px] hidden md:block">
-                    <div class="text-xs text-gray-400 uppercase tracking-wider mb-1">Min. Order</div>
-                    <div class="text-xl font-bold text-gray-900 dark:text-gray-100">₦{{ number_format($chef->minimum_order) }}</div>
-                    <div class="text-xs tdark:text-gray-300 mt-1">Delivery: ₦{{ number_format($chef->delivery_fee ?? 0) }}</div>
+                <div class="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-lg border border-gray-100 dark:border-gray-600 text-center min-w-[150px] hidden md:block">
+                    <div class="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">Min. Order</div>
+                    <div class="text-xl font-bold text-gray-900 dark:text-white">₦{{ number_format($chef->minimum_order) }}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">Delivery: ₦{{ number_format($chef->delivery_fee ?? 0) }}</div>
                 </div>
             </div>
 
             {{-- Bio & Cuisines --}}
             <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="md:col-span-2">
-                    <h3 class="font-bold text-gray-800 text-lg mb-2">About the Kitchen</h3>
+                    <h3 class="font-bold text-gray-800 dark:text-white text-lg mb-2">About the Kitchen</h3>
                     <p class="text-gray-600 dark:text-gray-400 leading-relaxed">{{ $chef->bio }}</p>
 
-                    {{-- SAFE Cuisines Display --}}
-                    @if(!empty($chef->cuisines))
+                    {{-- Cuisines Display --}}
+                    @if($chef->cuisines->count() > 0)
                         <div class="mt-4 flex flex-wrap gap-2">
                             @foreach($chef->cuisines as $cuisine)
-                                <span class="bg-gray-100 text-gray-600 dark:text-gray-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
-                                    {{ $cuisine }}
+                                <span class="bg-chow-orange-50 dark:bg-chow-orange-900/30 text-chow-orange-600 dark:text-chow-orange-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                                    {{ $cuisine->name }}
                                 </span>
                             @endforeach
                         </div>
@@ -103,24 +105,24 @@
     </div>
 
     {{-- 2. MENU GRID --}}
-    <div class="px-6 md:px-10">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-            <i class="fas fa-book-open text-red-500 mr-3"></i> Menu
+    <div class="">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center">
+            <i class="fas fa-book-open text-chow-orange-500 mr-3"></i> Menu
         </h2>
 
         @if(isset($menus) && $menus->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {{-- Iterate through the menus (Flattened to handle groups) --}}
                 @foreach($menus->flatten() as $menu)
-                    <div class="bg-white rounded-xl p-4 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all flex gap-4 group">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-chow-cream-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all flex gap-4 group">
                         
                         {{-- Menu Image --}}
-                        <div class="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden relative">
+                        <div class="w-24 h-24 flex-shrink-0 bg-chow-cream-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
                             @if($menu->image)
                                 <img src="{{ asset('storage/' . $menu->image) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
                             @else
-                                <div class="w-full h-full flex items-center justify-center text-gray-300">
-                                    <i class="fas fa-utensils"></i>
+                                <div class="w-full h-full flex items-center justify-center text-gray-300 dark:text-gray-600">
+                                    <i class="fas fa-utensils text-2xl"></i>
                                 </div>
                             @endif
                         </div>
@@ -129,15 +131,15 @@
                         <div class="flex-1 flex flex-col justify-between">
                             <div>
                                 <div class="flex justify-between items-start">
-                                    <h3 class="font-bold text-gray-900 dark:text-gray-100 line-clamp-1">{{ $menu->name }}</h3>
-                                    <span class="font-bold text-red-600 text-sm">₦{{ number_format($menu->price) }}</span>
+                                    <h3 class="font-bold text-gray-900 dark:text-white line-clamp-1">{{ $menu->name }}</h3>
+                                    <span class="font-bold text-chow-orange-600 dark:text-chow-orange-400 text-sm">₦{{ number_format($menu->price) }}</span>
                                 </div>
-                                <p class="text-xs tdark:text-gray-300 mt-1 line-clamp-2">{{ $menu->description }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ $menu->description }}</p>
                             </div>
                             
                             {{-- Add to Cart Button --}}
                             <div class="mt-3 flex justify-end">
-                                <a href="{{ route('add.to.cart', $menu->id) }}" class="bg-gray-900 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center">
+                                <a href="{{ route('add.to.cart', $menu->id) }}" class="bg-chow-orange-500 hover:bg-chow-orange-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center">
                                     <i class="fas fa-plus mr-1"></i> Add
                                 </a>
                             </div>
@@ -146,12 +148,13 @@
                 @endforeach
             </div>
         @else
-            <div class="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                <i class="fas fa-hamburger text-gray-300 text-4xl mb-3"></i>
-                <p class="tdark:text-gray-300 font-medium">No menu items available yet.</p>
+            <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border-2 border-dashed border-chow-cream-300 dark:border-gray-700">
+                <i class="fas fa-hamburger text-chow-brown-300 dark:text-gray-600 text-4xl mb-3"></i>
+                <p class="text-gray-500 dark:text-gray-400 font-medium">No menu items available yet.</p>
             </div>
         @endif
     </div>
 
+</div>
 </div>
 @endsection

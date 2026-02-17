@@ -89,10 +89,11 @@ class MenuController extends Controller
             'preparation_time' => 'nullable|integer|min:0',
         ]);
 
-        $data = $request->all();
+        // Only get the fields we want to update (exclude image from mass assignment)
+        $data = $request->only(['name', 'description', 'price', 'category', 'preparation_time']);
         $data['is_available'] = $request->has('is_available');
 
-        // Handle Image Replacement
+        // Handle Image Replacement - only if a new file is uploaded
         if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($menu->image) {

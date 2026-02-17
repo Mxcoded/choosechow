@@ -152,7 +152,7 @@
                                         <label class="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-1 rounded">
                                             <input type="checkbox" name="cuisine_ids[]" value="{{ $cuisine->id }}" 
                                                    class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                                                   {{ in_array($cuisine->id, old('cuisine_ids', $profile->cuisines->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                                   {{ in_array($cuisine->id, old('cuisine_ids', $profile->cuisines ? $profile->cuisines->pluck('id')->toArray() : [])) ? 'checked' : '' }}>
                                             <span class="text-sm font-medium dark:text-gray-300">{{ $cuisine->name }}</span>
                                         </label>
                                     @endforeach

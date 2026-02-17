@@ -22,30 +22,30 @@ class ChefSeeder extends Seeder
                 'first_name' => 'Gordon',
                 'last_name' => 'Ramsey',
                 'phone' => '08012345678',
-                'password' => bcrypt('password'), // Default password
+                'password' => 'password',
                 'status' => 'active',
                 'email_verified_at' => now(),
             ]
         );
 
         // Assign Role
-        if (!Role::where('name', 'chef')->exists()) {
-            Role::create(['name' => 'chef']);
+        $chefRole = Role::firstOrCreate(['name' => 'chef']);
+        if (!$chefUser->hasRole('chef')) {
+            $chefUser->assignRole($chefRole);
         }
-        $chefUser->assignRole('chef');
 
-        // 2. Create Categories (Ensure they exist)
+        // 2. Ensure Categories exist (using slug as unique key)
         $categories = [
-            'Main Dish' => Category::firstOrCreate(['name' => 'Main Dish', 'slug' => 'main-dish']),
-            'Sides' => Category::firstOrCreate(['name' => 'Sides', 'slug' => 'sides']),
-            'Drinks' => Category::firstOrCreate(['name' => 'Drinks', 'slug' => 'drinks']),
+            'Main Dish' => Category::firstOrCreate(['slug' => 'main-dish'], ['name' => 'Main Dish']),
+            'Sides' => Category::firstOrCreate(['slug' => 'sides'], ['name' => 'Sides']),
+            'Drinks' => Category::firstOrCreate(['slug' => 'drinks'], ['name' => 'Drinks']),
         ];
 
-        // 3. Create Cuisines (Ensure they exist)
+        // 3. Ensure Cuisines exist (using slug as unique key)
         $cuisines = [
-            'Continental' => Cuisine::firstOrCreate(['name' => 'Continental']),
-            'Nigerian' => Cuisine::firstOrCreate(['name' => 'Nigerian']),
-            'Spicy' => Cuisine::firstOrCreate(['name' => 'Spicy']),
+            'Continental' => Cuisine::firstOrCreate(['slug' => 'continental'], ['name' => 'Continental']),
+            'Nigerian' => Cuisine::firstOrCreate(['slug' => 'nigerian'], ['name' => 'Nigerian']),
+            'Spicy' => Cuisine::firstOrCreate(['slug' => 'spicy'], ['name' => 'Spicy']),
         ];
 
         // 4. Create Chef Profile
@@ -57,10 +57,13 @@ class ChefSeeder extends Seeder
                 'bio' => 'Experience the finest fusion of local and continental dishes delivered to your doorstep. We cook with passion and serve with love.',
                 'years_of_experience' => 10,
                 'kitchen_address' => '15 Admiralty Way, Lekki Phase 1, Lagos',
+                'city' => 'Lagos',
                 'is_online' => true,
                 'minimum_order' => 2000,
+                'delivery_fee' => 500,
                 'delivery_radius_km' => 15,
                 'verification_status' => 'verified',
+                'is_verified' => true,
                 'operating_hours' => [
                     'monday' => ['open' => '09:00', 'close' => '21:00', 'closed' => false],
                     'tuesday' => ['open' => '09:00', 'close' => '21:00', 'closed' => false],
@@ -73,8 +76,11 @@ class ChefSeeder extends Seeder
             ]
         );
 
-        // Attach Cuisines to Profile
-        $profile->cuisines()->sync([$cuisines['Continental']->id, $cuisines['Nigerian']->id]);
+        // Attach Cuisines to Profile via pivot table
+        $profile->cuisines()->sync([
+            $cuisines['Continental']->id, 
+            $cuisines['Nigerian']->id
+        ]);
 
         // 5. Create Menu Items
         $menuItems = [
@@ -82,52 +88,54 @@ class ChefSeeder extends Seeder
                 'name' => 'Smokey Jollof Rice & Chicken',
                 'description' => 'Classic Nigerian party jollof rice served with grilled chicken thigh and plantains.',
                 'price' => 3500,
-                'category_id' => $categories['Main Dish']->id,
+                'category' => 'Main Dish',
                 'cuisines' => [$cuisines['Nigerian']->id, $cuisines['Spicy']->id],
-                'image' => null,
             ],
             [
                 'name' => 'Creamy Pasta Alfredo',
                 'description' => 'Tagliatelle pasta tossed in a rich parmesan cream sauce with garlic and herbs.',
                 'price' => 4500,
-                'category_id' => $categories['Main Dish']->id,
+                'category' => 'Main Dish',
                 'cuisines' => [$cuisines['Continental']->id],
             ],
             [
                 'name' => 'Spicy Asun (Goat Meat)',
                 'description' => 'Tender goat meat chunks sautéed in spicy habanero pepper sauce.',
                 'price' => 2000,
-                'category_id' => $categories['Sides']->id,
+                'category' => 'Sides',
                 'cuisines' => [$cuisines['Nigerian']->id, $cuisines['Spicy']->id],
             ],
             [
                 'name' => 'Chapman Cocktail',
                 'description' => 'Refreshing fruity drink with a splash of angostura bitters.',
                 'price' => 1500,
-                'category_id' => $categories['Drinks']->id,
+                'category' => 'Drinks',
                 'cuisines' => [],
             ]
         ];
 
         foreach ($menuItems as $item) {
-            $menu = Menu::create([
-                'chef_id' => $chefUser->id, // FIXED: Was 'user_id'
-                'category_id' => $item['category_id'],
-                'name' => $item['name'],
-                'slug' => Str::slug($item['name']),
-                'description' => $item['description'],
-                'price' => $item['price'],
-                'is_available' => true,
-                'is_featured' => rand(0, 1),
-                'preparation_time_minutes' => 30,
-                'images' => [], // Ensure images array is initialized
-            ]);
+            $menu = Menu::updateOrCreate(
+                [
+                    'user_id' => $chefUser->id,
+                    'slug' => Str::slug($item['name']),
+                ],
+                [
+                    'name' => $item['name'],
+                    'description' => $item['description'],
+                    'price' => $item['price'],
+                    'category' => $item['category'],
+                    'is_available' => true,
+                    'is_featured' => (bool) rand(0, 1),
+                ]
+            );
 
+            // Attach cuisines via pivot table
             if (!empty($item['cuisines'])) {
                 $menu->cuisines()->sync($item['cuisines']);
             }
         }
 
-        $this->command->info('Chef "Gourmet Chow" and Menu created successfully!');
+        $this->command->info('Chef "Gourmet Chow Kitchen" and Menu created successfully!');
     }
 }

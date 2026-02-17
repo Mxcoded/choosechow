@@ -3,6 +3,20 @@
 @section('title', 'Edit Dish')
 
 @section('content')
+
+<div class="max-w-3xl mx-auto pt-6">
+    @if($errors->any())
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm">
+            <h3 class="font-bold text-lg mb-2">⚠️ Update Failed</h3>
+            <ul class="list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+</div>
+
 <div class="max-w-3xl mx-auto pb-20">
     
     <div class="mb-8 border-b border-gray-200 dark:border-gray-700 pb-4 flex justify-between items-center">
@@ -45,13 +59,18 @@
                 {{-- Category (Updated List) --}}
                 <div class="md:col-span-2">
                     <label class="block text-sm font-bold dark:text-gray-300 mb-1">Category <span class="text-red-600">*</span></label>
-                    <select name="category" class="w-full rounded-lg border-gray-300 focus:ring-red-500 focus:border-red-500 bg-white">
+                    @php
+                        $categories = ['Main Dish', 'Side Dish', 'Soup/Swallow', 'Grills', 'Snacks', 'Drinks', 'Combo', 'Rice Dishes', 'Swallow & Soups', 'Pasta', 'Grills & BBQ', 'Pastries', 'Breakfast', 'Continental', 'Vegetarian', 'Drinks & Smoothies', 'Fast Food', 'Local Delicacies', 'Seafood'];
+                        $currentCategory = old('category', $menu->category);
+                        // Ensure current category is in the list
+                        if ($currentCategory && !in_array($currentCategory, $categories)) {
+                            array_unshift($categories, $currentCategory);
+                        }
+                    @endphp
+                    <select name="category" class="w-full rounded-lg border-gray-300 focus:ring-red-500 focus:border-red-500 bg-white" required>
                         <option value="">Select Category</option>
-                        @php
-                            $categories = ['Rice Dishes', 'Swallow & Soups', 'Pasta', 'Grills & BBQ', 'Pastries', 'Breakfast', 'Continental', 'Vegetarian', 'Drinks & Smoothies', 'Fast Food', 'Local Delicacies', 'Seafood', 'Snacks', 'Combo'];
-                        @endphp
                         @foreach($categories as $cat)
-                            <option value="{{ $cat }}" {{ $menu->category == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                            <option value="{{ $cat }}" {{ $currentCategory == $cat ? 'selected' : '' }}>{{ $cat }}</option>
                         @endforeach
                     </select>
                 </div>

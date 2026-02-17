@@ -93,9 +93,10 @@
             <div class="flex justify-between h-20">
                 
                 {{-- LEFT: LOGO --}}
-                <div class="flex items-center">
+                <div class="h-16 flex items-center">
                     <a href="/" class="flex-shrink-0 flex items-center group">
-                        <i class="fas fa-utensils text-chow-red-600 dark:text-chow-orange-500 text-2xl mr-2 group-hover:text-chow-orange-500 transition-colors"></i>
+                       <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
+                     class="h-12 w-12 rounded-full shadow-sm group-hover:scale-105 transition-transform duration-300">
                         <span class="font-extrabold text-2xl tracking-tighter text-gray-900 dark:text-white">
                             Choose<span class="text-chow-red-600 dark:text-chow-orange-500">Chow</span>
                         </span>
