@@ -91,9 +91,19 @@
                                     </span>
                                 </td>
 
-                                {{-- Date --}}
-                                <td class="p-4 text-xs tdark:text-gray-300">
-                                    {{ $order->created_at->format('M d, H:i') }}
+                                {{-- Date & Delivery Time --}}
+                                <td class="p-4 text-xs">
+                                    <div class="text-gray-500">{{ $order->created_at->format('M d, H:i') }}</div>
+                                    @if($order->isScheduled())
+                                        <div class="mt-1 inline-flex items-center bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold">
+                                            <i class="fas fa-calendar-alt mr-1"></i>
+                                            {{ $order->scheduled_date?->format('M d') }} {{ $order->scheduled_time_slot }}
+                                        </div>
+                                    @else
+                                        <div class="mt-1 text-yellow-600 font-medium">
+                                            <i class="fas fa-bolt mr-1"></i> ASAP
+                                        </div>
+                                    @endif
                                 </td>
 
                                 {{-- Action --}}

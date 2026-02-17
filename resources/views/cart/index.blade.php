@@ -1,16 +1,22 @@
-@extends('layouts.dashboard')
+@extends('layouts.app')
 
-@section('title', 'My Cart')
-@section('page_title', 'Shopping Cart')
+@section('title', 'My Cart - ChooseChow')
 
 @section('content')
-<div class="max-w-5xl mx-auto">
+<div class="bg-gray-50 dark:bg-gray-900 min-h-screen py-12">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    {{-- Page Header --}}
+    <div class="mb-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white">Your Cart 🛒</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-1">Review your items before checkout</p>
+    </div>
 
     @if(session('cart') && count(session('cart')) > 0)
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             {{-- LEFT: Cart Items Table --}}
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-chow-cream-200 overflow-hidden">
+            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="bg-chow-cream-50 border-b border-chow-cream-200 text-xs uppercase text-chow-brown-600 font-semibold">
                         <tr>
@@ -68,7 +74,7 @@
 
             {{-- RIGHT: Order Summary --}}
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white rounded-xl shadow-sm border border-chow-cream-200 p-6">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                     <h3 class="font-bold text-lg text-chow-brown-800 mb-4 border-b border-chow-cream-200 pb-2">Order Summary</h3>
                     
                     <div class="flex justify-between items-center mb-2 text-sm text-chow-brown-600">
@@ -98,7 +104,7 @@
         </div>
     @else
         {{-- Empty State --}}
-        <div class="text-center py-20 bg-white rounded-xl border border-dashed border-chow-cream-300">
+        <div class="text-center py-20 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-600">
             <div class="w-24 h-24 bg-chow-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-shopping-basket text-chow-orange-300 text-4xl"></i>
             </div>
@@ -110,6 +116,7 @@
         </div>
     @endif
 
+</div>
 </div>
 
 {{-- AJAX SCRIPTS FOR UPDATE/REMOVE --}}

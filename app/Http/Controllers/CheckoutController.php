@@ -13,6 +13,7 @@ use App\Models\OrderItem;
 use App\Models\Wallet;
 use App\Models\Menu; 
 use App\Models\ChefProfile;
+use Carbon\Carbon;
 // --- MAIL CLASSES ---
 use App\Mail\OrderReceiptMail;
 use App\Mail\NewOrderAlertMail;
@@ -51,6 +52,9 @@ class CheckoutController extends Controller
         $request->validate([
             'phone_number' => 'required',
             'address' => 'required',
+            'delivery_type' => 'required|in:asap,scheduled',
+            'scheduled_date' => 'required_if:delivery_type,scheduled|nullable|date|after_or_equal:today',
+            'scheduled_time_slot' => 'required_if:delivery_type,scheduled|nullable|string',
         ]);
 
         $user = Auth::user();
@@ -106,10 +110,20 @@ class CheckoutController extends Controller
                 $chefDeliveryFee = $this->getChefDeliveryFee($chefId);
                 $chefTotal = $chefSubtotal + $chefDeliveryFee;
 
+                // Build scheduled_for datetime if scheduled
+                $scheduledFor = null;
+                if ($request->delivery_type === 'scheduled' && $request->scheduled_date && $request->scheduled_time_slot) {
+                    // Extract start time from slot (e.g., '12:00-13:00' -> '12:00')
+                    $startTime = explode('-', $request->scheduled_time_slot)[0];
+                    $scheduledFor = Carbon::parse($request->scheduled_date . ' ' . $startTime);
+                }
+
                 $order = Order::create([
                     'order_number' => $reference . '-' . strtoupper(substr(uniqid(), -4)), // e.g., CHOW-xxx-ABCD
                     'user_id' => $user->id,
                     'chef_id' => $chefId,
+                    'subtotal' => $chefSubtotal,
+                    'delivery_fee' => $chefDeliveryFee,
                     'total_amount' => $chefTotal,
                     'status' => 'pending_payment',
                     'payment_status' => 'pending',
@@ -117,6 +131,11 @@ class CheckoutController extends Controller
                     'delivery_address' => $request->address,
                     'phone_number' => $request->phone_number,
                     'notes' => $request->input('notes'),
+                    // Scheduling fields
+                    'delivery_type' => $request->delivery_type ?? 'asap',
+                    'scheduled_date' => $request->delivery_type === 'scheduled' ? $request->scheduled_date : null,
+                    'scheduled_time_slot' => $request->delivery_type === 'scheduled' ? $request->scheduled_time_slot : null,
+                    'scheduled_for' => $scheduledFor,
                 ]);
 
                 // Save order items for this chef

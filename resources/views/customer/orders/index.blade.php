@@ -41,9 +41,19 @@
                                     </div>
                                 </td>
 
-                                {{-- Date --}}
-                                <td class="p-4 text-sm tdark:text-gray-300">
-                                    {{ $order->created_at->format('M d, Y h:i A') }}
+                                {{-- Date & Delivery Time --}}
+                                <td class="p-4 text-sm">
+                                    <div class="text-gray-600">{{ $order->created_at->format('M d, Y') }}</div>
+                                    @if($order->isScheduled())
+                                        <div class="text-xs text-blue-600 font-medium mt-1">
+                                            <i class="fas fa-calendar-alt mr-1"></i>
+                                            {{ $order->delivery_time_display }}
+                                        </div>
+                                    @else
+                                        <div class="text-xs text-gray-400 mt-1">
+                                            <i class="fas fa-bolt mr-1"></i> ASAP
+                                        </div>
+                                    @endif
                                 </td>
 
                                 {{-- Total --}}

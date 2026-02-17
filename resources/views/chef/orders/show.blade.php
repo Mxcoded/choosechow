@@ -102,6 +102,36 @@
         {{-- RIGHT COLUMN: Customer Details --}}
         <div class="space-y-6">
             
+            {{-- Delivery Time Card (if scheduled) --}}
+            @if($order->isScheduled())
+            <div class="bg-blue-50 rounded-xl border-2 border-blue-200 p-6">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="bg-blue-100 rounded-full p-2">
+                        <i class="fas fa-calendar-check text-blue-600"></i>
+                    </div>
+                    <h3 class="font-bold text-blue-800">Scheduled Delivery</h3>
+                </div>
+                <div class="text-2xl font-bold text-blue-900 mb-1">
+                    {{ $order->scheduled_date?->format('D, M j') }}
+                </div>
+                <div class="text-lg text-blue-700">
+                    {{ $order->scheduled_time_slot }}
+                </div>
+                <p class="text-xs text-blue-600 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Customer requested this delivery time
+                </p>
+            </div>
+            @else
+            <div class="bg-yellow-50 rounded-xl border border-yellow-200 p-4">
+                <div class="flex items-center gap-2 text-yellow-800">
+                    <i class="fas fa-bolt text-yellow-600"></i>
+                    <span class="font-bold">ASAP Delivery</span>
+                </div>
+                <p class="text-xs text-yellow-600 mt-1">Deliver within 30-45 minutes</p>
+            </div>
+            @endif
+
             {{-- Customer Card --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
                 <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Customer Details</h3>

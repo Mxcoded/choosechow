@@ -120,6 +120,23 @@
                         <i x-show="darkMode" class="fas fa-sun text-chow-gold-400 text-lg"></i>
                     </button>
                     
+                    {{-- CART BUTTON --}}
+                    @php
+                        $cartCount = count(session('cart', []));
+                        $cartTotal = 0;
+                        foreach(session('cart', []) as $item) {
+                            $cartTotal += ($item['price'] ?? 0) * ($item['quantity'] ?? 1);
+                        }
+                    @endphp
+                    <a href="{{ route('cart.index') }}" class="relative p-2 rounded-full hover:bg-chow-orange-50 dark:hover:bg-gray-700 transition-colors group" title="View Cart">
+                        <i class="fas fa-shopping-bag text-chow-brown-600 dark:text-gray-300 text-lg group-hover:text-chow-orange-500"></i>
+                        @if($cartCount > 0)
+                            <span class="absolute -top-1 -right-1 bg-chow-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
+                    </a>
+                    
                     @auth
                         <a href="{{ route('dashboard') }}" class="text-base font-bold text-chow-brown-800 dark:text-white hover:text-chow-orange-500 transition-colors">Dashboard</a>
                     @else
@@ -129,7 +146,16 @@
                 </div>
 
                 {{-- MOBILE MENU BUTTON --}}
-                <div class="-mr-2 flex items-center md:hidden gap-4">
+                <div class="-mr-2 flex items-center md:hidden gap-3">
+                    {{-- Mobile Cart --}}
+                    <a href="{{ route('cart.index') }}" class="relative p-2 rounded-full hover:bg-chow-orange-50 dark:hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-shopping-bag text-chow-brown-600 dark:text-gray-300 text-lg"></i>
+                        @if($cartCount > 0)
+                            <span class="absolute -top-1 -right-1 bg-chow-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
+                    </a>
                     {{-- Mobile Theme Toggle --}}
                     <button @click="darkMode = !darkMode" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         <i x-show="!darkMode" class="fas fa-moon text-chow-brown-600 text-lg"></i>
@@ -240,6 +266,40 @@
             </div>
         </div>
     </footer>
+
+    {{-- FLOATING CART BUTTON (shows when cart has items) --}}
+    @if($cartCount > 0)
+    <div class="fixed bottom-6 right-6 z-50 md:hidden">
+        <a href="{{ route('cart.index') }}" 
+           class="flex items-center gap-3 bg-gradient-to-r from-chow-red-600 to-chow-orange-500 text-white px-5 py-3 rounded-full shadow-2xl shadow-chow-red-600/40 hover:shadow-chow-orange-500/50 transition-all transform hover:scale-105">
+            <i class="fas fa-shopping-bag text-lg"></i>
+            <span class="font-bold">View Cart ({{ $cartCount }})</span>
+            <span class="bg-white/20 px-2 py-0.5 rounded-full text-sm font-bold">₦{{ number_format($cartTotal) }}</span>
+        </a>
+    </div>
+    @endif
+
+    {{-- Desktop Floating Cart (bottom right) --}}
+    @if($cartCount > 0)
+    <div class="hidden md:block fixed bottom-6 right-6 z-50">
+        <a href="{{ route('cart.index') }}" 
+           class="group flex items-center gap-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 pl-4 pr-6 py-3 rounded-full shadow-2xl hover:shadow-chow-orange-200 dark:hover:shadow-none transition-all transform hover:scale-105">
+            <div class="relative">
+                <div class="w-12 h-12 bg-gradient-to-r from-chow-red-600 to-chow-orange-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shopping-bag text-white text-lg"></i>
+                </div>
+                <span class="absolute -top-1 -right-1 bg-chow-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {{ $cartCount }}
+                </span>
+            </div>
+            <div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 font-medium">Your Cart</div>
+                <div class="text-lg font-bold text-gray-900 dark:text-white group-hover:text-chow-orange-500 transition-colors">₦{{ number_format($cartTotal) }}</div>
+            </div>
+            <i class="fas fa-arrow-right text-gray-400 group-hover:text-chow-orange-500 group-hover:translate-x-1 transition-all"></i>
+        </a>
+    </div>
+    @endif
 
     {{-- Initialize dark mode from localStorage before Alpine loads --}}
     <script>

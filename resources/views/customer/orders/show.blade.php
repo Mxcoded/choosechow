@@ -33,6 +33,19 @@
             </div>
         </div>
 
+        {{-- Delivery Time Banner (for scheduled orders) --}}
+        @if($order->isScheduled())
+        <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center">
+            <div class="bg-blue-100 rounded-full p-3 mr-4">
+                <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
+            </div>
+            <div>
+                <span class="text-xs uppercase text-blue-600 font-bold">Scheduled Delivery</span>
+                <p class="font-bold text-blue-900">{{ $order->delivery_time_display }}</p>
+            </div>
+        </div>
+        @endif
+
         {{-- Customer Info --}}
         <div class="mb-8 grid grid-cols-2 gap-8">
             <div>
@@ -42,7 +55,18 @@
                 <p class="text-sm text-gray-600 dark:text-gray-400">{{ $order->delivery_address }}</p>
             </div>
             <div class="text-right">
-                <span class="text-xs uppercase text-gray-400 font-bold block mb-1">Payment Status</span>
+                <span class="text-xs uppercase text-gray-400 font-bold block mb-1">Delivery Type</span>
+                @if($order->isScheduled())
+                    <span class="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mb-2">
+                        <i class="fas fa-calendar-alt mr-1"></i> SCHEDULED
+                    </span>
+                @else
+                    <span class="inline-block bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold mb-2">
+                        <i class="fas fa-bolt mr-1"></i> ASAP
+                    </span>
+                @endif
+                <br>
+                <span class="text-xs uppercase text-gray-400 font-bold block mb-1 mt-2">Payment Status</span>
                 @if($order->payment_status === 'paid')
                     <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">PAID</span>
                 @else
@@ -77,11 +101,11 @@
         <div class="border-t border-gray-100 dark:border-gray-700 pt-6">
             <div class="flex justify-end mb-2">
                 <span class="text-gray-600 dark:text-gray-400 w-32">Subtotal:</span>
-                <span class="font-bold text-gray-900 dark:text-gray-100 text-right w-32">₦{{ number_format($order->total_amount - 1500) }}</span> {{-- Approx calculation --}}
+                <span class="font-bold text-gray-900 dark:text-gray-100 text-right w-32">₦{{ number_format($order->subtotal ?? ($order->total_amount - ($order->delivery_fee ?? 1500))) }}</span>
             </div>
             <div class="flex justify-end mb-2">
                 <span class="text-gray-600 dark:text-gray-400 w-32">Delivery Fee:</span>
-                <span class="font-bold text-gray-900 dark:text-gray-100 text-right w-32">₦{{ number_format(1500) }}</span> {{-- Replace with actual fee if stored --}}
+                <span class="font-bold text-gray-900 dark:text-gray-100 text-right w-32">₦{{ number_format($order->delivery_fee ?? 1500) }}</span>
             </div>
             <div class="flex justify-end pt-2 border-t border-dashed border-gray-200 dark:border-gray-700">
                 <span class="text-lg font-bold text-gray-800 w-32">Total:</span>
