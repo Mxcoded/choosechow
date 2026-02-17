@@ -46,4 +46,27 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    /**
+     * Orders placed by this user (as a customer).
+     */
+    public function ordersPlaced()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    /**
+     * Orders received by this user (as a chef).
+     */
+    public function ordersReceived()
+    {
+        return $this->hasMany(Order::class, 'chef_id');
+    }
+
+    /**
+     * Alias for ordersReceived, kept for backwards compatibility.
+     */
+    public function chefOrders()
+    {
+        return $this->ordersReceived();
+    }
 }

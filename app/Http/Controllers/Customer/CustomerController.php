@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\ChefProfile; 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class CustomerController extends Controller
 {
@@ -136,7 +137,7 @@ class CustomerController extends Controller
     // UPDATE CUSTOMER PERSONAL PROFILE
     public function updateProfile(Request $request)
     {
-        $user = Auth::user();
+        $user = User::findOrFail(Auth::id());
 
         $request->validate([
             'first_name' => 'required|string|max:255',
@@ -146,19 +147,21 @@ class CustomerController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        $user->first_name = $request->first_name;
-        $user->last_name = $request->last_name;
-        $user->phone = $request->phone; // Kept as 'phone'
-        
-        if (\Schema::hasColumn('users', 'address')) {
-            $user->address = $request->address;
+        $data = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'phone' => $request->phone,
+        ];
+
+        if (Schema::hasColumn('users', 'address')) {
+            $data['address'] = $request->address;
         }
 
         if ($request->filled('password')) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            $data['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
         }
 
-        $user->save();
+        $user->update($data);
 
         return back()->with('success', 'Profile updated successfully!');
     }

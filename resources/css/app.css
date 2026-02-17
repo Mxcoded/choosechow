@@ -1,8 +1,72 @@
 @import "tailwindcss";
 
+/* ===========================================
+   CHOOSECHOW FOOD PSYCHOLOGY THEME
+   =========================================== */
+
+:root {
+    /* Primary - Appetite Red */
+    --chow-red-500: #ef4444;
+    --chow-red-600: #dc2626;
+    --chow-red-700: #b91c1c;
+    
+    /* Secondary - Warm Orange */
+    --chow-orange-400: #fb923c;
+    --chow-orange-500: #f97316;
+    --chow-orange-600: #ea580c;
+    
+    /* Accent - Golden Yellow */
+    --chow-gold-400: #facc15;
+    --chow-gold-500: #eab308;
+    
+    /* Neutral - Warm Cream */
+    --chow-cream-50: #fffbf5;
+    --chow-cream-100: #fef7ed;
+    
+    /* Earth - Brown */
+    --chow-brown-600: #92400e;
+    --chow-brown-800: #78350f;
+    
+    /* Fresh - Green */
+    --chow-fresh-500: #22c55e;
+    --chow-fresh-600: #16a34a;
+}
+
 /* Standard Nav Active State */
 .active-nav {
     border-left: 4px solid white;
     background-color: rgba(255,255,255,0.1);
     font-weight: bold;
+}
+
+/* Warm gradient backgrounds */
+.bg-warm-gradient {
+    background: linear-gradient(135deg, var(--chow-cream-50) 0%, var(--chow-cream-100) 100%);
+}
+
+.bg-appetizing-gradient {
+    background: linear-gradient(135deg, var(--chow-red-600) 0%, var(--chow-orange-500) 100%);
+}
+
+/* Food card hover effect */
+.food-card-hover {
+    transition: all 0.3s ease;
+}
+
+.food-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(234, 88, 12, 0.25);
+}
+
+/* Appetizing text gradient */
+.text-appetizing {
+    background: linear-gradient(135deg, var(--chow-red-600), var(--chow-orange-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Rating star glow */
+.star-glow {
+    text-shadow: 0 0 8px rgba(250, 204, 21, 0.5);
 }
