@@ -141,14 +141,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/wallet', [WalletController::class, 'index'])->name('wallet');
         Route::post('/wallet/withdraw', [WalletController::class, 'requestPayout'])->name('wallet.withdraw');
 
-        // Menus (Using POST instead of PUT/DELETE for shared hosting compatibility)
+        // Menus (Using alternate URLs to avoid ModSecurity blocking)
         Route::get('/menus', [MenuController::class, 'index'])->name('menus.index');
         Route::get('/menus/create', [MenuController::class, 'create'])->name('menus.create');
         Route::post('/menus', [MenuController::class, 'store'])->name('menus.store');
         Route::get('/menus/{menu}', [MenuController::class, 'show'])->name('menus.show');
-        Route::get('/menus/{menu}/edit', [MenuController::class, 'edit'])->name('menus.edit');
-        Route::match(['post', 'put', 'patch'], '/menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
-        Route::match(['post', 'delete'], '/menus/{menu}/destroy', [MenuController::class, 'destroy'])->name('menus.destroy');
+        Route::get('/menus/{menu}/manage', [MenuController::class, 'edit'])->name('menus.edit');  // Changed from /edit
+        Route::match(['post', 'put', 'patch'], '/menus/{menu}/save', [MenuController::class, 'update'])->name('menus.update');  // Changed URL
+        Route::match(['post', 'delete'], '/menus/{menu}/remove', [MenuController::class, 'destroy'])->name('menus.destroy');  // Changed from /destroy
         Route::match(['post', 'patch'], '/menus/{menu}/toggle', [MenuController::class, 'toggleAvailability'])->name('menus.toggle');
         
         // Orders

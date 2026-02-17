@@ -32,7 +32,6 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <form action="{{ route('chef.menus.update', $menu->id) }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8 space-y-6">
             @csrf
-            @method('PUT')
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {{-- Name --}}
