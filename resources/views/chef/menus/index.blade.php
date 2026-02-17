@@ -74,7 +74,6 @@
                             {{-- Toggle Form --}}
                             <form action="{{ route('chef.menus.toggle', $menu->id) }}" method="POST">
                                 @csrf
-                                @method('PATCH')
                                 <button type="submit" class="text-sm font-medium transition-colors {{ $menu->is_available ? 'text-green-600 hover:text-green-800' : 'tdark:text-gray-300 hover:dark:text-gray-300' }}">
                                     <i class="fas fa-power-off mr-1"></i> {{ $menu->is_available ? 'Mark Sold Out' : 'Mark Available' }}
                                 </button>
@@ -88,7 +87,6 @@
                                 
                                 <form action="{{ route('chef.menus.destroy', $menu->id) }}" method="POST" onsubmit="return confirm('Delete this dish?')">
                                     @csrf
-                                    @method('DELETE')
                                     <button type="submit" class="text-gray-400 hover:text-red-600 transition-colors">
                                         <i class="fas fa-trash"></i>
                                     </button>

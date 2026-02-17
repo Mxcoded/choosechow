@@ -49,8 +49,8 @@ Route::controller(PageController::class)->group(function () {
 Route::controller(CartController::class)->group(function () {
     Route::get('cart', 'index')->name('cart.index');
     Route::get('add-to-cart/{id}', 'add')->name('add.to.cart');
-    Route::patch('update-cart', 'update')->name('update.cart');
-    Route::delete('remove-from-cart', 'remove')->name('remove.from.cart');
+    Route::match(['post', 'patch'], 'update-cart', 'update')->name('update.cart');
+    Route::match(['post', 'delete'], 'remove-from-cart', 'remove')->name('remove.from.cart');
 });
 
 // --- CHEF LISTING & PUBLIC PROFILES ---
@@ -134,22 +134,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             
             // Personal Info (These were being shadowed before!)
             Route::get('/personal-info', 'editPersonal')->name('personal.edit');
-            Route::patch('/personal-info', 'updatePersonal')->name('personal.update');
+            Route::match(['post', 'patch'], '/personal-info', 'updatePersonal')->name('personal.update');
         });
 
         // Wallet
         Route::get('/wallet', [WalletController::class, 'index'])->name('wallet');
         Route::post('/wallet/withdraw', [WalletController::class, 'requestPayout'])->name('wallet.withdraw');
 
-        // Menus
-        Route::resource('menus', MenuController::class);
-        Route::patch('menus/{menu}/toggle', [MenuController::class, 'toggleAvailability'])->name('menus.toggle');
+        // Menus (Using POST instead of PUT/DELETE for shared hosting compatibility)
+        Route::get('/menus', [MenuController::class, 'index'])->name('menus.index');
+        Route::get('/menus/create', [MenuController::class, 'create'])->name('menus.create');
+        Route::post('/menus', [MenuController::class, 'store'])->name('menus.store');
+        Route::get('/menus/{menu}', [MenuController::class, 'show'])->name('menus.show');
+        Route::get('/menus/{menu}/edit', [MenuController::class, 'edit'])->name('menus.edit');
+        Route::match(['post', 'put', 'patch'], '/menus/{menu}', [MenuController::class, 'update'])->name('menus.update');
+        Route::match(['post', 'delete'], '/menus/{menu}/destroy', [MenuController::class, 'destroy'])->name('menus.destroy');
+        Route::match(['post', 'patch'], '/menus/{menu}/toggle', [MenuController::class, 'toggleAvailability'])->name('menus.toggle');
         
         // Orders
         Route::controller(OrderController::class)->group(function () {
             Route::get('/orders', 'index')->name('orders.index');
             Route::get('/orders/{id}', 'show')->name('orders.show');
-            Route::patch('/orders/{order}', 'update')->name('orders.update'); 
+            Route::match(['post', 'patch'], '/orders/{order}', 'update')->name('orders.update'); 
         });
     });
 
@@ -159,12 +165,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('customer')->name('customer.')->middleware(['customer'])->group(function () {
         Route::controller(CustomerController::class)->group(function () {
             Route::get('/profile', 'profile')->name('profile');
-            Route::patch('/profile', 'updateProfile')->name('profile.update');
+            Route::match(['post', 'patch'], '/profile', 'updateProfile')->name('profile.update');
             Route::get('/orders', 'orders')->name('orders');
             Route::get('/orders/{id}', 'showOrder')->name('orders.show');
             Route::get('/favorites', 'favorites')->name('favorites');
             
-            Route::patch('/orders/{order}/cancel', 'cancelOrder')->name('orders.cancel');
+            Route::match(['post', 'patch'], '/orders/{order}/cancel', 'cancelOrder')->name('orders.cancel');
             Route::get('/orders/{order}/retry', 'retryPayment')->name('orders.retry');
         });
     });

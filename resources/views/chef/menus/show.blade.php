@@ -208,10 +208,9 @@
             </div>
             <div class="modal-footer border-0 pt-0">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                {{-- ROUTE FIX: Correct named route for destroy --}}
+                {{-- ROUTE FIX: Using POST for shared hosting compatibility --}}
                 <form action="{{ route('chef.menus.destroy', $menu) }}" method="POST">
                     @csrf
-                    @method('DELETE')
                     <button type="submit" class="btn btn-danger">Yes, Delete</button>
                 </form>
             </div>
@@ -230,7 +229,7 @@
     function toggleAvailability() {
         // Optimistic UI update could go here
         fetch(`{{ route('chef.menus.toggle', $menu) }}`, {
-            method: 'PATCH',
+            method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',

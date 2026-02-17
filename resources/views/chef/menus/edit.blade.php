@@ -136,7 +136,6 @@
     {{-- Hidden Delete Form for the button above --}}
     <form id="delete-form-{{ $menu->id }}" action="{{ route('chef.menus.destroy', $menu->id) }}" method="POST" class="hidden">
         @csrf
-        @method('DELETE')
     </form>
 </div>
 

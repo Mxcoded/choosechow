@@ -54,7 +54,7 @@
                     {{-- Status: Preparing --}}
                     @if($order->status == 'pending')
                         <form action="{{ route('chef.orders.update', $order->id) }}" method="POST">
-                            @csrf @method('PATCH')
+                            @csrf
                             <input type="hidden" name="status" value="preparing">
                             <button type="submit" class="bg-purple-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-purple-700 transition-colors shadow-lg shadow-purple-200">
                                 <i class="fas fa-fire mr-2"></i> Start Cooking
@@ -65,7 +65,7 @@
                     {{-- Status: Ready --}}
                     @if($order->status == 'preparing')
                         <form action="{{ route('chef.orders.update', $order->id) }}" method="POST">
-                            @csrf @method('PATCH')
+                            @csrf
                             <input type="hidden" name="status" value="ready">
                             <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
                                 <i class="fas fa-box mr-2"></i> Mark Ready
@@ -76,7 +76,7 @@
                     {{-- Status: Completed --}}
                     @if($order->status == 'ready')
                         <form action="{{ route('chef.orders.update', $order->id) }}" method="POST">
-                            @csrf @method('PATCH')
+                            @csrf
                             <input type="hidden" name="status" value="completed">
                             <button type="submit" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition-colors shadow-lg shadow-green-200">
                                 <i class="fas fa-check-circle mr-2"></i> Complete Order
@@ -87,7 +87,7 @@
                      {{-- Cancel Button (Always visible unless completed) --}}
                      @if($order->status != 'completed' && $order->status != 'cancelled')
                         <form action="{{ route('chef.orders.update', $order->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
-                            @csrf @method('PATCH')
+                            @csrf
                             <input type="hidden" name="status" value="cancelled">
                             <button type="submit" class="bg-gray-100 text-gray-600 dark:text-gray-400 font-bold py-2 px-6 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors">
                                 Cancel
