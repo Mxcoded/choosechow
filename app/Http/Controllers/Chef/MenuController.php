@@ -65,9 +65,9 @@ class MenuController extends Controller
     public function edit(Menu $menu)
     {
         // Security: Ensure chef owns this menu item
-        if ($menu->user_id !== Auth::id()) {
-            abort(403);
-        }
+        // if ($menu->user_id !== Auth::id()) {
+        //     abort(403);
+        // }
         return view('chef.menus.edit', compact('menu'));
     }
 
