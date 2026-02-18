@@ -205,7 +205,7 @@
 
                     {{-- 1. Store Logo --}}
                     <div>
-                        <label class="block text-sm font-medium dark:text-gray-300 mb-2">Store Logo / Profile Picture</label>
+                        <label class="block text-sm font-medium dark:text-gray-300 mb-2">Profile Picture</label>
                         <div class="flex items-center space-x-4">
                             @if($profile->profile_image)
                                 <img src="{{ asset('storage/' . $profile->profile_image) }}" class="w-16 h-16 rounded-full object-cover border border-gray-200 dark:border-gray-700">
