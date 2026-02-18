@@ -173,7 +173,7 @@
                         <i class="fas fa-user-tie text-4xl text-gray-400"></i>
                     </div>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Oluwaseyi Daniel</h3>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Umar Isa</h3>
                 <p class="text-red-600 font-medium mb-3">CEO & Co-Founder</p>
                 <p class="text-sm text-gray-500 dark:text-gray-400 px-4">
                     Tech veteran passionate about empowering local entrepreneurs.
@@ -199,7 +199,7 @@
                         <i class="fas fa-code text-4xl text-gray-400"></i>
                     </div>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Chidi Okonkwo</h3>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Oluwaseyi Daniel</h3>
                 <p class="text-red-600 font-medium mb-3">Head of Technology</p>
                 <p class="text-sm text-gray-500 dark:text-gray-400 px-4">
                     Building a seamless and reliable platform for our users.
