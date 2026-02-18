@@ -67,9 +67,99 @@
         .active-nav { border-left: 4px solid white; background-color: rgba(255,255,255,0.1); font-weight: bold; }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-200">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-200" x-data="{ sidebarOpen: false }">
 
-    {{-- SIDEBAR: Only visible on Desktop --}}
+    {{-- MOBILE SIDEBAR OVERLAY --}}
+    <div x-show="sidebarOpen" 
+         x-transition:enter="transition-opacity ease-linear duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-linear duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="sidebarOpen = false" 
+         class="fixed inset-0 z-40 bg-black/50 lg:hidden" 
+         style="display: none;"></div>
+
+    {{-- MOBILE SIDEBAR --}}
+    <aside x-show="sidebarOpen"
+           x-transition:enter="transition ease-in-out duration-300 transform"
+           x-transition:enter-start="-translate-x-full"
+           x-transition:enter-end="translate-x-0"
+           x-transition:leave="transition ease-in-out duration-300 transform"
+           x-transition:leave-start="translate-x-0"
+           x-transition:leave-end="-translate-x-full"
+           class="fixed top-0 left-0 z-50 h-screen w-64 bg-chow-red-700 dark:bg-gray-800 text-white flex flex-col shadow-xl lg:hidden transition-colors duration-200"
+           style="display: none;">
+        <div class="h-16 flex items-center justify-between px-6 border-b border-white/10 dark:border-gray-700 bg-black/10 dark:bg-black/20">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 group">
+                <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
+                     class="h-10 w-10 rounded-full shadow-sm">
+                <span class="text-xl font-bold text-white">ChooseChow</span>
+            </a>
+            <button @click="sidebarOpen = false" class="text-white/80 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="{{ route('chef.index') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('chef.index') ? 'active-nav' : '' }}">
+                        <i class="fas fa-search w-6"></i> Find Chow
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('contact') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('contact') ? 'active-nav' : '' }}">
+                        <i class="fas fa-envelope w-6"></i> Contact Us
+                    </a>
+                </li>
+                
+                @auth
+                    @if(Auth::user()->hasRole('admin'))
+                        <li class="px-6 py-2 text-xs font-bold text-chow-orange-200 uppercase mt-4">Admin Control</li>
+                        <li><a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('dashboard') ? 'active-nav' : '' }}"><i class="fas fa-chart-line w-6"></i> Overview</a></li>
+                        <li><a href="{{ route('admin.withdrawals.index') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.withdrawals*') ? 'active-nav' : '' }}"><i class="fas fa-money-bill-wave w-6"></i> Payouts</a></li>
+                        <li><a href="{{ route('admin.users') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.users*') ? 'active-nav' : '' }}"><i class="fas fa-users w-6"></i> Customers</a></li>
+                        <li><a href="{{ route('admin.chef') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.chef*') ? 'active-nav' : '' }}"><i class="fas fa-utensils w-6"></i> Kitchens</a></li>
+                        <li><a href="{{ route('admin.orders') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.orders*') ? 'active-nav' : '' }}"><i class="fas fa-receipt w-6"></i> All Orders</a></li>
+                        <li><a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.reports*') ? 'active-nav' : '' }}"><i class="fas fa-chart-pie w-6"></i> Reports</a></li>
+                        <li><a href="{{ route('admin.settings') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.settings*') ? 'active-nav' : '' }}"><i class="fas fa-cogs w-6"></i> Settings</a></li>
+                    @elseif(Auth::user()->hasRole('chef'))
+                        <li class="px-6 py-2 text-xs font-bold text-chow-orange-200 uppercase mt-4">Kitchen</li>
+                        <li><a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('dashboard') ? 'active-nav' : '' }}"><i class="fas fa-tachometer-alt w-6"></i> Dashboard</a></li>
+                        <li><a href="{{ route('chef.menus.index') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('chef.menus*') ? 'active-nav' : '' }}"><i class="fas fa-book-open w-6"></i> My Menu</a></li>
+                        <li><a href="{{ route('chef.orders.index') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('chef.orders*') ? 'active-nav' : '' }}"><i class="fas fa-box-open w-6"></i> Orders</a></li>
+                        <li><a href="{{ route('chef.wallet') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('chef.wallet*') ? 'active-nav' : '' }}"><i class="fas fa-wallet w-6"></i> Wallet</a></li>
+                        <li><a href="{{ route('chef.profile.edit') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('chef.profile*') ? 'active-nav' : '' }}"><i class="fas fa-store w-6"></i> Store Profile</a></li>
+                        <li><a href="{{ route('chef.profile') }}" target="_blank" class="flex items-center px-6 py-3 hover:bg-white/10"><i class="fas fa-external-link-alt w-6"></i> View Live Store</a></li>
+                    @else
+                        <li class="px-6 py-2 text-xs font-bold text-chow-orange-200 uppercase mt-4">My Account</li>
+                        <li><a href="{{ route('dashboard') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('dashboard*') ? 'active-nav' : '' }}"><i class="fas fa-shopping-bag w-6"></i> Dashboard</a></li>
+                        <li><a href="{{ route('customer.orders') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('customer.orders*') ? 'active-nav' : '' }}"><i class="fas fa-shopping-bag w-6"></i> My Orders</a></li>
+                        <li><a href="{{ route('customer.profile') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('customer.profile*') ? 'active-nav' : '' }}"><i class="fas fa-user-cog w-6"></i> My Profile</a></li>
+                    @endif
+                @endauth
+            </ul>
+        </nav>
+
+        <div class="p-4 bg-black/20">
+            @auth
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="flex items-center text-white/90 hover:text-white w-full">
+                        <i class="fas fa-sign-out-alt w-6"></i> Sign Out
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="flex items-center justify-center bg-white text-chow-red-700 font-bold py-2 rounded shadow-sm hover:bg-gray-100 transition-colors">
+                    Login / Sign Up
+                </a>
+            @endauth
+        </div>
+    </aside>
+
+    {{-- DESKTOP SIDEBAR: Only visible on Desktop --}}
     <aside class="fixed top-0 left-0 z-50 h-screen w-64 bg-chow-red-700 dark:bg-gray-800 text-white flex flex-col shadow-xl hidden lg:flex transition-colors duration-200">
         <div class="h-16 flex items-center px-6 border-b border-white/10 dark:border-gray-700 bg-black/10 dark:bg-black/20">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2 group">
@@ -152,7 +242,7 @@
             
             {{-- Mobile Menu Trigger & Page Title --}}
             <div class="flex items-center">
-                <button class="lg:hidden text-gray-600 dark:text-gray-300 focus:outline-none mr-4">
+                <button @click="sidebarOpen = true" class="lg:hidden text-gray-600 dark:text-gray-300 focus:outline-none mr-4">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
                 <h1 class="text-lg lg:text-xl font-bold text-gray-800 dark:text-white truncate">@yield('page_title')</h1>
