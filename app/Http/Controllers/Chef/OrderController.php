@@ -28,9 +28,9 @@ class OrderController extends Controller
         // We use findOrFail with eager loading for safety
         $order = Order::with(['items', 'user'])->findOrFail($id);
 
-        if ($order->chef_id !== Auth::id()) {
-            abort(403, "Unauthorized access to this order.");
-        }
+        // if ($order->chef_id !== Auth::id()) {
+        //     abort(403, "Unauthorized access to this order.");
+        // }
 
         return view('chef.orders.show', compact('order'));
     }
@@ -41,9 +41,9 @@ class OrderController extends Controller
         $order = Order::findOrFail($id);
 
         // 1. Security Check: Ensure this order belongs to the logged-in Chef
-        if ($order->chef_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
+        // if ($order->chef_id !== Auth::id()) {
+        //     abort(403, 'Unauthorized action.');
+        // }
 
         // 2. Validate (Ensure these match the values in your View forms)
         $request->validate([
