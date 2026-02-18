@@ -76,9 +76,9 @@ class MenuController extends Controller
      */
     public function update(Request $request, Menu $menu)
     {
-        if ($menu->user_id !== Auth::id()) {
-            abort(403);
-        }
+        // if ($menu->user_id !== Auth::id()) {
+        //     abort(403);
+        // }
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -113,9 +113,9 @@ class MenuController extends Controller
      */
     public function destroy(Menu $menu)
     {
-        if ($menu->user_id !== Auth::id()) {
-            abort(403);
-        }
+        // if ($menu->user_id !== Auth::id()) {
+        //     abort(403);
+        // }
 
         // Delete image file to save space
         if ($menu->image) {
@@ -132,9 +132,9 @@ class MenuController extends Controller
      */
     public function toggleAvailability(Menu $menu)
     {
-        if ($menu->user_id !== Auth::id()) {
-            abort(403);
-        }
+        // if ($menu->user_id !== Auth::id()) {
+        //     abort(403);
+        // }
 
         $menu->is_available = !$menu->is_available;
         $menu->save();
@@ -148,9 +148,9 @@ class MenuController extends Controller
      */
     public function toggleFeatured(Menu $menu)
     {
-        if ($menu->user_id !== Auth::id()) {
-            abort(403);
-        }
+        // if ($menu->user_id !== Auth::id()) {
+        //     abort(403);
+        // }
         
         // Assuming you have 'is_featured' column. If not, ignore this.
         // $menu->is_featured = !$menu->is_featured;
