@@ -22,18 +22,24 @@ class CustomerController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                // Check Profile
+                // Check Profile fields
                 $q->where('business_name', 'LIKE', "%{$search}%")
                   ->orWhere('bio', 'LIKE', "%{$search}%")
                   ->orWhere('kitchen_address', 'LIKE', "%{$search}%")
                   ->orWhere('city', 'LIKE', "%{$search}%")
-                  ->orWhere('cuisines', 'LIKE', "%{$search}%")
                   
-                  // FIX: Check Menu Items (Jollof, Burger, etc.)
+                  // Search in cuisines (many-to-many relationship)
+                  ->orWhereHas('cuisines', function($cuisineQ) use ($search) {
+                      $cuisineQ->where('name', 'LIKE', "%{$search}%");
+                  })
+                  
+                  // Search in Menu Items (Jollof, Burger, etc.)
                   ->orWhereHas('user.menus', function($subQ) use ($search) {
-                      $subQ->where('name', 'LIKE', "%{$search}%")
-                           ->orWhere('description', 'LIKE', "%{$search}%")
-                           ->where('is_available', true);
+                      $subQ->where('is_available', true)
+                           ->where(function($menuQ) use ($search) {
+                               $menuQ->where('name', 'LIKE', "%{$search}%")
+                                     ->orWhere('description', 'LIKE', "%{$search}%");
+                           });
                   });
             });
         }
