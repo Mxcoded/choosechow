@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage; // <--- Critical for file operations
 use Illuminate\Support\Str; 
-use App\Models\ChefProfile; 
+use App\Models\ChefProfile;
+use App\Models\Cuisine;
 
 class ChefProfileController extends Controller
 {
@@ -77,7 +78,6 @@ class ChefProfileController extends Controller
         
         // 4. Array Fields (Casting handled by Model)
         $profile->operating_hours = $request->input('operating_hours');
-        $profile->cuisines = $request->input('cuisines');
 
         // 5. Slug Logic (Update only if name changed)
         if ($profile->isDirty('business_name')) {
@@ -105,6 +105,13 @@ class ChefProfileController extends Controller
         }
 
         $profile->save();
+
+        // Sync cuisines (many-to-many relationship)
+        if ($request->has('cuisines')) {
+            $cuisineNames = $request->input('cuisines', []);
+            $cuisineIds = Cuisine::whereIn('name', $cuisineNames)->pluck('id')->toArray();
+            $profile->cuisines()->sync($cuisineIds);
+        }
 
         return redirect()->route('chef.profile')->with('success', 'Kitchen profile updated successfully!');
     }

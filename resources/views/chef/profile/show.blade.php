@@ -78,7 +78,7 @@
                 <div class="flex flex-wrap gap-2">
                     @forelse(($profile->cuisines ?? []) as $cuisine)
                         <span class="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border border-red-100">
-                            {{ $cuisine }}
+                            {{ $cuisine->name }}
                         </span>
                     @empty
                         <span class="text-gray-400 text-sm italic">No specialties listed yet.</span>
