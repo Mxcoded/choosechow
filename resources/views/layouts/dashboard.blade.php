@@ -45,6 +45,22 @@
                             400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d',
                             800: '#166534', 900: '#14532d',
                         },
+                        // Dark Navy Blue Theme - Premium Food App Design
+                        'dark': {
+                            'base': '#0E1A2B',      // Main background
+                            'section': '#132238',   // Section background
+                            'card': '#1B2E4B',      // Card background
+                            'border': '#243B5A',    // Border color
+                        },
+                        'accent': {
+                            DEFAULT: '#E76F51',     // Terracotta accent
+                            'hover': '#D65A3F',     // Accent hover
+                            'light': '#F4A261',     // Highlight color
+                        },
+                        'content': {
+                            'primary': '#F1F5F9',   // Primary text
+                            'secondary': '#B6C2D9', // Secondary text
+                        },
                     }
                 }
             }
@@ -56,18 +72,21 @@
     
     {{-- FONTS & ICONS --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     {{-- JQUERY & ALPINE --}}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
-        body { font-family: 'Figtree', sans-serif; }
-        .active-nav { border-left: 4px solid white; background-color: rgba(255,255,255,0.1); font-weight: bold; }
+        body { font-family: 'Poppins', sans-serif; }
+        .active-nav { border-left: 4px solid #E76F51; background-color: rgba(231, 111, 81, 0.15); font-weight: 600; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); }
+        .dark .card-hover:hover { box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-200" x-data="{ sidebarOpen: false }">
+<body class="bg-gray-100 dark:bg-dark-base text-gray-800 dark:text-content-primary transition-colors duration-300" x-data="{ sidebarOpen: false }">
 
     {{-- MOBILE SIDEBAR OVERLAY --}}
     <div x-show="sidebarOpen" 
@@ -89,9 +108,9 @@
            x-transition:leave="transition ease-in-out duration-300 transform"
            x-transition:leave-start="translate-x-0"
            x-transition:leave-end="-translate-x-full"
-           class="fixed top-0 left-0 z-50 h-screen w-64 bg-chow-red-700 dark:bg-gray-800 text-white flex flex-col shadow-xl lg:hidden transition-colors duration-200"
+           class="fixed top-0 left-0 z-50 h-screen w-64 bg-chow-red-700 dark:bg-dark-section text-white flex flex-col shadow-xl lg:hidden transition-colors duration-300"
            style="display: none;">
-        <div class="h-16 flex items-center justify-between px-6 border-b border-white/10 dark:border-gray-700 bg-black/10 dark:bg-black/20">
+        <div class="h-16 flex items-center justify-between px-6 border-b border-white/10 dark:border-dark-border bg-black/10 dark:bg-black/20">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2 group">
                 <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
                      class="h-10 w-10 rounded-full shadow-sm">
@@ -160,8 +179,8 @@
     </aside>
 
     {{-- DESKTOP SIDEBAR: Only visible on Desktop --}}
-    <aside class="fixed top-0 left-0 z-50 h-screen w-64 bg-chow-red-700 dark:bg-gray-800 text-white flex flex-col shadow-xl hidden lg:flex transition-colors duration-200">
-        <div class="h-16 flex items-center px-6 border-b border-white/10 dark:border-gray-700 bg-black/10 dark:bg-black/20">
+    <aside class="fixed top-0 left-0 z-50 h-screen w-64 bg-chow-red-700 dark:bg-dark-section text-white flex flex-col shadow-xl hidden lg:flex transition-colors duration-300">
+        <div class="h-16 flex items-center px-6 border-b border-white/10 dark:border-dark-border bg-black/10 dark:bg-black/20">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2 group">
                 <img src="{{ asset('storage/img/choosechowlogo.png') }}" alt="ChooseChow Logo" 
                      class="h-12 w-12 rounded-full shadow-sm group-hover:scale-105 transition-transform duration-300">
@@ -238,27 +257,27 @@
     <div class="lg:ml-64 min-h-screen flex flex-col">
         
         {{-- HEADER --}}
-        <header class="bg-white dark:bg-gray-800 shadow-sm h-16 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-40 border-b border-gray-200 dark:border-gray-700">
+        <header class="bg-white dark:bg-dark-section shadow-sm h-16 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-40 border-b border-gray-200 dark:border-dark-border">
             
             {{-- Mobile Menu Trigger & Page Title --}}
             <div class="flex items-center">
-                <button @click="sidebarOpen = true" class="lg:hidden text-gray-600 dark:text-gray-300 focus:outline-none mr-4">
+                <button @click="sidebarOpen = true" class="lg:hidden text-gray-600 dark:text-content-primary focus:outline-none mr-4">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
-                <h1 class="text-lg lg:text-xl font-bold text-gray-800 dark:text-white truncate">@yield('page_title')</h1>
+                <h1 class="text-lg lg:text-xl font-semibold text-gray-800 dark:text-content-primary truncate">@yield('page_title')</h1>
             </div>
 
             {{-- DASHBOARD SEARCH BAR --}}
             <form action="{{ route('chef.index') }}" method="GET" class="hidden md:flex items-center flex-1 max-w-lg mx-auto px-6">
                 <div class="relative w-full">
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400 dark:text-gray-500"></i>
+                        <i class="fas fa-search text-gray-400 dark:text-content-secondary"></i>
                     </span>
                     <input 
                         type="text" 
                         name="search" 
                         placeholder="Search..." 
-                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:bg-white dark:focus:bg-gray-600 focus:ring-1 focus:ring-chow-orange-500 focus:border-chow-orange-500 sm:text-sm transition duration-150 ease-in-out"
+                        class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-dark-border rounded-xl leading-5 bg-gray-50 dark:bg-dark-card text-gray-800 dark:text-content-primary placeholder-gray-500 dark:placeholder-content-secondary focus:outline-none focus:bg-white dark:focus:bg-dark-card focus:ring-2 focus:ring-accent focus:border-accent sm:text-sm transition duration-200 ease-in-out"
                     >
                 </div>
             </form>
@@ -267,9 +286,9 @@
             <div class="flex items-center gap-4">
                 
                 {{-- THEME TOGGLE --}}
-                <button @click="darkMode = !darkMode" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Toggle theme">
+                <button @click="darkMode = !darkMode" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-card transition-colors" title="Toggle theme">
                     <i x-show="!darkMode" class="fas fa-moon text-gray-600 text-lg"></i>
-                    <i x-show="darkMode" class="fas fa-sun text-yellow-400 text-lg"></i>
+                    <i x-show="darkMode" class="fas fa-sun text-accent-light text-lg"></i>
                 </button>
                 
                 {{-- CART ICON --}}
@@ -284,11 +303,11 @@
                 @endphp
 
                 <a href="{{ route('cart.index') }}" class="relative group mr-2">
-                    <div class="p-2 rounded-full hover:bg-chow-orange-50 dark:hover:bg-gray-700 transition-colors">
-                        <i class="fas fa-shopping-cart text-gray-600 dark:text-gray-300 text-xl group-hover:text-chow-orange-500"></i>
+                    <div class="p-2 rounded-xl hover:bg-chow-orange-50 dark:hover:bg-dark-card transition-colors">
+                        <i class="fas fa-shopping-cart text-gray-600 dark:text-content-primary text-xl group-hover:text-accent"></i>
                     </div>
                     @if($totalQuantity > 0)
-                        <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-chow-orange-500 rounded-full border-2 border-white dark:border-gray-800">
+                        <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-accent rounded-full border-2 border-white dark:border-dark-section">
                             {{ $totalQuantity }}
                         </span>
                     @endif
@@ -297,44 +316,44 @@
                 {{-- USER PROFILE / LOGIN --}}
                 @auth
                     <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="flex items-center border-l pl-4 border-gray-200 dark:border-gray-700 focus:outline-none">
+                        <button @click="open = !open" class="flex items-center border-l pl-4 border-gray-200 dark:border-dark-border focus:outline-none">
                             <div class="text-right mr-3 hidden sm:block">
-                                <div class="text-sm font-bold text-gray-800 dark:text-white">{{ Auth::user()->first_name }}</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ Auth::user()->getRoleNames()->first() ?? 'User' }}</div>
+                                <div class="text-sm font-semibold text-gray-800 dark:text-content-primary">{{ Auth::user()->first_name }}</div>
+                                <div class="text-xs text-gray-500 dark:text-content-secondary capitalize">{{ Auth::user()->getRoleNames()->first() ?? 'User' }}</div>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-chow-orange-100 dark:bg-chow-orange-900 flex items-center justify-center text-chow-orange-600 dark:text-chow-orange-300 font-bold border border-chow-orange-200 dark:border-chow-orange-700">
+                            <div class="w-9 h-9 rounded-xl bg-accent/20 dark:bg-accent flex items-center justify-center text-accent dark:text-white font-semibold">
                                 {{ substr(Auth::user()->first_name, 0, 1) }}
                             </div>
-                            <i class="fas fa-chevron-down ml-2 text-xs text-gray-400 dark:text-gray-500"></i>
+                            <i class="fas fa-chevron-down ml-2 text-xs text-gray-400 dark:text-content-secondary"></i>
                         </button>
 
                         {{-- Dropdown Menu --}}
                         <div x-show="open" @click.away="open = false" 
-                             class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg py-2 z-50 border border-gray-100 dark:border-gray-700"
+                             class="absolute right-0 mt-2 w-48 bg-white dark:bg-dark-card rounded-xl shadow-lg py-2 z-50 border border-gray-100 dark:border-dark-border"
                              style="display: none;">
                             
                             @if(Auth::user()->hasRole('chef'))
-                                <a href="{{ route('chef.personal.edit') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-chow-orange-500">
+                                <a href="{{ route('chef.personal.edit') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-content-primary hover:bg-gray-50 dark:hover:bg-dark-section hover:text-accent transition-colors">
                                     <i class="fas fa-user mr-2 w-5 text-center"></i> My Profile
                                 </a>
                             @else
-                                <a href="{{ route('customer.profile') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-chow-orange-500">
+                                <a href="{{ route('customer.profile') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-content-primary hover:bg-gray-50 dark:hover:bg-dark-section hover:text-accent transition-colors">
                                     <i class="fas fa-user mr-2 w-5 text-center"></i> My Profile
                                 </a>
                             @endif
 
-                            <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+                            <div class="border-t border-gray-100 dark:border-dark-border my-1"></div>
 
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-chow-red-600 hover:bg-chow-red-50 dark:hover:bg-chow-red-900/30 font-bold">
+                                <button type="submit" class="block w-full text-left px-4 py-2.5 text-sm text-accent hover:bg-accent/10 font-semibold transition-colors">
                                     <i class="fas fa-sign-out-alt mr-2 w-5 text-center"></i> Logout
                                 </button>
                             </form>
                         </div>
                     </div>
                 @else
-                    <a href="{{ route('login') }}" class="text-sm font-bold text-gray-600 dark:text-gray-300 hover:text-chow-orange-500">Login</a>
+                    <a href="{{ route('login') }}" class="text-sm font-semibold text-gray-600 dark:text-content-primary hover:text-accent transition-colors">Login</a>
                 @endauth
             </div>
         </header>

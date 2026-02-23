@@ -11,6 +11,7 @@ use App\Models\Newsletter;
 use App\Models\ContactSubmission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail; // Added for Contact Form
+use Illuminate\Support\Facades\Log;  // Added for Logging
 
 class PageController extends Controller
 {
@@ -111,7 +112,7 @@ class PageController extends Controller
 
         } catch (\Exception $e) {
             // Log the error but show a user-friendly message
-            \Log::error('Contact Form Error: ' . $e->getMessage());
+            Log::error('Contact Form Error: ' . $e->getMessage());
             return back()->with('error', 'Unable to send message. Please try again later.');
         }
     }
@@ -139,7 +140,7 @@ class PageController extends Controller
             ]);
 
             // Log the subscription
-            \Log::info('Newsletter Subscription', [
+            Log::info('Newsletter Subscription', [
                 'email' => $request->email,
                 'subscribed_at' => now()
             ]);
@@ -147,7 +148,7 @@ class PageController extends Controller
             return back()->with('success', 'You have successfully subscribed to our newsletter!');
         } catch (\Exception $e) {
             // Log the error
-            \Log::error('Newsletter Subscription Error: ' . $e->getMessage());
+            Log::error('Newsletter Subscription Error: ' . $e->getMessage());
             return back()->with('error', 'Unable to subscribe. Please try again later.');
         }
     }

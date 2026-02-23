@@ -26,14 +26,14 @@
                     <input type="radio" name="role" id="role_customer" value="customer" class="peer hidden" checked>
                     <label for="role_customer" class="block text-center px-4 py-3 border-2 border-chow-cream-200 rounded-xl cursor-pointer hover:border-chow-orange-300 peer-checked:border-chow-orange-500 peer-checked:bg-chow-orange-50 peer-checked:text-chow-orange-700 transition-all">
                         <i class="fas fa-user mb-1 text-lg"></i>
-                        <div class="text-sm font-bold">I want to Eat</div>
+                        <div class="text-sm font-bold">For Foodies</div>
                     </label>
                 </div>
                 <div>
                     <input type="radio" name="role" id="role_chef" value="chef" class="peer hidden">
                     <label for="role_chef" class="block text-center px-4 py-3 border-2 border-chow-cream-200 rounded-xl cursor-pointer hover:border-chow-red-300 peer-checked:border-chow-red-500 peer-checked:bg-chow-red-50 peer-checked:text-chow-red-700 transition-all">
                         <i class="fas fa-utensils mb-1 text-lg"></i>
-                        <div class="text-sm font-bold">I want to Cook</div>
+                        <div class="text-sm font-bold">For Chefs</div>
                     </label>
                 </div>
             </div>
