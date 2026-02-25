@@ -56,7 +56,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {{-- FILTER BAR --}}
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-chow-cream-200 dark:border-gray-700 p-4 mb-8 transition-colors">
+        <div class="dark:bg-gray-800 rounded-2xl shadow-sm border border-chow-cream-200 dark:border-gray-700 p-4 mb-8 transition-colors">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 
                 {{-- Cuisine Pills --}}
@@ -84,10 +84,10 @@
         </div>
 
         {{-- CHEF GRID --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="dark:bg-dark-section grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             @forelse($chefs as $chef)
                 <a href="{{ route('chefs.show', $chef->id) }}" class="group block no-underline">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-chow-cream-200 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:shadow-chow-orange-500/10 dark:hover:shadow-chow-orange-500/5 transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col">
+                    <div class="dark:bg-dark-card rounded-2xl shadow-sm border border-chow-cream-200 dark:border-gray-700 overflow-hidden hover:shadow-xl hover:shadow-chow-orange-500/10 dark:hover:shadow-chow-orange-500/5 transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col">
                         
                         {{-- Chef Image --}}
                         <div class="relative h-44 bg-chow-cream-100 dark:bg-gray-700 overflow-hidden">
@@ -122,7 +122,7 @@
                         
                         {{-- Chef Info --}}
                         <div class="p-5 flex-1 flex flex-col">
-                            <h3 class="font-bold text-lg text-chow-brown-800 dark:text-white mb-1 group-hover:text-chow-orange-500 transition-colors line-clamp-1">
+                            <h3 class="font-bold text-lg text-chow-brown-800 dark:text-content-primary mb-1 group-hover:text-chow-orange-500 transition-colors line-clamp-1">
                                 {{ $chef->business_name }}
                             </h3>
                             

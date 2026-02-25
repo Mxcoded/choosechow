@@ -122,8 +122,8 @@
                         
                         {{-- Chef Info --}}
                         <div class="p-5 pt-10 flex-1 flex flex-col">
-                            <h3 class="font-bold text-lg text-chow-brown-800 dark:text-white mb-1 group-hover:text-chow-orange-500 transition-colors line-clamp-1">
-                                {{ $chef->business_name }}
+                            <h3 class="font-bold text-lg text-chow-brown-800 dark:text-dark mb-1 group-hover:text-chow-orange-500 transition-colors line-clamp-1">
+                               Chef {{ $chef->business_name }}
                             </h3>
                             
                             {{-- Location --}}

@@ -128,11 +128,7 @@
                         <i class="fas fa-search w-6"></i> Find Chow
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('contact') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('contact') ? 'active-nav' : '' }}">
-                        <i class="fas fa-envelope w-6"></i> Contact Us
-                    </a>
-                </li>
+                
                 
                 @auth
                     @if(Auth::user()->hasRole('admin'))
@@ -196,12 +192,6 @@
                         <i class="fas fa-search w-6"></i> Find Chow
                     </a>
                 </li>
-                {{-- NEW CONTACT LINK --}}
-                <li>
-                    <a href="{{ route('contact') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('contact') ? 'active-nav' : '' }}">
-                        <i class="fas fa-envelope w-6"></i> Contact Us
-                    </a>
-                </li>
                 
                 @auth
                     {{-- 2. ADMIN LINKS --}}
@@ -232,6 +222,12 @@
                         <li><a href="{{ route('customer.orders') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('customer.orders*') ? 'active-nav' : '' }}"><i class="fas fa-shopping-bag w-6"></i> My Orders</a></li>
                         <li><a href="{{ route('customer.profile') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('customer.profile*') ? 'active-nav' : '' }}"><i class="fas fa-user-cog w-6"></i> My Profile</a></li>
                     @endif
+                      {{-- NEW CONTACT LINK --}}
+                <li>
+                    <a href="{{ route('contact') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('contact') ? 'active-nav' : '' }}">
+                        <i class="fas fa-question-circle w-6"></i> Help 
+                    </a>
+                </li>
                 @endauth
             </ul>
         </nav>

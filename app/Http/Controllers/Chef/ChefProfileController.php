@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Chef;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage; // <--- Critical for file operations
-use Illuminate\Support\Str; 
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use App\Models\ChefProfile;
 use App\Models\Cuisine;
 
@@ -143,10 +145,12 @@ class ChefProfileController extends Controller
         $user->phone = $request->phone;
 
         if ($request->filled('password')) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            $user->password = Hash::make($request->password);
         }
 
-        $user->save();
+        if ($user instanceof User) {
+            $user->save();
+        }
 
         return back()->with('success', 'Personal details updated successfully!');
     }
@@ -157,7 +161,7 @@ class ChefProfileController extends Controller
     private function ensureProfileExists($user)
     {
         if (!$user->chefProfile) {
-            $businessName = $user->first_name . "'s Kitchen";
+            $businessName = $user->first_name;
             ChefProfile::create([
                 'user_id' => $user->id,
                 'business_name' => $businessName,

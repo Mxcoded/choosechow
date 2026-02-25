@@ -78,8 +78,8 @@
 </div>
 
 {{-- 2. POPULAR CUISINES --}}
-<section class="py-20 bg-white dark:bg-dark-section">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section class="py-20 dark:bg-dark-section">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div class="text-center mb-12">
             <h2 class="text-base font-bold text-accent tracking-wide uppercase">Discover</h2>
             <p class="mt-1 text-3xl font-extrabold text-chow-brown-800 dark:text-content-primary sm:text-4xl sm:tracking-tight">Popular Cuisines</p>
@@ -135,7 +135,7 @@
                     $displayRating = $avgRating ? number_format($avgRating, 1) : 'New';
                 @endphp
 
-                <div class="group bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-chow-cream-200 dark:border-dark-border overflow-hidden hover:shadow-2xl hover:shadow-accent/10 transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col">
+                <div class="group dark:bg-dark-card rounded-2xl shadow-sm border border-chow-cream-200 dark:border-dark-border overflow-hidden hover:shadow-2xl hover:shadow-accent/10 transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col">
                     {{-- Cover Image --}}
                     <div class="h-48 bg-chow-cream-100 dark:bg-dark-section relative overflow-hidden">
                         @if($chefProfile->cover_image)
@@ -156,7 +156,7 @@
                         <div class="flex items-start justify-between mb-2">
                              <div>
                                 <h3 class="font-bold text-lg text-chow-brown-800 dark:text-content-primary leading-tight line-clamp-1 group-hover:text-accent transition-colors">
-                                    {{ $chefProfile->business_name }}
+                                    Chef {{ $chefProfile->business_name }}
                                 </h3>
                                 <p class="text-xs text-chow-brown-500 dark:text-content-secondary mt-1 flex items-center">
                                     <i class="fas fa-map-marker-alt text-accent mr-1"></i> 
