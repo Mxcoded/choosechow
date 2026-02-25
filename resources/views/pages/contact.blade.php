@@ -43,12 +43,30 @@
                 {{-- Address --}}
                 <div class="flex items-start bg-white dark:bg-dark-card p-6 rounded-xl shadow-sm border border-gray-100 dark:border-dark-border">
                     <div class="bg-red-100 dark:bg-accent/20 p-3 rounded-full text-red-600 dark:text-accent">
-                        <i class="fas fa-map-marker-alt text-xl"></i>
+                        <i class="fas fa-question-circle text-xl"></i>
                     </div>
                     <div class="ml-6">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-content-primary">Office</h3>
-                        <p class="text-gray-500 dark:text-content-secondary mt-1">Come say hello at our office HQ.</p>
-                        <p class="text-red-600 dark:text-accent font-bold mt-2">Abuja, Nigeria.</p>
+                        {{-- FAQ SECTION --}}
+    <div class="bg-gray-50 dark:bg-dark-section py-16 transition-colors duration-300">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-extrabold text-gray-900 dark:text-content-primary text-center mb-8">Frequently Asked Questions</h2>
+            
+            <div class="space-y-6">
+                <div class="bg-white dark:bg-dark-card rounded-lg shadow-sm p-6">
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-content-primary mb-2">Is the food really homemade?</h4>
+                    <p class="text-gray-600 dark:text-content-secondary">Yes! Every chef on ChooseChow cooks from their own inspected home kitchen or a dedicated small commercial space.</p>
+                </div>
+                <div class="bg-white dark:bg-dark-card rounded-lg shadow-sm p-6">
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-content-primary mb-2">How long does delivery take?</h4>
+                    <p class="text-gray-600 dark:text-content-secondary">Since meals are cooked fresh, preparation usually takes 30-45 mins. Delivery depends on your distance, but we aim for under an hour total.</p>
+                </div>
+                <div class="bg-white dark:bg-dark-card rounded-lg shadow-sm p-6">
+                    <h4 class="font-bold text-lg text-gray-900 dark:text-content-primary mb-2">Can I order for the whole week?</h4>
+                    <p class="text-gray-600 dark:text-content-secondary">Absolutely. You can place pre-orders for specific days or subscribe to a weekly meal plan.</p>
+                </div>
+            </div>
+        </div>
+    </div>
                     </div>
                 </div>
             </div>
