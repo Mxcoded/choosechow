@@ -143,10 +143,10 @@
                 {{-- RIGHT: ACTIONS --}}
                 <div class="hidden md:flex items-center space-x-4">
                     {{-- THEME TOGGLE --}}
-                    <button @click="darkMode = !darkMode" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-card transition-colors" title="Toggle theme">
+                    {{-- <button @click="darkMode = !darkMode" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-card transition-colors" title="Toggle theme">
                         <i x-show="!darkMode" class="fas fa-moon text-chow-brown-600 text-lg"></i>
                         <i x-show="darkMode" class="fas fa-sun text-accent-light text-lg"></i>
-                    </button>
+                    </button> --}}
                     
                     {{-- CART BUTTON --}}
                     @php

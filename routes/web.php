@@ -20,6 +20,8 @@ use App\Http\Controllers\Chef\MenuController;
 use App\Http\Controllers\Chef\OrderController; 
 use App\Http\Controllers\Chef\ChefProfileController;
 use App\Http\Controllers\Chef\WalletController;
+use App\Http\Controllers\WaitlistController;
+use App\Http\Controllers\Admin\WaitlistAnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +68,17 @@ Route::get('/chef/{chef}', [CustomerController::class, 'show'])
 // --- SUBSCRIPTIONS ---
 Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
 Route::get('/subscriptions/plans', [SubscriptionController::class, 'plans'])->name('subscriptions.plans');
+
+// --- WAITLIST (Pre-launch) ---
+Route::prefix('waitlist')->name('waitlist.')->controller(WaitlistController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/join', 'create')->name('create');
+    Route::post('/join', 'store')->name('store');
+    Route::get('/survey/{token}', 'survey')->name('survey');
+    Route::post('/survey/{token}', 'storeSurvey')->name('survey.store');
+    Route::get('/survey/{token}/skip', 'skipSurvey')->name('survey.skip');
+    Route::get('/success/{token}', 'success')->name('success');
+});
 
 // --- AUTH ---
 Auth::routes(['verify' => true]);
@@ -118,6 +131,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/withdrawals', 'index')->name('withdrawals.index');
             Route::post('/withdrawals/{id}/approve', 'approve')->name('withdrawals.approve');
             Route::post('/withdrawals/{id}/reject', 'reject')->name('withdrawals.reject');
+        });
+
+        // Waitlist Analytics
+        Route::controller(WaitlistAnalyticsController::class)->group(function () {
+            Route::get('/waitlist', 'dashboard')->name('waitlist');
+            Route::get('/waitlist/export', 'export')->name('waitlist.export');
         });
     });
 
