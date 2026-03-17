@@ -14,7 +14,7 @@
             <div class="text-center">
                 {{-- Badge --}}
                 <div class="inline-flex items-center px-4 py-2 rounded-full bg-accent/10 dark:bg-accent/20 text-accent font-semibold text-sm mb-6">
-                    <i class="fas fa-rocket mr-2"></i> Coming Soon to Lagos
+                    <i class="fas fa-rocket mr-2"></i> Coming Soon...
                 </div>
                 
                 {{-- Headline --}}
