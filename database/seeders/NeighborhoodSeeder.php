@@ -81,5 +81,55 @@ class NeighborhoodSeeder extends Seeder
                 ])
             );
         }
+
+        // ==================== ABUJA NEIGHBORHOODS ====================
+        $abujaNeighborhoods = [
+            // Central Business District
+            ['name' => 'Central Area', 'lga' => 'AMAC', 'sort_order' => 1],
+            ['name' => 'Wuse', 'lga' => 'AMAC', 'sort_order' => 2],
+            ['name' => 'Wuse 2', 'lga' => 'AMAC', 'sort_order' => 3],
+            ['name' => 'Garki', 'lga' => 'AMAC', 'sort_order' => 4],
+            ['name' => 'Garki 2', 'lga' => 'AMAC', 'sort_order' => 5],
+            ['name' => 'Maitama', 'lga' => 'AMAC', 'sort_order' => 6],
+            ['name' => 'Asokoro', 'lga' => 'AMAC', 'sort_order' => 7],
+            ['name' => 'Guzape', 'lga' => 'AMAC', 'sort_order' => 8],
+            
+            // Popular Areas
+            ['name' => 'Jabi', 'lga' => 'AMAC', 'sort_order' => 9],
+            ['name' => 'Utako', 'lga' => 'AMAC', 'sort_order' => 10],
+            ['name' => 'Gwarinpa', 'lga' => 'AMAC', 'sort_order' => 11],
+            ['name' => 'Lifecamp', 'lga' => 'AMAC', 'sort_order' => 12],
+            ['name' => 'Kado', 'lga' => 'AMAC', 'sort_order' => 13],
+            ['name' => 'Katampe', 'lga' => 'AMAC', 'sort_order' => 14],
+            ['name' => 'Lokogoma', 'lga' => 'AMAC', 'sort_order' => 15],
+            ['name' => 'Durumi', 'lga' => 'AMAC', 'sort_order' => 16],
+            ['name' => 'Gudu', 'lga' => 'AMAC', 'sort_order' => 17],
+            ['name' => 'Apo', 'lga' => 'AMAC', 'sort_order' => 18],
+            
+            // Outer Areas
+            ['name' => 'Lugbe', 'lga' => 'AMAC', 'sort_order' => 19],
+            ['name' => 'Airport Road', 'lga' => 'AMAC', 'sort_order' => 20],
+            ['name' => 'Kubwa', 'lga' => 'Bwari', 'sort_order' => 21],
+            ['name' => 'Bwari', 'lga' => 'Bwari', 'sort_order' => 22],
+            ['name' => 'Nyanya', 'lga' => 'Karu', 'sort_order' => 23],
+            ['name' => 'Karu', 'lga' => 'Karu', 'sort_order' => 24],
+            ['name' => 'Jikwoyi', 'lga' => 'AMAC', 'sort_order' => 25],
+            ['name' => 'Kurudu', 'lga' => 'AMAC', 'sort_order' => 26],
+            ['name' => 'Kuje', 'lga' => 'Kuje', 'sort_order' => 27],
+            ['name' => 'Gwagwalada', 'lga' => 'Gwagwalada', 'sort_order' => 28],
+            
+            // Other
+            ['name' => 'Other Abuja Area', 'lga' => null, 'sort_order' => 99],
+        ];
+
+        foreach ($abujaNeighborhoods as $neighborhood) {
+            Neighborhood::updateOrCreate(
+                ['name' => $neighborhood['name'], 'city' => 'Abuja'],
+                array_merge($neighborhood, [
+                    'city' => 'Abuja',
+                    'state' => 'FCT',
+                ])
+            );
+        }
     }
 }

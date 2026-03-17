@@ -140,7 +140,7 @@
                 
                 <div class="relative">
                     <div class="bg-gradient-to-br from-accent/10 to-accent-light/10 dark:from-accent/20 dark:to-accent-light/20 rounded-3xl p-8 lg:p-12">
-                        <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Home Chef" class="rounded-2xl shadow-xl w-full">
+                        <img src="https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Home Chef cooking" class="rounded-2xl shadow-xl w-full">
                     </div>
                 </div>
             </div>

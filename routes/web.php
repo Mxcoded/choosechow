@@ -33,7 +33,8 @@ use App\Http\Controllers\Admin\WaitlistAnalyticsController;
 //    1. PUBLIC PAGES
 // ==========================================
 Route::controller(PageController::class)->group(function () {
-    Route::get('/', 'landingPage')->name('welcome');
+    // Route::get('/', 'landingPage')->name('welcome'); // Disabled during pre-launch
+    Route::get('/home-preview', 'landingPage')->name('welcome.preview'); // Preview only
     Route::get('/about', 'about')->name('about');
     Route::get('/how-it-works', 'howItWorks')->name('how-it-works');
     Route::get('/contact', 'contact')->name('contact');
@@ -69,7 +70,8 @@ Route::get('/chef/{chef}', [CustomerController::class, 'show'])
 Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
 Route::get('/subscriptions/plans', [SubscriptionController::class, 'plans'])->name('subscriptions.plans');
 
-// --- WAITLIST (Pre-launch) ---
+// --- WAITLIST (Pre-launch) - Now the main landing page ---
+Route::get('/', [WaitlistController::class, 'index'])->name('welcome'); // Main landing
 Route::prefix('waitlist')->name('waitlist.')->controller(WaitlistController::class)->group(function () {
     Route::get('/', 'index')->name('index');
     Route::get('/join', 'create')->name('create');

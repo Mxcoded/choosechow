@@ -98,10 +98,14 @@
                     <select name="neighborhood_id" required
                         class="w-full px-4 py-3 rounded-xl bg-chow-cream-50 dark:bg-dark-section border border-chow-cream-200 dark:border-dark-border text-chow-brown-800 dark:text-content-primary focus:ring-2 focus:ring-accent focus:border-accent outline-none transition">
                         <option value="">Select your area</option>
-                        @foreach($neighborhoods as $neighborhood)
-                            <option value="{{ $neighborhood->id }}" {{ old('neighborhood_id') == $neighborhood->id ? 'selected' : '' }}>
-                                {{ $neighborhood->name }}
-                            </option>
+                        @foreach($neighborhoods->groupBy('city') as $city => $cityNeighborhoods)
+                            <optgroup label="{{ $city }}">
+                                @foreach($cityNeighborhoods as $neighborhood)
+                                    <option value="{{ $neighborhood->id }}" {{ old('neighborhood_id') == $neighborhood->id ? 'selected' : '' }}>
+                                        {{ $neighborhood->name }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
                         @endforeach
                     </select>
                 </div>

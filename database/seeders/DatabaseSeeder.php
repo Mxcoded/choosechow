@@ -31,5 +31,9 @@ class DatabaseSeeder extends Seeder
         $this->call(CustomerSeeder::class);
         // 5. Create Admin User
         $this->call(AdminUserSeeder::class);
+        //6. Actor Category Seeder
+        $this->call(ActorCategorySeeder::class);
+        //7.run Neighborhood Seeder
+        $this->call(NeighborhoodSeeder::class);
     }
 }

@@ -17,7 +17,7 @@
             {{-- Contact Info Cards --}}
             <div class="space-y-8">
                 {{-- Phone --}}
-                <div class="flex items-start bg-white dark:bg-dark-card p-6 rounded-xl shadow-sm border border-gray-100 dark:border-dark-border">
+                {{-- <div class="flex items-start bg-white dark:bg-dark-card p-6 rounded-xl shadow-sm border border-gray-100 dark:border-dark-border">
                     <div class="bg-red-100 dark:bg-accent/20 p-3 rounded-full text-red-600 dark:text-accent">
                         <i class="fas fa-phone-alt text-xl"></i>
                     </div>
@@ -26,7 +26,7 @@
                         <p class="text-gray-500 dark:text-content-secondary mt-1">Mon-Fri from 8am to 5pm.</p>
                         <p class="text-red-600 dark:text-accent font-bold mt-2">+234 816 041 9132</p>
                     </div>
-                </div>
+                </div> --}}
 
                 {{-- Email --}}
                 <div class="flex items-start bg-white dark:bg-dark-card p-6 rounded-xl shadow-sm border border-gray-100 dark:border-dark-border">
@@ -36,7 +36,7 @@
                     <div class="ml-6">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-content-primary">Email</h3>
                         <p class="text-gray-500 dark:text-content-secondary mt-1">Our friendly team is here to help.</p>
-                        <p class="text-red-600 dark:text-accent font-bold mt-2">support@choosechow.com</p>
+                        <p class="text-red-600 dark:text-accent font-bold mt-2">info@choosechow.com</p>
                     </div>
                 </div>
 
