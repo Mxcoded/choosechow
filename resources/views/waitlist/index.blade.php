@@ -43,7 +43,7 @@
     </div>
 
     {{-- Stats Section --}}
-    <div class="bg-white dark:bg-dark-section py-12 border-y border-chow-cream-200 dark:border-dark-border">
+    {{-- <div class="bg-white dark:bg-dark-section py-12 border-y border-chow-cream-200 dark:border-dark-border">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                 <div>
@@ -64,7 +64,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- How It Works --}}
     <div class="py-20 bg-chow-cream-50 dark:bg-dark-base">

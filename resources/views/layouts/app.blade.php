@@ -132,13 +132,13 @@
                 </div>
 
                 {{-- CENTER: DESKTOP MENU --}}
-                <div class="hidden md:flex items-center space-x-8">
+                {{-- <div class="hidden md:flex items-center space-x-8">
                     <a href="/" class="text-base font-medium {{ request()->is('/') ? 'text-chow-red-600 dark:text-accent' : 'text-chow-brown-600 dark:text-content-primary' }} hover:text-chow-orange-500 dark:hover:text-accent transition-colors">Home</a>
-                    {{-- <a href="{{ route('chef.index') }}" class="text-base font-medium {{ request()->routeIs('chef.*') ? 'text-chow-red-600 dark:text-accent' : 'text-chow-brown-600 dark:text-content-primary' }} hover:text-chow-orange-500 dark:hover:text-accent transition-colors">Find Chow</a> --}}
+                    <a href="{{ route('chef.index') }}" class="text-base font-medium {{ request()->routeIs('chef.*') ? 'text-chow-red-600 dark:text-accent' : 'text-chow-brown-600 dark:text-content-primary' }} hover:text-chow-orange-500 dark:hover:text-accent transition-colors">Find Chow</a>
                     <a href="{{ route('how-it-works') }}" class="text-base font-medium {{ request()->routeIs('how-it-works') ? 'text-chow-red-600 dark:text-accent' : 'text-chow-brown-600 dark:text-content-primary' }} hover:text-chow-orange-500 dark:hover:text-accent transition-colors">How it Works</a>
                     <a href="{{ route('about') }}" class="text-base font-medium {{ request()->routeIs('about') ? 'text-chow-red-600 dark:text-accent' : 'text-chow-brown-600 dark:text-content-primary' }} hover:text-chow-orange-500 dark:hover:text-accent transition-colors">About</a>
                     <a href="{{ route('contact') }}" class="text-base font-medium {{ request()->routeIs('contact') ? 'text-chow-red-600 dark:text-accent' : 'text-chow-brown-600 dark:text-content-primary' }} hover:text-chow-orange-500 dark:hover:text-accent transition-colors">Contact</a>
-                </div>
+                </div> --}}
 
                 {{-- RIGHT: ACTIONS --}}
                 <div class="hidden md:flex items-center space-x-4">
@@ -168,8 +168,8 @@
                     @auth
                         <a href="{{ route('dashboard') }}" class="text-base font-semibold text-chow-brown-800 dark:text-content-primary hover:text-chow-orange-500 dark:hover:text-accent transition-colors">Dashboard</a>
                     @else
-                        <a href="{{ route('login') }}" class="text-base font-semibold text-chow-brown-800 dark:text-content-primary hover:text-chow-orange-500 dark:hover:text-accent transition-colors">Login</a>
-                        <a href="{{ route('register') }}" class="bg-accent hover:bg-accent-hover text-white px-6 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-accent/30 hover:shadow-accent/50 hover:-translate-y-0.5">Get Started</a>
+                        {{-- <a href="{{ route('login') }}" class="text-base font-semibold text-chow-brown-800 dark:text-content-primary hover:text-chow-orange-500 dark:hover:text-accent transition-colors">Login</a> --}}
+                        <a href="{{ route('waitlist.create') }}" class="bg-accent hover:bg-accent-hover text-white px-6 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-accent/30 hover:shadow-accent/50 hover:-translate-y-0.5">Get Started</a>
                     @endauth
                 </div>
 
@@ -228,37 +228,37 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 
                 {{-- Brand --}}
-                <div class="col-span-1">
+                {{-- <div class="col-span-1">
                     <span class="font-bold text-2xl tracking-tight text-chow-brown-800 dark:text-content-primary">
                         Choose<span class="text-chow-red-600 dark:text-accent">Chow</span>
                     </span>
                     <p class="mt-4 text-sm text-chow-brown-600 dark:text-content-secondary">
                         Authentic homemade meals delivered to your doorstep.
                     </p>
-                </div>
+                </div> --}}
 
                 {{-- Company --}}
-                <div class="col-span-1">
+                {{-- <div class="col-span-1">
                     <h4 class="font-semibold text-chow-brown-800 dark:text-content-primary mb-4">Company</h4>
                     <ul class="space-y-3">
                         <li><a href="{{ route('about') }}" class="text-sm text-chow-brown-600 dark:text-content-secondary hover:text-accent transition-colors">About Us</a></li>
                         <li><a href="{{ route('how-it-works') }}" class="text-sm text-chow-brown-600 dark:text-content-secondary hover:text-accent transition-colors">How it Works</a></li>
                         <li><a href="{{ route('chef.index') }}" class="text-sm text-chow-brown-600 dark:text-content-secondary hover:text-accent transition-colors">Find Chefs</a></li>
                     </ul>
-                </div>
+                </div> --}}
 
                 {{-- Legal --}}
-                <div class="col-span-1">
+                {{-- <div class="col-span-1">
                     <h4 class="font-semibold text-chow-brown-800 dark:text-content-primary mb-4">Support & Legal</h4>
                     <ul class="space-y-3">
                         <li><a href="{{ route('contact') }}" class="text-sm text-chow-brown-600 dark:text-content-secondary hover:text-accent transition-colors">Contact Us</a></li>
                         <li><a href="{{ route('privacy') }}" class="text-sm text-chow-brown-600 dark:text-content-secondary hover:text-accent transition-colors">Privacy Policy</a></li>
                         <li><a href="{{ route('terms') }}" class="text-sm text-chow-brown-600 dark:text-content-secondary hover:text-accent transition-colors">Terms of Service</a></li>
                     </ul>
-                </div>
+                </div> --}}
 
                 {{-- Newsletter --}}
-                <div class="col-span-1">
+                {{-- <div class="col-span-1">
                     <h4 class="font-semibold text-chow-brown-800 dark:text-content-primary mb-4">Newsletter</h4>
                     <form action="{{ route('newsletter.subscribe') }}" method="POST" class="flex flex-col space-y-3">
                         @csrf
@@ -281,7 +281,7 @@
                             Subscribe
                         </button>
                     </form>
-                </div>
+                </div> --}}
             </div>
 
             <div class="mt-12 border-t border-chow-cream-300 dark:border-dark-border pt-8 flex flex-col md:flex-row justify-between items-center">
