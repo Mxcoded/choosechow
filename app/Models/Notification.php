@@ -9,6 +9,7 @@ class Notification extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id', // Direct user reference for easier API queries
         'notifiable_type',
         'notifiable_id',
         'type',
@@ -34,6 +35,14 @@ class Notification extends Model
     public function notifiable()
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Direct user relationship for API queries.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     // Scopes

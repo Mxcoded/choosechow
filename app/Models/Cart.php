@@ -9,7 +9,7 @@ class Cart extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'menu_id', 'quantity'];
+    protected $fillable = ['user_id', 'menu_id', 'quantity', 'special_instructions'];
 
     // Relationship: A cart item belongs to a Menu (so we can get the price/name)
     public function menu()

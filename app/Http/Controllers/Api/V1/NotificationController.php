@@ -1,0 +1,120 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Http\Traits\ApiResponse;
+use App\Models\Notification;
+use Illuminate\Http\Request;
+
+class NotificationController extends Controller
+{
+    use ApiResponse;
+
+    /**
+     * Get user's notifications.
+     * 
+     * GET /api/v1/notifications
+     */
+    public function index(Request $request)
+    {
+        $userId = $request->user()->id;
+        
+        // Query by user_id OR by notifiable (polymorphic)
+        $query = Notification::where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)
+              ->orWhere(function ($q2) use ($userId) {
+                  $q2->where('notifiable_type', \App\Models\User::class)
+                     ->where('notifiable_id', $userId);
+              });
+        });
+
+        // Filter by read status
+        if ($request->has('unread_only') && $request->boolean('unread_only')) {
+            $query->whereNull('read_at');
+        }
+
+        $perPage = min($request->get('per_page', 20), 50);
+        $notifications = $query->orderByDesc('created_at')->paginate($perPage);
+
+        return $this->successWithPagination(
+            $notifications->through(fn($notification) => [
+                'id' => $notification->id,
+                'type' => $notification->type,
+                'title' => $notification->title,
+                'message' => $notification->message,
+                'data' => $notification->data,
+                'read_at' => $notification->read_at?->toIso8601String(),
+                'is_read' => $notification->read_at !== null,
+                'created_at' => $notification->created_at?->toIso8601String(),
+                'created_at_human' => $notification->created_at?->diffForHumans(),
+            ])
+        );
+    }
+
+    /**
+     * Get unread notifications count.
+     * 
+     * GET /api/v1/notifications/unread-count
+     */
+    public function unreadCount(Request $request)
+    {
+        $userId = $request->user()->id;
+        
+        $count = Notification::where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)
+              ->orWhere(function ($q2) use ($userId) {
+                  $q2->where('notifiable_type', \App\Models\User::class)
+                     ->where('notifiable_id', $userId);
+              });
+        })->whereNull('read_at')->count();
+
+        return $this->success([
+            'unread_count' => $count,
+        ]);
+    }
+
+    /**
+     * Mark a notification as read.
+     * 
+     * POST /api/v1/notifications/{id}/read
+     */
+    public function markAsRead(Request $request, $id)
+    {
+        $userId = $request->user()->id;
+        
+        $notification = Notification::where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)
+              ->orWhere(function ($q2) use ($userId) {
+                  $q2->where('notifiable_type', \App\Models\User::class)
+                     ->where('notifiable_id', $userId);
+              });
+        })->findOrFail($id);
+
+        if (!$notification->read_at) {
+            $notification->update(['read_at' => now()]);
+        }
+
+        return $this->success(null, 'Notification marked as read');
+    }
+
+    /**
+     * Mark all notifications as read.
+     * 
+     * POST /api/v1/notifications/read-all
+     */
+    public function markAllAsRead(Request $request)
+    {
+        $userId = $request->user()->id;
+        
+        Notification::where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)
+              ->orWhere(function ($q2) use ($userId) {
+                  $q2->where('notifiable_type', \App\Models\User::class)
+                     ->where('notifiable_id', $userId);
+              });
+        })->whereNull('read_at')->update(['read_at' => now()]);
+
+        return $this->success(null, 'All notifications marked as read');
+    }
+}

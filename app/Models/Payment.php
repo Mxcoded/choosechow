@@ -13,6 +13,7 @@ class Payment extends Model
     protected $fillable = [
         'reference',
         'user_id',
+        'order_id', // Direct order reference for easier API queries
         'payable_type',
         'payable_id',
         'amount',
