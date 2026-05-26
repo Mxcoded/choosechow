@@ -402,30 +402,302 @@ class AdminController extends Controller
     }
 
     /**
+     * Get stats only (lightweight endpoint for mobile)
+     * GET /api/v1/admin/stats
+     */
+    public function stats(): JsonResponse
+    {
+        $stats = [
+            'total_users' => User::role('customer')->count(),
+            'total_vendors' => ChefProfile::count(),
+            'total_orders' => Order::count(),
+            'total_revenue' => (float) Order::where('payment_status', 'paid')->sum('total_amount'),
+            'pending_approvals' => ChefProfile::where('verification_status', 'pending')->count(),
+            'active_vendors' => ChefProfile::where('is_verified', true)->count(),
+            'today_orders' => Order::whereDate('created_at', Carbon::today())->count(),
+            'today_revenue' => (float) Order::whereDate('created_at', Carbon::today())
+                ->where('payment_status', 'paid')
+                ->sum('total_amount'),
+        ];
+
+        return response()->json($stats);
+    }
+
+    /**
+     * Get single vendor detail
+     * GET /api/v1/admin/vendors/{id}
+     */
+    public function showVendor($id): JsonResponse
+    {
+        $vendor = ChefProfile::with(['user', 'menus'])->findOrFail($id);
+
+        $data = $this->formatVendor($vendor);
+        
+        // Add extra details for single view
+        $data['menus_count'] = $vendor->menus->count();
+        $data['reviews_count'] = $vendor->reviews_count ?? 0;
+        $data['description'] = $vendor->description;
+        $data['address'] = $vendor->address;
+        $data['city'] = $vendor->city;
+        $data['cuisines'] = $vendor->cuisines ?? [];
+        $data['operating_hours'] = $vendor->operating_hours;
+
+        return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Get single order detail
+     * GET /api/v1/admin/orders/{id}
+     */
+    public function showOrder($id): JsonResponse
+    {
+        $order = Order::with(['user', 'chef.chefProfile', 'items', 'transaction'])->findOrFail($id);
+
+        $data = $this->formatOrder($order);
+        
+        // Add extra details for single view
+        $data['items'] = $order->items->map(fn($item) => [
+            'id' => $item->id,
+            'menu_name' => $item->menu_name,
+            'quantity' => $item->quantity,
+            'unit_price' => (float) $item->unit_price,
+            'total_price' => (float) $item->total_price,
+            'special_instructions' => $item->special_instructions,
+        ]);
+        $data['delivery_address'] = $order->delivery_address;
+        $data['delivery_fee'] = (float) ($order->delivery_fee ?? 0);
+        $data['subtotal'] = (float) ($order->subtotal ?? $order->total_amount);
+        $data['notes'] = $order->notes;
+        $data['customer'] = $order->user ? [
+            'id' => $order->user->id,
+            'name' => $order->user->full_name,
+            'email' => $order->user->email,
+            'phone' => $order->user->phone,
+        ] : null;
+        $data['vendor'] = $order->chef?->chefProfile ? [
+            'id' => $order->chef->chefProfile->id,
+            'business_name' => $order->chef->chefProfile->business_name,
+        ] : null;
+
+        return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Update order status
+     * POST /api/v1/admin/orders/{id}/status
+     */
+    public function updateOrderStatus(Request $request, $id): JsonResponse
+    {
+        $order = Order::findOrFail($id);
+
+        $validated = $request->validate([
+            'status' => 'required|in:pending,pending_payment,preparing,ready,completed,cancelled',
+        ]);
+
+        $order->update(['status' => $validated['status']]);
+
+        return response()->json([
+            'message' => 'Order status updated',
+            'data' => $this->formatOrder($order->fresh(['user', 'chef'])),
+        ]);
+    }
+
+    /**
+     * Get reports overview
+     * GET /api/v1/admin/reports/overview
+     */
+    public function reportsOverview(Request $request): JsonResponse
+    {
+        $period = $request->input('period', 'month');
+        $startDate = match($period) {
+            'week' => Carbon::now()->startOfWeek(),
+            'year' => Carbon::now()->startOfYear(),
+            default => Carbon::now()->startOfMonth(),
+        };
+
+        $orders = Order::where('payment_status', 'paid')
+            ->where('created_at', '>=', $startDate);
+
+        return response()->json([
+            'period' => $period,
+            'total_revenue' => (float) $orders->sum('total_amount'),
+            'total_orders' => $orders->count(),
+            'average_order_value' => (float) ($orders->avg('total_amount') ?? 0),
+            'new_users' => User::where('created_at', '>=', $startDate)->count(),
+            'new_vendors' => ChefProfile::where('created_at', '>=', $startDate)->count(),
+        ]);
+    }
+
+    /**
+     * Get revenue report
+     * GET /api/v1/admin/reports/revenue
+     */
+    public function revenueReport(Request $request): JsonResponse
+    {
+        $period = $request->input('period', 'month');
+        $days = match($period) {
+            'week' => 7,
+            'year' => 365,
+            default => 30,
+        };
+
+        $labels = [];
+        $data = [];
+        $total = 0;
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $revenue = Order::whereDate('created_at', $date)
+                ->where('payment_status', 'paid')
+                ->sum('total_amount');
+            
+            $labels[] = $date->format('M d');
+            $data[] = (float) $revenue;
+            $total += $revenue;
+        }
+
+        // Calculate change percentage (compare to previous period)
+        $previousTotal = Order::where('payment_status', 'paid')
+            ->where('created_at', '>=', Carbon::now()->subDays($days * 2))
+            ->where('created_at', '<', Carbon::now()->subDays($days))
+            ->sum('total_amount');
+        
+        $changePercentage = $previousTotal > 0 
+            ? round((($total - $previousTotal) / $previousTotal) * 100, 1) 
+            : 0;
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+            'total' => (float) $total,
+            'change_percentage' => $changePercentage,
+        ]);
+    }
+
+    /**
+     * Get orders report
+     * GET /api/v1/admin/reports/orders
+     */
+    public function ordersReport(Request $request): JsonResponse
+    {
+        $period = $request->input('period', 'month');
+        $days = match($period) {
+            'week' => 7,
+            'year' => 365,
+            default => 30,
+        };
+
+        $labels = [];
+        $data = [];
+        $total = 0;
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $count = Order::whereDate('created_at', $date)->count();
+            
+            $labels[] = $date->format('M d');
+            $data[] = $count;
+            $total += $count;
+        }
+
+        $previousTotal = Order::where('created_at', '>=', Carbon::now()->subDays($days * 2))
+            ->where('created_at', '<', Carbon::now()->subDays($days))
+            ->count();
+        
+        $changePercentage = $previousTotal > 0 
+            ? round((($total - $previousTotal) / $previousTotal) * 100, 1) 
+            : 0;
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+            'total' => $total,
+            'change_percentage' => $changePercentage,
+        ]);
+    }
+
+    /**
+     * Get users report
+     * GET /api/v1/admin/reports/users
+     */
+    public function usersReport(Request $request): JsonResponse
+    {
+        $period = $request->input('period', 'month');
+        $days = match($period) {
+            'week' => 7,
+            'year' => 365,
+            default => 30,
+        };
+
+        $labels = [];
+        $data = [];
+        $total = 0;
+
+        for ($i = $days - 1; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $count = User::whereDate('created_at', $date)->count();
+            
+            $labels[] = $date->format('M d');
+            $data[] = $count;
+            $total += $count;
+        }
+
+        $previousTotal = User::where('created_at', '>=', Carbon::now()->subDays($days * 2))
+            ->where('created_at', '<', Carbon::now()->subDays($days))
+            ->count();
+        
+        $changePercentage = $previousTotal > 0 
+            ? round((($total - $previousTotal) / $previousTotal) * 100, 1) 
+            : 0;
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+            'total' => $total,
+            'change_percentage' => $changePercentage,
+        ]);
+    }
+
+    /**
      * Get activity log
      * GET /api/v1/admin/activity
      */
     public function activity(Request $request): JsonResponse
     {
         $perPage = $request->input('per_page', 20);
+        $type = $request->input('type');
         
         // Using orders as activity for now
-        $activities = Order::with(['user', 'chef'])
-            ->latest()
-            ->paginate($perPage);
+        $query = Order::with(['user', 'chef'])->latest();
+        
+        if ($type && $type !== 'order') {
+            // Return empty for non-order types for now
+            return response()->json([
+                'data' => [],
+                'meta' => [
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $perPage,
+                    'total' => 0,
+                ],
+            ]);
+        }
+        
+        $activities = $query->paginate($perPage);
 
         $data = collect($activities->items())->map(function ($order) {
             return [
                 'id' => $order->id,
                 'type' => 'order',
-                'description' => "Order #{$order->order_number} - {$order->status}",
+                'action' => $this->getOrderAction($order->status),
+                'description' => "Order #{$order->order_number} - " . ucfirst($order->status),
                 'user_id' => $order->user_id,
                 'user_name' => $order->user ? $order->user->full_name : 'Unknown',
                 'metadata' => [
                     'order_id' => $order->id,
                     'order_number' => $order->order_number,
                     'status' => $order->status,
-                    'total' => $order->total_amount,
+                    'total' => (float) $order->total_amount,
                 ],
                 'created_at' => $order->created_at->toISOString(),
             ];
@@ -440,6 +712,204 @@ class AdminController extends Controller
                 'total' => $activities->total(),
             ],
         ]);
+    }
+    
+    /**
+     * Get action description for order status
+     */
+    private function getOrderAction(string $status): string
+    {
+        return match($status) {
+            'pending' => 'Order placed',
+            'pending_payment' => 'Awaiting payment',
+            'preparing' => 'Order being prepared',
+            'ready' => 'Order ready for pickup/delivery',
+            'completed' => 'Order completed',
+            'cancelled' => 'Order cancelled',
+            default => 'Order updated',
+        };
+    }
+
+    // ===================== PAYOUT/WITHDRAWAL METHODS =====================
+
+    /**
+     * Get payout/withdrawal statistics
+     * GET /api/v1/admin/payouts/stats
+     */
+    public function payoutStats(): JsonResponse
+    {
+        $stats = [
+            'total_requests' => \App\Models\Withdrawal::count(),
+            'pending_count' => \App\Models\Withdrawal::where('status', 'pending')->count(),
+            'pending_amount' => (float) \App\Models\Withdrawal::where('status', 'pending')->sum('amount'),
+            'approved_count' => \App\Models\Withdrawal::where('status', 'approved')->count(),
+            'approved_amount' => (float) \App\Models\Withdrawal::where('status', 'approved')->sum('amount'),
+            'rejected_count' => \App\Models\Withdrawal::where('status', 'rejected')->count(),
+            'rejected_amount' => (float) \App\Models\Withdrawal::where('status', 'rejected')->sum('amount'),
+        ];
+
+        return response()->json($stats);
+    }
+
+    /**
+     * Get paginated list of payouts/withdrawals
+     * GET /api/v1/admin/payouts
+     */
+    public function payouts(Request $request): JsonResponse
+    {
+        $query = \App\Models\Withdrawal::with(['user.chefProfile']);
+
+        // Search by vendor name or email
+        if ($search = $request->input('search')) {
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by status
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        $perPage = $request->input('per_page', 15);
+        $payouts = $query->latest()->paginate($perPage);
+
+        return response()->json([
+            'data' => collect($payouts->items())->map(fn($p) => $this->formatPayout($p)),
+            'meta' => [
+                'current_page' => $payouts->currentPage(),
+                'last_page' => $payouts->lastPage(),
+                'per_page' => $payouts->perPage(),
+                'total' => $payouts->total(),
+            ],
+        ]);
+    }
+
+    /**
+     * Get single payout details
+     * GET /api/v1/admin/payouts/{id}
+     */
+    public function showPayout($id): JsonResponse
+    {
+        $payout = \App\Models\Withdrawal::with(['user.chefProfile'])->findOrFail($id);
+
+        $data = $this->formatPayout($payout);
+        
+        // Add bank details if available
+        if ($payout->user?->chefProfile) {
+            $data['bank_details'] = [
+                'bank_name' => $payout->user->chefProfile->bank_name,
+                'account_number' => $payout->user->chefProfile->account_number,
+                'account_name' => $payout->user->chefProfile->account_name,
+            ];
+        }
+
+        return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Approve a payout request
+     * POST /api/v1/admin/payouts/{id}/approve
+     */
+    public function approvePayout($id): JsonResponse
+    {
+        $withdrawal = \App\Models\Withdrawal::findOrFail($id);
+
+        if ($withdrawal->status !== 'pending') {
+            return response()->json(['message' => 'Request already processed'], 400);
+        }
+
+        // Mark as approved
+        $withdrawal->update(['status' => 'approved']);
+
+        // Update the original transaction
+        \App\Models\Transaction::where('reference', $withdrawal->reference_id)
+            ->update([
+                'status' => 'completed',
+                'description' => 'Withdrawal Request Approved - Payment Sent'
+            ]);
+
+        // Send email notification
+        try {
+            \Mail::to($withdrawal->user->email)->send(new \App\Mail\PayoutApprovedMail($withdrawal));
+        } catch (\Exception $e) {
+            \Log::error('Payout Email Failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'message' => 'Payout approved successfully',
+            'data' => $this->formatPayout($withdrawal->fresh(['user.chefProfile'])),
+        ]);
+    }
+
+    /**
+     * Reject a payout request
+     * POST /api/v1/admin/payouts/{id}/reject
+     */
+    public function rejectPayout(Request $request, $id): JsonResponse
+    {
+        $withdrawal = \App\Models\Withdrawal::findOrFail($id);
+
+        if ($withdrawal->status !== 'pending') {
+            return response()->json(['message' => 'Request already processed'], 400);
+        }
+
+        DB::transaction(function () use ($withdrawal, $request) {
+            // Return money to wallet
+            $wallet = \App\Models\Wallet::where('user_id', $withdrawal->user_id)->first();
+            if ($wallet) {
+                $wallet->logTransaction(
+                    'refund',
+                    $withdrawal->amount,
+                    'WITHDRAWAL-' . $withdrawal->id,
+                    'Withdrawal request rejected - funds returned'
+                );
+            }
+
+            // Mark as rejected
+            $withdrawal->update([
+                'status' => 'rejected',
+                'rejection_reason' => $request->input('reason', 'Request rejected by admin'),
+            ]);
+
+            // Update the original transaction
+            \App\Models\Transaction::where('reference', $withdrawal->reference_id)
+                ->update([
+                    'status' => 'failed',
+                    'description' => 'Withdrawal Rejected - Refunded'
+                ]);
+        });
+
+        return response()->json([
+            'message' => 'Payout rejected. Funds returned to vendor wallet.',
+            'data' => $this->formatPayout($withdrawal->fresh(['user.chefProfile'])),
+        ]);
+    }
+
+    /**
+     * Format payout data for API response
+     */
+    private function formatPayout($withdrawal): array
+    {
+        $user = $withdrawal->user;
+        $chefProfile = $user?->chefProfile;
+
+        return [
+            'id' => $withdrawal->id,
+            'reference' => $withdrawal->reference_id,
+            'amount' => (float) $withdrawal->amount,
+            'status' => $withdrawal->status,
+            'vendor_id' => $user?->id,
+            'vendor_name' => $chefProfile?->business_name ?? $user?->full_name ?? 'Unknown',
+            'vendor_email' => $user?->email,
+            'bank_name' => $chefProfile?->bank_name,
+            'account_number' => $chefProfile?->account_number ? substr($chefProfile->account_number, -4) : null,
+            'rejection_reason' => $withdrawal->rejection_reason ?? null,
+            'created_at' => $withdrawal->created_at->toISOString(),
+            'updated_at' => $withdrawal->updated_at->toISOString(),
+        ];
     }
 
     // ===================== HELPER METHODS =====================

@@ -231,6 +231,15 @@ export const ENDPOINTS = {
       USERS: '/admin/reports/users',
     },
     
+    // Payouts/Withdrawals
+    PAYOUTS: {
+      STATS: '/admin/payouts/stats',
+      LIST: '/admin/payouts',
+      DETAIL: (id: number) => `/admin/payouts/${id}`,
+      APPROVE: (id: number) => `/admin/payouts/${id}/approve`,
+      REJECT: (id: number) => `/admin/payouts/${id}/reject`,
+    },
+    
     // Activity Log
     ACTIVITY: '/admin/activity',
   },

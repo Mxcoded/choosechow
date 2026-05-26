@@ -85,6 +85,36 @@ export interface ReportData {
   change_percentage: number;
 }
 
+export interface PayoutStats {
+  total_requests: number;
+  pending_count: number;
+  pending_amount: number;
+  approved_count: number;
+  approved_amount: number;
+  rejected_count: number;
+  rejected_amount: number;
+}
+
+export interface AdminPayout {
+  id: number;
+  reference: string;
+  amount: number;
+  status: 'pending' | 'approved' | 'rejected';
+  vendor_id: number;
+  vendor_name: string;
+  vendor_email: string;
+  bank_name?: string;
+  account_number?: string;
+  rejection_reason?: string;
+  created_at: string;
+  updated_at: string;
+  bank_details?: {
+    bank_name: string;
+    account_number: string;
+    account_name: string;
+  };
+}
+
 // Helper to extract data from response (handles both {data: {...}} and direct response)
 const extractData = <T>(responseData: any): T => {
   // If response has a nested data property, use it; otherwise use the response directly
@@ -207,19 +237,31 @@ export const adminService = {
   },
 
   // Reports
+  getReportsOverview: async (params?: { period?: string }): Promise<{
+    period: string;
+    total_revenue: number;
+    total_orders: number;
+    average_order_value: number;
+    new_users: number;
+    new_vendors: number;
+  }> => {
+    const response = await api.get(ENDPOINTS.ADMIN.REPORTS.OVERVIEW, params);
+    return extractData(response.data);
+  },
+
   getRevenueReport: async (params?: { period?: string }): Promise<ReportData> => {
     const response = await api.get<ReportData>(ENDPOINTS.ADMIN.REPORTS.REVENUE, params);
-    return response.data.data;
+    return extractData(response.data);
   },
 
   getOrdersReport: async (params?: { period?: string }): Promise<ReportData> => {
     const response = await api.get<ReportData>(ENDPOINTS.ADMIN.REPORTS.ORDERS, params);
-    return response.data.data;
+    return extractData(response.data);
   },
 
   getUsersReport: async (params?: { period?: string }): Promise<ReportData> => {
     const response = await api.get<ReportData>(ENDPOINTS.ADMIN.REPORTS.USERS, params);
-    return response.data.data;
+    return extractData(response.data);
   },
 
   // Activity Log
@@ -229,6 +271,36 @@ export const adminService = {
   }): Promise<PaginatedResponse<ActivityLog>> => {
     const response = await api.get<ActivityLog[]>(ENDPOINTS.ADMIN.ACTIVITY, params);
     return response.data as unknown as PaginatedResponse<ActivityLog>;
+  },
+
+  // Payouts/Withdrawals
+  getPayoutStats: async (): Promise<PayoutStats> => {
+    const response = await api.get<PayoutStats>(ENDPOINTS.ADMIN.PAYOUTS.STATS);
+    return extractData(response.data);
+  },
+
+  getPayouts: async (params?: {
+    page?: number;
+    search?: string;
+    status?: string;
+  }): Promise<PaginatedResponse<AdminPayout>> => {
+    const response = await api.get<AdminPayout[]>(ENDPOINTS.ADMIN.PAYOUTS.LIST, params);
+    return response.data as unknown as PaginatedResponse<AdminPayout>;
+  },
+
+  getPayout: async (id: number): Promise<AdminPayout> => {
+    const response = await api.get<AdminPayout>(ENDPOINTS.ADMIN.PAYOUTS.DETAIL(id));
+    return extractData(response.data);
+  },
+
+  approvePayout: async (id: number): Promise<AdminPayout> => {
+    const response = await api.post<AdminPayout>(ENDPOINTS.ADMIN.PAYOUTS.APPROVE(id));
+    return extractData(response.data);
+  },
+
+  rejectPayout: async (id: number, reason?: string): Promise<AdminPayout> => {
+    const response = await api.post<AdminPayout>(ENDPOINTS.ADMIN.PAYOUTS.REJECT(id), { reason });
+    return extractData(response.data);
   },
 };
 

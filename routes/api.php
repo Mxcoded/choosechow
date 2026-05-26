@@ -190,8 +190,9 @@ Route::prefix('v1')->group(function () {
         //    ADMIN ROUTES (Admin Role Required)
         // ==========================================
         Route::prefix('admin')->middleware('admin')->group(function () {
-            // Dashboard
+            // Dashboard & Stats
             Route::get('/dashboard', [AdminController::class, 'dashboard']);
+            Route::get('/stats', [AdminController::class, 'stats']);
 
             // Users Management
             Route::get('/users', [AdminController::class, 'users']);
@@ -207,9 +208,25 @@ Route::prefix('v1')->group(function () {
             Route::post('/vendors/{id}/reject', [AdminController::class, 'rejectVendor']);
             Route::post('/vendors/{id}/suspend', [AdminController::class, 'suspendVendor']);
             Route::post('/vendors/{id}/activate', [AdminController::class, 'activateVendor']);
+            Route::get('/vendors/{id}', [AdminController::class, 'showVendor']);
 
             // Orders Management
             Route::get('/orders', [AdminController::class, 'orders']);
+            Route::get('/orders/{id}', [AdminController::class, 'showOrder']);
+            Route::post('/orders/{id}/status', [AdminController::class, 'updateOrderStatus']);
+
+            // Reports
+            Route::get('/reports/overview', [AdminController::class, 'reportsOverview']);
+            Route::get('/reports/revenue', [AdminController::class, 'revenueReport']);
+            Route::get('/reports/orders', [AdminController::class, 'ordersReport']);
+            Route::get('/reports/users', [AdminController::class, 'usersReport']);
+
+            // Payouts/Withdrawals
+            Route::get('/payouts/stats', [AdminController::class, 'payoutStats']);
+            Route::get('/payouts', [AdminController::class, 'payouts']);
+            Route::get('/payouts/{id}', [AdminController::class, 'showPayout']);
+            Route::post('/payouts/{id}/approve', [AdminController::class, 'approvePayout']);
+            Route::post('/payouts/{id}/reject', [AdminController::class, 'rejectPayout']);
 
             // Activity Log
             Route::get('/activity', [AdminController::class, 'activity']);
