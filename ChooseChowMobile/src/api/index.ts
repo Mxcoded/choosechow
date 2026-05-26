@@ -10,3 +10,5 @@ export { authService } from './authService';
 export { chefService } from './chefService';
 export { cartService } from './cartService';
 export { orderService } from './orderService';
+export { adminService } from './adminService';
+export type { AdminStats, AdminUser, AdminVendor, AdminOrder, ActivityLog } from './adminService';

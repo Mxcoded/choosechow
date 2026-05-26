@@ -12,14 +12,21 @@ import {
   Alert,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp } from '@react-navigation/native';
 import { useAuth } from '../../contexts';
+import { COLORS } from '../../utils/theme';
+import Logo from '../../components/Logo';
+import { AuthStackParamList } from '../../navigation/types';
 
 type RegisterScreenProps = {
-  navigation: NativeStackNavigationProp<any>;
+  navigation: NativeStackNavigationProp<AuthStackParamList, 'Register'>;
+  route: RouteProp<AuthStackParamList, 'Register'>;
 };
 
-export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
-  const [name, setName] = useState('');
+export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation, route }) => {
+  const userRole = route.params?.role || 'customer';
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -28,8 +35,15 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
   const { register } = useAuth();
 
   const handleRegister = async () => {
-    if (!name || !email || !password || !confirmPassword) {
+    if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
+
+    // Validate phone format (Nigerian phone number)
+    const phoneRegex = /^(\+234|0)[789]\d{9}$/;
+    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+      Alert.alert('Error', 'Please enter a valid Nigerian phone number');
       return;
     }
 
@@ -46,11 +60,13 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
     setIsSubmitting(true);
     try {
       await register({
-        name,
+        first_name: firstName,
+        last_name: lastName,
         email,
-        phone: phone || undefined,
+        phone,
         password,
         password_confirmation: confirmPassword,
+        role: userRole,
       });
     } catch (error: any) {
       const message = error.response?.data?.message || 'Registration failed. Please try again.';
@@ -77,24 +93,36 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={styles.logo}>ChooseChow</Text>
-          <Text style={styles.tagline}>Join Our Food Community</Text>
+          <Logo size="medium" variant="dark" />
         </View>
 
         <View style={styles.form}>
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Sign up to get started</Text>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Full Name *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your full name"
-              placeholderTextColor="#9CA3AF"
-              value={name}
-              onChangeText={setName}
-              autoCapitalize="words"
-            />
+          <View style={styles.nameRow}>
+            <View style={styles.nameInputContainer}>
+              <Text style={styles.label}>First Name *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="First name"
+                placeholderTextColor="#9CA3AF"
+                value={firstName}
+                onChangeText={setFirstName}
+                autoCapitalize="words"
+              />
+            </View>
+            <View style={styles.nameInputContainer}>
+              <Text style={styles.label}>Last Name *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Last name"
+                placeholderTextColor="#9CA3AF"
+                value={lastName}
+                onChangeText={setLastName}
+                autoCapitalize="words"
+              />
+            </View>
           </View>
 
           <View style={styles.inputContainer}>
@@ -112,14 +140,15 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) =>
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Phone Number (Optional)</Text>
+            <Text style={styles.label}>Phone Number *</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your phone number"
+              placeholder="e.g. 08012345678"
               placeholderTextColor="#9CA3AF"
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
+              maxLength={14}
             />
           </View>
 
@@ -183,17 +212,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 30,
-  },
-  logo: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FF6B35',
-  },
-  tagline: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 8,
+    marginBottom: 24,
   },
   form: {
     width: '100%',
@@ -212,6 +231,14 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 16,
   },
+  nameRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  nameInputContainer: {
+    flex: 1,
+  },
   label: {
     fontSize: 14,
     fontWeight: '600',
@@ -228,7 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   button: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -252,7 +279,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginLink: {
-    color: '#FF6B35',
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: '600',
   },

@@ -13,6 +13,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCart } from '../../contexts';
 import { orderService } from '../../api';
+import { COLORS } from '../../utils/theme';
 
 type CheckoutScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   browseButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   changeText: {
-    color: '#FF6B35',
+    color: COLORS.primary,
     fontWeight: '600',
   },
   paymentOption: {
@@ -298,8 +299,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   paymentOptionSelected: {
-    borderColor: '#FF6B35',
-    backgroundColor: '#FFF7ED',
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryFaded,
   },
   radioOuter: {
     width: 24,
@@ -315,7 +316,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
   },
   paymentDetails: {
     flex: 1,
@@ -382,7 +383,7 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FF6B35',
+    color: COLORS.primary,
   },
   bottomContainer: {
     padding: 16,
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#E5E7EB',
   },
   placeOrderButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',

@@ -126,4 +126,49 @@ export const ENDPOINTS = {
     SETTINGS: '/notifications/settings',
     REGISTER_DEVICE: '/notifications/device',
   },
+  
+  // Admin Endpoints
+  ADMIN: {
+    // Dashboard
+    DASHBOARD: '/admin/dashboard',
+    STATS: '/admin/stats',
+    
+    // Users Management
+    USERS: {
+      LIST: '/admin/users',
+      DETAIL: (id: number) => `/admin/users/${id}`,
+      UPDATE: (id: number) => `/admin/users/${id}`,
+      DELETE: (id: number) => `/admin/users/${id}`,
+      TOGGLE_STATUS: (id: number) => `/admin/users/${id}/toggle-status`,
+    },
+    
+    // Vendors Management
+    VENDORS: {
+      LIST: '/admin/vendors',
+      PENDING: '/admin/vendors/pending',
+      DETAIL: (id: number) => `/admin/vendors/${id}`,
+      APPROVE: (id: number) => `/admin/vendors/${id}/approve`,
+      REJECT: (id: number) => `/admin/vendors/${id}/reject`,
+      SUSPEND: (id: number) => `/admin/vendors/${id}/suspend`,
+      ACTIVATE: (id: number) => `/admin/vendors/${id}/activate`,
+    },
+    
+    // Orders Management
+    ORDERS: {
+      LIST: '/admin/orders',
+      DETAIL: (id: number) => `/admin/orders/${id}`,
+      UPDATE_STATUS: (id: number) => `/admin/orders/${id}/status`,
+    },
+    
+    // Reports & Analytics
+    REPORTS: {
+      OVERVIEW: '/admin/reports/overview',
+      REVENUE: '/admin/reports/revenue',
+      ORDERS: '/admin/reports/orders',
+      USERS: '/admin/reports/users',
+    },
+    
+    // Activity Log
+    ACTIVITY: '/admin/activity',
+  },
 };

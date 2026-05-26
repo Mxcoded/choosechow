@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../../contexts';
+import { COLORS } from '../../utils/theme';
+import Logo from '../../components/Logo';
 
 type LoginScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -53,8 +55,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={styles.logo}>ChooseChow</Text>
-          <Text style={styles.tagline}>Bespoke Cuisine at Your Doorstep</Text>
+          <Logo size="large" variant="dark" />
         </View>
 
         <View style={styles.form}>
@@ -136,17 +137,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
-  },
-  logo: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FF6B35',
-  },
-  tagline: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 8,
+    marginBottom: 32,
   },
   form: {
     width: '100%',
@@ -185,12 +176,12 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   forgotPasswordText: {
-    color: '#FF6B35',
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: '600',
   },
   button: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -227,7 +218,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   signupLink: {
-    color: '#FF6B35',
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: '600',
   },

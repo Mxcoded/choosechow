@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { authService } from '../../api';
+import { COLORS } from '../../utils/theme';
+import Logo from '../../components/Logo';
 
 type ForgotPasswordScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -80,7 +82,7 @@ export const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ navi
         </TouchableOpacity>
 
         <View style={styles.header}>
-          <Text style={styles.logo}>ChooseChow</Text>
+          <Logo size="medium" variant="dark" showText={false} />
         </View>
 
         <View style={styles.form}>
@@ -141,17 +143,12 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#FF6B35',
+    color: COLORS.primary,
     fontWeight: '600',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
-  },
-  logo: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FF6B35',
+    marginBottom: 32,
   },
   form: {
     width: '100%',
@@ -187,7 +184,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
   },
   button: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -210,7 +207,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginLink: {
-    color: '#FF6B35',
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: '600',
   },

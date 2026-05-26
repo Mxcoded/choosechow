@@ -4,7 +4,7 @@ import { User, LoginCredentials, RegisterData } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
+  isLoading: boolean; // Only true during initial app load
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
@@ -20,6 +20,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  // isLoading is ONLY for initial app load - NOT for login/register/logout actions
   const [isLoading, setIsLoading] = useState(true);
 
   // Check if user is already authenticated on app load
@@ -42,33 +43,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Login does NOT set isLoading - the screen handles its own loading state
   const login = async (credentials: LoginCredentials) => {
-    setIsLoading(true);
-    try {
-      const response = await authService.login(credentials);
-      setUser(response.user);
-    } finally {
-      setIsLoading(false);
-    }
+    const response = await authService.login(credentials);
+    setUser(response.user);
   };
 
+  // Register does NOT set isLoading - the screen handles its own loading state
   const register = async (data: RegisterData) => {
-    setIsLoading(true);
-    try {
-      const response = await authService.register(data);
-      setUser(response.user);
-    } finally {
-      setIsLoading(false);
-    }
+    const response = await authService.register(data);
+    setUser(response.user);
   };
 
+  // Logout does NOT set isLoading - prevents navigation state reset
   const logout = async () => {
-    setIsLoading(true);
     try {
       await authService.logout();
-      setUser(null);
+    } catch (error) {
+      // Even if the API call fails, we still want to log out locally
+      console.warn('Logout API call failed, clearing local session:', error);
     } finally {
-      setIsLoading(false);
+      // Always clear user state regardless of API success
+      setUser(null);
     }
   };
 

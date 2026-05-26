@@ -1,14 +1,108 @@
-// User Types
-export interface User {
+// User Role Type
+export type UserRole = 'customer' | 'chef' | 'admin';
+
+// Spatie Role object (from Laravel)
+export interface SpatieRole {
   id: number;
   name: string;
+  guard_name?: string;
+}
+
+// Raw API User response (before processing)
+export interface ApiUser {
+  id: number;
+  first_name: string;
+  last_name: string;
+  name?: string;
   email: string;
   phone?: string;
   avatar_url?: string;
   email_verified_at?: string;
   created_at: string;
   default_address?: Address;
+  // Spatie roles - can be array of strings or role objects
+  roles?: (string | SpatieRole)[];
+  // Some Laravel APIs also include a single role field
+  role?: string;
 }
+
+// Processed User type for the app
+export interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  name?: string; // Full name (computed)
+  email: string;
+  phone?: string;
+  avatar_url?: string;
+  email_verified_at?: string;
+  created_at: string;
+  default_address?: Address;
+  role: UserRole; // Primary role for navigation (extracted from Spatie)
+  roles?: string[]; // All role names (for permissions)
+}
+
+// Helper function to extract primary role from Spatie roles
+export const extractPrimaryRole = (apiUser: ApiUser): UserRole => {
+  // Priority: admin > chef > customer
+  const roleNames: string[] = [];
+  
+  // Handle roles array (Spatie format)
+  if (apiUser.roles && Array.isArray(apiUser.roles)) {
+    apiUser.roles.forEach(role => {
+      if (typeof role === 'string') {
+        roleNames.push(role.toLowerCase());
+      } else if (role && typeof role === 'object' && role.name) {
+        roleNames.push(role.name.toLowerCase());
+      }
+    });
+  }
+  
+  // Also check single role field
+  if (apiUser.role) {
+    roleNames.push(apiUser.role.toLowerCase());
+  }
+  
+  // Determine primary role with priority
+  if (roleNames.includes('admin') || roleNames.includes('super-admin')) {
+    return 'admin';
+  }
+  if (roleNames.includes('chef') || roleNames.includes('vendor')) {
+    return 'chef';
+  }
+  // Default to customer
+  return 'customer';
+};
+
+// Helper to convert API user to app User
+export const normalizeUser = (apiUser: ApiUser): User => {
+  const roleNames: string[] = [];
+  
+  if (apiUser.roles && Array.isArray(apiUser.roles)) {
+    apiUser.roles.forEach(role => {
+      if (typeof role === 'string') {
+        roleNames.push(role);
+      } else if (role && typeof role === 'object' && role.name) {
+        roleNames.push(role.name);
+      }
+    });
+  }
+  
+  return {
+    id: apiUser.id,
+    first_name: apiUser.first_name,
+    last_name: apiUser.last_name,
+    name: apiUser.name,
+    email: apiUser.email,
+    phone: apiUser.phone,
+    avatar_url: apiUser.avatar_url,
+    email_verified_at: apiUser.email_verified_at,
+    created_at: apiUser.created_at,
+    default_address: apiUser.default_address,
+    role: extractPrimaryRole(apiUser),
+    roles: roleNames,
+  };
+};
 
 export interface Address {
   id: number;
@@ -270,11 +364,13 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  name: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone?: string;
+  phone: string;
   password: string;
   password_confirmation: string;
+  role?: 'customer' | 'chef';
 }
 
 export interface AuthResponse {

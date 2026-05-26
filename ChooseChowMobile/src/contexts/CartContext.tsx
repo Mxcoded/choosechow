@@ -120,7 +120,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   };
 
-  const itemCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const itemCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   const value: CartContextType = {
     cart,

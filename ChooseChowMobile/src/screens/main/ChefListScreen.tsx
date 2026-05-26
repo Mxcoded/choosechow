@@ -14,6 +14,7 @@ import { RouteProp } from '@react-navigation/native';
 import { chefService } from '../../api';
 import { Chef } from '../../types';
 import ChefCard from '../../components/ChefCard';
+import { COLORS } from '../../utils/theme';
 
 type ChefListScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -43,16 +44,23 @@ export const ChefListScreen: React.FC<ChefListScreenProps> = ({ navigation, rout
         pageNum
       );
       
+      const data = response?.data || [];
+      
       if (refresh || pageNum === 1) {
-        setChefs(response.data);
+        setChefs(data);
       } else {
-        setChefs(prev => [...prev, ...response.data]);
+        setChefs(prev => [...prev, ...data]);
       }
       
-      setHasMore(response.meta.current_page < response.meta.last_page);
+      const meta = response?.meta;
+      setHasMore(meta ? meta.current_page < meta.last_page : false);
       setPage(pageNum);
     } catch (error) {
       console.error('Failed to load chefs:', error);
+      if (pageNum === 1) {
+        setChefs([]);
+      }
+      setHasMore(false);
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -68,10 +76,11 @@ export const ChefListScreen: React.FC<ChefListScreenProps> = ({ navigation, rout
     setIsLoading(true);
     try {
       const results = await chefService.searchChefs(searchQuery);
-      setChefs(results);
+      setChefs(results || []);
       setHasMore(false);
     } catch (error) {
       console.error('Search failed:', error);
+      setChefs([]);
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +109,7 @@ export const ChefListScreen: React.FC<ChefListScreenProps> = ({ navigation, rout
     if (!hasMore) return null;
     return (
       <View style={styles.footer}>
-        <ActivityIndicator size="small" color="#FF6B35" />
+        <ActivityIndicator size="small" color={COLORS.primary} />
       </View>
     );
   };
@@ -108,7 +117,7 @@ export const ChefListScreen: React.FC<ChefListScreenProps> = ({ navigation, rout
   if (isLoading && chefs.length === 0) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B35" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -149,7 +158,7 @@ export const ChefListScreen: React.FC<ChefListScreenProps> = ({ navigation, rout
           columnWrapperStyle={styles.row}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#FF6B35']} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
           }
           onEndReached={loadMore}
           onEndReachedThreshold={0.5}
@@ -187,7 +196,7 @@ const styles = StyleSheet.create({
     color: '#1F2937',
   },
   searchButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
     paddingHorizontal: 20,
     justifyContent: 'center',

@@ -1,14 +1,24 @@
 import React from 'react';
-import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets, EdgeInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts';
+import { COLORS } from '../utils/theme';
+
+// Base tab bar height (without safe area)
+const BASE_TAB_BAR_HEIGHT = 56;
+// Minimum bottom padding for Android gesture navigation
+const ANDROID_MIN_BOTTOM_PADDING = 8;
 
 // Auth Screens
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
+
+// Onboarding Screens
+import { OnboardingScreen, WelcomeScreen } from '../screens/onboarding';
 
 // Main Screens
 import HomeScreen from '../screens/main/HomeScreen';
@@ -17,117 +27,219 @@ import ChefListScreen from '../screens/main/ChefListScreen';
 import ChefDetailScreen from '../screens/main/ChefDetailScreen';
 import CheckoutScreen from '../screens/main/CheckoutScreen';
 
-// Stack Navigator Types
-export type AuthStackParamList = {
-  Login: undefined;
-  Register: undefined;
-  ForgotPassword: undefined;
-};
+// Vendor Screens
+import { VendorDashboardScreen } from '../screens/vendor';
 
-export type MainStackParamList = {
-  MainTabs: undefined;
-  ChefDetail: { chefId: number };
-  ChefList: { search?: string; cuisine?: string; sortBy?: string };
-  MenuDetail: { menuId: number };
-  Checkout: undefined;
-  OrderDetail: { orderId: number };
-  OrderTracking: { orderId: number };
-};
+// Admin Screens
+import { AdminDashboardScreen, AdminUsersScreen, AdminVendorsScreen } from '../screens/admin';
 
-export type MainTabParamList = {
-  Home: undefined;
-  Search: undefined;
-  Cart: undefined;
-  Orders: undefined;
-  Profile: undefined;
-};
+// Import navigation types
+import { 
+  AuthStackParamList, 
+  MainStackParamList, 
+  MainTabParamList,
+  VendorStackParamList,
+  VendorTabParamList,
+  AdminStackParamList,
+  AdminTabParamList,
+} from './types';
+
+// Re-export types for convenience
+export type { AuthStackParamList, MainStackParamList, MainTabParamList, VendorStackParamList, AdminStackParamList };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const VendorStack = createNativeStackNavigator<VendorStackParamList>();
+const VendorTab = createBottomTabNavigator<VendorTabParamList>();
+const AdminStack = createNativeStackNavigator<AdminStackParamList>();
+const AdminTab = createBottomTabNavigator<AdminTabParamList>();
 
-// Placeholder screens (you can expand these later)
-const SearchScreen = () => (
+// Search Screen
+const SearchScreen = ({ navigation }: any) => (
   <View style={styles.placeholder}>
     <Text style={styles.placeholderText}>🔍</Text>
-    <Text style={styles.placeholderTitle}>Search</Text>
+    <Text style={styles.placeholderTitle}>Search Chefs</Text>
     <Text style={styles.placeholderSubtitle}>Find your favorite chefs and dishes</Text>
+    <TouchableOpacity 
+      style={styles.actionButton}
+      onPress={() => navigation.navigate('ChefList')}
+    >
+      <Text style={styles.actionButtonText}>Browse All Chefs</Text>
+    </TouchableOpacity>
   </View>
 );
 
-const OrdersScreen = () => (
+// Orders Screen
+const OrdersScreen = ({ navigation }: any) => (
   <View style={styles.placeholder}>
     <Text style={styles.placeholderText}>📋</Text>
     <Text style={styles.placeholderTitle}>My Orders</Text>
-    <Text style={styles.placeholderSubtitle}>Track your order history</Text>
+    <Text style={styles.placeholderSubtitle}>Your order history will appear here</Text>
+    <TouchableOpacity 
+      style={styles.actionButton}
+      onPress={() => navigation.navigate('Home')}
+    >
+      <Text style={styles.actionButtonText}>Start Ordering</Text>
+    </TouchableOpacity>
   </View>
 );
 
+// Profile Screen
 const ProfileScreen = ({ navigation }: any) => {
   const { user, logout } = useAuth();
+  const insets = useSafeAreaInsets();
+  
+  const handleLogout = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Sign Out', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              console.error('Logout error:', error);
+            }
+          }
+        },
+      ]
+    );
+  };
+  
+  const menuItems = [
+    { title: 'Edit Profile', icon: '👤', onPress: () => {} },
+    { title: 'My Addresses', icon: '📍', onPress: () => {} },
+    { title: 'Payment Methods', icon: '💳', onPress: () => {} },
+    { title: 'Notifications', icon: '🔔', onPress: () => {} },
+    { title: 'Help & Support', icon: '❓', onPress: () => {} },
+    { title: 'About ChooseChow', icon: 'ℹ️', onPress: () => {} },
+  ];
   
   return (
-    <View style={styles.profileContainer}>
+    <ScrollView 
+      style={styles.profileContainer}
+      contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+    >
       <View style={styles.profileHeader}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'U'}</Text>
+          <Text style={styles.avatarText}>{user?.first_name?.charAt(0) || 'U'}</Text>
         </View>
-        <Text style={styles.profileName}>{user?.name || 'User'}</Text>
+        <Text style={styles.profileName}>
+          {user?.first_name && user?.last_name 
+            ? `${user.first_name} ${user.last_name}` 
+            : user?.name || 'User'}
+        </Text>
         <Text style={styles.profileEmail}>{user?.email || ''}</Text>
       </View>
       
       <View style={styles.profileMenu}>
-        <MenuItem title="Edit Profile" icon="👤" />
-        <MenuItem title="My Addresses" icon="📍" />
-        <MenuItem title="Payment Methods" icon="💳" />
-        <MenuItem title="Notifications" icon="🔔" />
-        <MenuItem title="Help & Support" icon="❓" />
-        <MenuItem title="About" icon="ℹ️" />
+        {menuItems.map((item, index) => (
+          <TouchableOpacity 
+            key={index} 
+            style={[
+              styles.menuItem,
+              index === menuItems.length - 1 && { borderBottomWidth: 0 }
+            ]} 
+            onPress={item.onPress}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.menuIcon}>{item.icon}</Text>
+            <Text style={styles.menuTitle}>{item.title}</Text>
+            <Text style={styles.menuArrow}>›</Text>
+          </TouchableOpacity>
+        ))}
       </View>
       
-      <View style={styles.logoutContainer}>
-        <Text style={styles.logoutButton} onPress={() => logout()}>
-          Sign Out
-        </Text>
-      </View>
-    </View>
+      <TouchableOpacity 
+        style={styles.logoutContainer} 
+        onPress={handleLogout} 
+        activeOpacity={0.7}
+      >
+        <Text style={styles.logoutButton}>Sign Out</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
-const MenuItem = ({ title, icon }: { title: string; icon: string }) => (
-  <View style={styles.menuItem}>
-    <Text style={styles.menuIcon}>{icon}</Text>
-    <Text style={styles.menuTitle}>{title}</Text>
-    <Text style={styles.menuArrow}>›</Text>
-  </View>
-);
+// Helper function to calculate tab bar dimensions based on safe area insets
+const getTabBarDimensions = (insets: EdgeInsets) => {
+  // Use actual safe area insets for both platforms
+  // This properly handles gesture navigation on Android (OneUI, etc.)
+  const bottomInset = insets.bottom;
+  
+  // Calculate bottom padding: use safe area inset, with minimum for Android
+  const bottomPadding = Platform.select({
+    ios: Math.max(bottomInset, 8),
+    android: Math.max(bottomInset, ANDROID_MIN_BOTTOM_PADDING),
+    default: 8,
+  }) || 8;
+  
+  // Total tab bar height = base height + bottom padding for safe area
+  const tabBarHeight = BASE_TAB_BAR_HEIGHT + bottomPadding;
+  
+  return { bottomPadding, tabBarHeight };
+};
 
 // Tab Navigator
 const TabNavigator = () => {
   const { itemCount } = require('../contexts').useCart();
+  const insets = useSafeAreaInsets();
+  
+  // Get dynamic tab bar dimensions based on device safe areas
+  const { bottomPadding, tabBarHeight } = getTabBarDimensions(insets);
   
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: '#FF6B35',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.gray[500],
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: COLORS.white,
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
-          paddingBottom: 8,
+          borderTopColor: COLORS.border.light,
+          // Use dynamic padding based on safe area insets
+          paddingBottom: bottomPadding,
           paddingTop: 8,
-          height: 60,
+          height: tabBarHeight,
+          // Proper elevation for Android
+          elevation: 8,
+          // Shadow for iOS
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
+          marginTop: 2,
+          marginBottom: 0,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
+          marginBottom: 0,
+        },
+        tabBarItemStyle: {
+          paddingTop: 4,
+          paddingBottom: 0,
+          justifyContent: 'center',
+          alignItems: 'center',
         },
         headerShown: true,
         headerStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: COLORS.white,
+          elevation: 2,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 2,
         },
-        headerTintColor: '#1F2937',
+        headerTintColor: COLORS.text.primary,
         headerTitleStyle: {
           fontWeight: 'bold',
         },
@@ -138,9 +250,12 @@ const TabNavigator = () => {
         component={HomeScreen}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22 }}>🏠</Text>,
-          headerTitle: 'ChooseChow',
-          headerTitleStyle: { color: '#FF6B35', fontWeight: 'bold', fontSize: 22 },
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>🏠</Text>
+            </View>
+          ),
+          headerShown: false,
         }}
       />
       <Tab.Screen
@@ -148,8 +263,13 @@ const TabNavigator = () => {
         component={SearchScreen}
         options={{
           tabBarLabel: 'Search',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22 }}>🔍</Text>,
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>🔍</Text>
+            </View>
+          ),
           headerTitle: 'Search Chefs',
+          headerTitleStyle: { color: COLORS.primary },
         }}
       />
       <Tab.Screen
@@ -157,10 +277,15 @@ const TabNavigator = () => {
         component={CartScreen}
         options={{
           tabBarLabel: 'Cart',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22 }}>🛒</Text>,
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>🛒</Text>
+            </View>
+          ),
           tabBarBadge: itemCount > 0 ? itemCount : undefined,
-          tabBarBadgeStyle: { backgroundColor: '#FF6B35' },
+          tabBarBadgeStyle: { backgroundColor: COLORS.primary, fontSize: 10, minWidth: 18, height: 18 },
           headerTitle: 'My Cart',
+          headerTitleStyle: { color: COLORS.primary },
         }}
       />
       <Tab.Screen
@@ -168,8 +293,13 @@ const TabNavigator = () => {
         component={OrdersScreen}
         options={{
           tabBarLabel: 'Orders',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22 }}>📋</Text>,
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>📋</Text>
+            </View>
+          ),
           headerTitle: 'My Orders',
+          headerTitleStyle: { color: COLORS.primary },
         }}
       />
       <Tab.Screen
@@ -177,8 +307,13 @@ const TabNavigator = () => {
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22 }}>👤</Text>,
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>👤</Text>
+            </View>
+          ),
           headerTitle: 'Profile',
+          headerTitleStyle: { color: COLORS.primary },
         }}
       />
     </Tab.Navigator>
@@ -191,22 +326,24 @@ const AuthNavigator = () => (
     screenOptions={{
       headerShown: false,
     }}
+    initialRouteName="Onboarding"
   >
+    <AuthStack.Screen name="Onboarding" component={OnboardingScreen} />
+    <AuthStack.Screen name="Welcome" component={WelcomeScreen} />
     <AuthStack.Screen name="Login" component={LoginScreen} />
     <AuthStack.Screen name="Register" component={RegisterScreen} />
     <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
   </AuthStack.Navigator>
 );
 
-// Main Navigator (authenticated)
+// Main Navigator (Customer/Foodie - authenticated)
 const MainNavigator = () => (
   <MainStack.Navigator
     screenOptions={{
       headerStyle: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: COLORS.white,
       },
-      headerTintColor: '#1F2937',
-      headerBackTitleVisible: false,
+      headerTintColor: COLORS.primary,
     }}
   >
     <MainStack.Screen
@@ -232,14 +369,313 @@ const MainNavigator = () => (
   </MainStack.Navigator>
 );
 
+// Vendor Profile Screen (placeholder)
+const VendorProfileScreen = ({ navigation }: any) => {
+  const { user, logout } = useAuth();
+  const insets = useSafeAreaInsets();
+  
+  const handleLogout = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Sign Out', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              console.error('Logout error:', error);
+            }
+          }
+        },
+      ]
+    );
+  };
+  
+  return (
+    <ScrollView style={styles.profileContainer} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
+      <View style={styles.profileHeader}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{user?.first_name?.charAt(0) || 'V'}</Text>
+        </View>
+        <Text style={styles.profileName}>
+          {user?.first_name && user?.last_name 
+            ? `${user.first_name} ${user.last_name}` 
+            : user?.name || 'Vendor'}
+        </Text>
+        <Text style={styles.profileEmail}>{user?.email || ''}</Text>
+        <View style={styles.roleBadge}>
+          <Text style={styles.roleBadgeText}>🏪 Vendor</Text>
+        </View>
+      </View>
+      
+      <TouchableOpacity style={styles.logoutContainer} onPress={handleLogout} activeOpacity={0.7}>
+        <Text style={styles.logoutButton}>Sign Out</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+// Vendor Orders Placeholder
+const VendorOrdersScreen = () => (
+  <View style={styles.placeholder}>
+    <Text style={styles.placeholderText}>🛍️</Text>
+    <Text style={styles.placeholderTitle}>Vendor Orders</Text>
+    <Text style={styles.placeholderSubtitle}>Manage incoming orders here</Text>
+  </View>
+);
+
+// Vendor Menu Placeholder
+const VendorMenuScreen = () => (
+  <View style={styles.placeholder}>
+    <Text style={styles.placeholderText}>📋</Text>
+    <Text style={styles.placeholderTitle}>My Menu</Text>
+    <Text style={styles.placeholderSubtitle}>Manage your menu items here</Text>
+  </View>
+);
+
+// Vendor Tab Navigator
+const VendorTabNavigator = () => {
+  const insets = useSafeAreaInsets();
+  const { bottomPadding, tabBarHeight } = getTabBarDimensions(insets);
+  
+  return (
+    <VendorTab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.gray[500],
+        tabBarStyle: {
+          backgroundColor: COLORS.white,
+          borderTopWidth: 1,
+          borderTopColor: COLORS.border.light,
+          paddingBottom: bottomPadding,
+          paddingTop: 8,
+          height: tabBarHeight,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600', marginTop: 2 },
+        headerShown: false,
+      }}
+    >
+      <VendorTab.Screen
+        name="VendorDashboard"
+        component={VendorDashboardScreen}
+        options={{
+          tabBarLabel: 'Dashboard',
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>📊</Text>
+            </View>
+          ),
+        }}
+      />
+      <VendorTab.Screen
+        name="VendorOrders"
+        component={VendorOrdersScreen}
+        options={{
+          tabBarLabel: 'Orders',
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>🛍️</Text>
+            </View>
+          ),
+        }}
+      />
+      <VendorTab.Screen
+        name="VendorMenu"
+        component={VendorMenuScreen}
+        options={{
+          tabBarLabel: 'Menu',
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>📋</Text>
+            </View>
+          ),
+        }}
+      />
+      <VendorTab.Screen
+        name="VendorProfile"
+        component={VendorProfileScreen}
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>👤</Text>
+            </View>
+          ),
+        }}
+      />
+    </VendorTab.Navigator>
+  );
+};
+
+// Vendor Navigator
+const VendorNavigator = () => (
+  <VendorStack.Navigator screenOptions={{ headerShown: false }}>
+    <VendorStack.Screen name="VendorTabs" component={VendorTabNavigator} />
+  </VendorStack.Navigator>
+);
+
+// Admin Profile/Settings Placeholder
+const AdminSettingsScreen = ({ navigation }: any) => {
+  const { user, logout } = useAuth();
+  const insets = useSafeAreaInsets();
+  
+  const handleLogout = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Sign Out', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+            } catch (error) {
+              console.error('Logout error:', error);
+            }
+          }
+        },
+      ]
+    );
+  };
+  
+  return (
+    <ScrollView style={[styles.profileContainer, { backgroundColor: '#1F2937' }]} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
+      <View style={[styles.profileHeader, { backgroundColor: '#374151', borderBottomColor: '#4B5563' }]}>
+        <View style={[styles.avatar, { backgroundColor: '#10B981' }]}>
+          <Text style={styles.avatarText}>{user?.first_name?.charAt(0) || 'A'}</Text>
+        </View>
+        <Text style={[styles.profileName, { color: '#FFFFFF' }]}>
+          {user?.first_name && user?.last_name 
+            ? `${user.first_name} ${user.last_name}` 
+            : user?.name || 'Admin'}
+        </Text>
+        <Text style={[styles.profileEmail, { color: '#9CA3AF' }]}>{user?.email || ''}</Text>
+        <View style={[styles.roleBadge, { backgroundColor: '#10B981' }]}>
+          <Text style={styles.roleBadgeText}>👑 Administrator</Text>
+        </View>
+      </View>
+      
+      <TouchableOpacity style={[styles.logoutContainer, { backgroundColor: '#374151' }]} onPress={handleLogout} activeOpacity={0.7}>
+        <Text style={[styles.logoutButton, { color: '#EF4444' }]}>Sign Out</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+// Admin Tab Navigator
+const AdminTabNavigator = () => {
+  const insets = useSafeAreaInsets();
+  const { bottomPadding, tabBarHeight } = getTabBarDimensions(insets);
+  
+  return (
+    <AdminTab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: '#10B981',
+        tabBarInactiveTintColor: '#6B7280',
+        tabBarStyle: {
+          backgroundColor: '#1F2937',
+          borderTopWidth: 1,
+          borderTopColor: '#374151',
+          paddingBottom: bottomPadding,
+          paddingTop: 8,
+          height: tabBarHeight,
+          elevation: 8,
+        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600', marginTop: 2 },
+        headerShown: false,
+      }}
+    >
+      <AdminTab.Screen
+        name="AdminDashboard"
+        component={AdminDashboardScreen}
+        options={{
+          tabBarLabel: 'Dashboard',
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>📊</Text>
+            </View>
+          ),
+        }}
+      />
+      <AdminTab.Screen
+        name="AdminUsers"
+        component={AdminUsersScreen}
+        options={{
+          tabBarLabel: 'Users',
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>👥</Text>
+            </View>
+          ),
+        }}
+      />
+      <AdminTab.Screen
+        name="AdminVendors"
+        component={AdminVendorsScreen}
+        options={{
+          tabBarLabel: 'Vendors',
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>🏪</Text>
+            </View>
+          ),
+        }}
+      />
+      <AdminTab.Screen
+        name="AdminSettings"
+        component={AdminSettingsScreen}
+        options={{
+          tabBarLabel: 'Settings',
+          tabBarIcon: ({ focused }) => (
+            <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
+              <Text style={styles.tabIcon}>⚙️</Text>
+            </View>
+          ),
+        }}
+      />
+    </AdminTab.Navigator>
+  );
+};
+
+// Admin Navigator
+const AdminNavigator = () => (
+  <AdminStack.Navigator screenOptions={{ headerShown: false }}>
+    <AdminStack.Screen name="AdminTabs" component={AdminTabNavigator} />
+  </AdminStack.Navigator>
+);
+
+// Helper function to get the right navigator based on user role
+const getNavigatorForRole = (role: string | undefined) => {
+  switch (role) {
+    case 'chef':
+      return <VendorNavigator />;
+    case 'admin':
+      return <AdminNavigator />;
+    case 'customer':
+    default:
+      return <MainNavigator />;
+  }
+};
+
 // Root Navigator
 export const AppNavigator: React.FC = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B35" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
@@ -247,7 +683,7 @@ export const AppNavigator: React.FC = () => {
 
   return (
     <NavigationContainer>
-      {isAuthenticated ? <MainNavigator /> : <AuthNavigator />}
+      {isAuthenticated ? getNavigatorForRole(user?.role) : <AuthNavigator />}
     </NavigationContainer>
   );
 };
@@ -257,18 +693,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#6B7280',
+    color: COLORS.text.secondary,
   },
   placeholder: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.background.secondary,
     padding: 24,
   },
   placeholderText: {
@@ -278,80 +714,128 @@ const styles = StyleSheet.create({
   placeholderTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: COLORS.text.primary,
     marginBottom: 8,
   },
   placeholderSubtitle: {
     fontSize: 16,
-    color: '#6B7280',
+    color: COLORS.text.secondary,
     textAlign: 'center',
+    marginBottom: 24,
+  },
+  actionButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 12,
+  },
+  actionButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   profileContainer: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.background.secondary,
   },
   profileHeader: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     alignItems: 'center',
     paddingVertical: 32,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: COLORS.border.light,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FF6B35',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    borderWidth: 3,
+    borderColor: COLORS.primaryLight,
   },
   avatarText: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: COLORS.white,
   },
   profileName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: COLORS.text.primary,
   },
   profileEmail: {
     fontSize: 14,
-    color: '#6B7280',
+    color: COLORS.text.secondary,
     marginTop: 4,
   },
   profileMenu: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.white,
     marginTop: 16,
+    borderRadius: 12,
+    marginHorizontal: 16,
+    overflow: 'hidden',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: COLORS.border.light,
+    backgroundColor: COLORS.white,
   },
   menuIcon: {
-    fontSize: 20,
+    fontSize: 22,
     marginRight: 16,
   },
   menuTitle: {
     flex: 1,
     fontSize: 16,
-    color: '#1F2937',
+    color: COLORS.text.primary,
   },
   menuArrow: {
-    fontSize: 20,
-    color: '#9CA3AF',
+    fontSize: 22,
+    color: COLORS.gray[400],
   },
   logoutContainer: {
-    marginTop: 32,
+    marginTop: 24,
+    marginHorizontal: 16,
+    backgroundColor: COLORS.primaryFaded,
+    padding: 16,
+    borderRadius: 12,
     alignItems: 'center',
   },
   logoutButton: {
     fontSize: 16,
-    color: '#EF4444',
+    color: COLORS.primary,
+    fontWeight: '700',
+  },
+  tabIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 28,
+    height: 28,
+  },
+  tabIconActive: {
+    transform: [{ scale: 1.05 }],
+  },
+  tabIcon: {
+    fontSize: 22,
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  roleBadge: {
+    marginTop: 12,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  roleBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
     fontWeight: '600',
   },
 });

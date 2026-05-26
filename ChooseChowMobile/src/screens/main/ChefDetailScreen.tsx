@@ -15,6 +15,7 @@ import { RouteProp } from '@react-navigation/native';
 import { chefService } from '../../api';
 import { Chef, MenuItem } from '../../types';
 import { useCart } from '../../contexts';
+import { COLORS } from '../../utils/theme';
 
 type ChefDetailScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -118,7 +119,7 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B35" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
   bannerPlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
@@ -414,10 +415,10 @@ const styles = StyleSheet.create({
   menuPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FF6B35',
+    color: COLORS.primary,
   },
   addButton: {
-    backgroundColor: '#FF6B35',
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
