@@ -12,6 +12,9 @@ use App\Http\Controllers\Api\V1\CuisineController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\FavoriteController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\Admin\AdminController;
+use App\Http\Controllers\Api\V1\Chef\ChefDashboardController;
+use App\Http\Controllers\Api\V1\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +53,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/cuisines', [CuisineController::class, 'index']);
     Route::get('/dietary-preferences', [CuisineController::class, 'dietaryPreferences']);
 
+    // --- Payment Webhook (No Auth - Paystack calls this) ---
+    Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
 
     // ==========================================
     //    AUTHENTICATED ROUTES
@@ -87,6 +92,10 @@ Route::prefix('v1')->group(function () {
             Route::delete('/items/{id}', [CartController::class, 'destroy']);
             Route::delete('/', [CartController::class, 'clear']);
             Route::get('/summary', [CartController::class, 'summary']);
+            // Coupon
+            Route::get('/coupon', [CartController::class, 'getCoupon']);
+            Route::post('/coupon', [CartController::class, 'applyCoupon']);
+            Route::delete('/coupon', [CartController::class, 'removeCoupon']);
         });
 
         // --- Orders ---
@@ -96,14 +105,25 @@ Route::prefix('v1')->group(function () {
             Route::get('/active', [OrderController::class, 'active']);
             Route::get('/time-slots', [OrderController::class, 'timeSlots']);
             Route::get('/{id}', [OrderController::class, 'show']);
+            Route::get('/{id}/track', [OrderController::class, 'track']);
             Route::post('/{id}/cancel', [OrderController::class, 'cancel']);
             Route::post('/{id}/reorder', [OrderController::class, 'reorder']);
+        });
+
+        // --- Payment ---
+        Route::prefix('payment')->group(function () {
+            Route::get('/methods', [PaymentController::class, 'methods']);
+            Route::post('/initialize', [PaymentController::class, 'initialize']);
+            Route::match(['get', 'post'], '/verify', [PaymentController::class, 'verify']);
+            Route::get('/history', [PaymentController::class, 'history']);
         });
 
         // --- Reviews ---
         Route::get('/reviews', [ReviewController::class, 'index']);
         Route::post('/reviews', [ReviewController::class, 'store']);
         Route::get('/reviews/{id}', [ReviewController::class, 'show']);
+        Route::put('/reviews/{id}', [ReviewController::class, 'update']);
+        Route::delete('/reviews/{id}', [ReviewController::class, 'destroy']);
 
         // --- Favorites ---
         Route::get('/favorites', [FavoriteController::class, 'index']);
@@ -115,8 +135,84 @@ Route::prefix('v1')->group(function () {
         Route::prefix('notifications')->group(function () {
             Route::get('/', [NotificationController::class, 'index']);
             Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+            Route::get('/settings', [NotificationController::class, 'settings']);
+            Route::put('/settings', [NotificationController::class, 'updateSettings']);
             Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
             Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
+            Route::delete('/{id}', [NotificationController::class, 'destroy']);
+        });
+
+        // ==========================================
+        //    CHEF/VENDOR ROUTES (Chef Role Required)
+        // ==========================================
+        Route::prefix('chef')->middleware('chef')->group(function () {
+            // Dashboard
+            Route::get('/dashboard', [ChefDashboardController::class, 'dashboard']);
+
+            // Orders Management
+            Route::get('/orders', [ChefDashboardController::class, 'orders']);
+            Route::get('/orders/{id}', [ChefDashboardController::class, 'showOrder']);
+            Route::put('/orders/{id}/status', [ChefDashboardController::class, 'updateOrderStatus']);
+
+            // Menu Management
+            Route::get('/menus', [ChefDashboardController::class, 'menus']);
+            Route::post('/menus', [ChefDashboardController::class, 'createMenu']);
+            Route::put('/menus/{id}', [ChefDashboardController::class, 'updateMenu']);
+            Route::delete('/menus/{id}', [ChefDashboardController::class, 'deleteMenu']);
+            Route::post('/menus/{id}/toggle-availability', [ChefDashboardController::class, 'toggleMenuAvailability']);
+
+            // Earnings & Statistics
+            Route::get('/earnings', [ChefDashboardController::class, 'earnings']);
+            Route::get('/statistics', [ChefDashboardController::class, 'statistics']);
+
+            // Reviews
+            Route::get('/reviews', [ChefDashboardController::class, 'reviews']);
+
+            // Profile Management
+            Route::get('/profile', [ChefDashboardController::class, 'profile']);
+            Route::put('/profile', [ChefDashboardController::class, 'updateProfile']);
+            Route::post('/profile/setup', [ChefDashboardController::class, 'setupProfile']);
+
+            // Business Settings
+            Route::put('/bank-details', [ChefDashboardController::class, 'updateBankDetails']);
+            Route::put('/operating-hours', [ChefDashboardController::class, 'updateOperatingHours']);
+
+            // Verification & Documents
+            Route::get('/documents', [ChefDashboardController::class, 'getDocuments']);
+            Route::post('/documents', [ChefDashboardController::class, 'uploadDocuments']);
+            Route::post('/request-verification', [ChefDashboardController::class, 'requestVerification']);
+
+            // Availability Toggle
+            Route::post('/toggle-availability', [ChefDashboardController::class, 'toggleAvailability']);
+        });
+
+        // ==========================================
+        //    ADMIN ROUTES (Admin Role Required)
+        // ==========================================
+        Route::prefix('admin')->middleware('admin')->group(function () {
+            // Dashboard
+            Route::get('/dashboard', [AdminController::class, 'dashboard']);
+
+            // Users Management
+            Route::get('/users', [AdminController::class, 'users']);
+            Route::get('/users/{id}', [AdminController::class, 'showUser']);
+            Route::put('/users/{id}', [AdminController::class, 'updateUser']);
+            Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+            Route::post('/users/{id}/toggle-status', [AdminController::class, 'toggleUserStatus']);
+
+            // Vendors Management
+            Route::get('/vendors', [AdminController::class, 'vendors']);
+            Route::get('/vendors/pending', [AdminController::class, 'pendingVendors']);
+            Route::post('/vendors/{id}/approve', [AdminController::class, 'approveVendor']);
+            Route::post('/vendors/{id}/reject', [AdminController::class, 'rejectVendor']);
+            Route::post('/vendors/{id}/suspend', [AdminController::class, 'suspendVendor']);
+            Route::post('/vendors/{id}/activate', [AdminController::class, 'activateVendor']);
+
+            // Orders Management
+            Route::get('/orders', [AdminController::class, 'orders']);
+
+            // Activity Log
+            Route::get('/activity', [AdminController::class, 'activity']);
         });
 
     });

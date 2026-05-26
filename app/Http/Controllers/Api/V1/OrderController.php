@@ -358,6 +358,100 @@ class OrderController extends Controller
     }
 
     /**
+     * Track order status.
+     * 
+     * GET /api/v1/orders/{id}/track
+     */
+    public function track(Request $request, $id)
+    {
+        $order = Order::where('user_id', $request->user()->id)
+            ->with(['items.menu', 'chef.chefProfile'])
+            ->where(function ($q) use ($id) {
+                $q->where('id', $id)->orWhere('order_number', $id);
+            })
+            ->firstOrFail();
+
+        // Define order status flow
+        $statusFlow = [
+            'pending_payment' => ['label' => 'Awaiting Payment', 'step' => 0, 'icon' => 'credit-card'],
+            'pending' => ['label' => 'Order Received', 'step' => 1, 'icon' => 'check-circle'],
+            'confirmed' => ['label' => 'Order Confirmed', 'step' => 2, 'icon' => 'thumbs-up'],
+            'preparing' => ['label' => 'Preparing', 'step' => 3, 'icon' => 'chef-hat'],
+            'ready' => ['label' => 'Ready for Pickup/Delivery', 'step' => 4, 'icon' => 'package'],
+            'out_for_delivery' => ['label' => 'Out for Delivery', 'step' => 5, 'icon' => 'truck'],
+            'delivered' => ['label' => 'Delivered', 'step' => 6, 'icon' => 'check'],
+            'completed' => ['label' => 'Completed', 'step' => 6, 'icon' => 'check'],
+            'cancelled' => ['label' => 'Cancelled', 'step' => -1, 'icon' => 'x-circle'],
+        ];
+
+        $currentStatus = $order->status;
+        $currentStep = $statusFlow[$currentStatus]['step'] ?? 0;
+
+        // Build timeline
+        $timeline = [];
+        foreach ($statusFlow as $status => $info) {
+            if ($status === 'cancelled') continue;
+            if ($info['step'] < 0) continue;
+            
+            $timeline[] = [
+                'status' => $status,
+                'label' => $info['label'],
+                'icon' => $info['icon'],
+                'step' => $info['step'],
+                'is_completed' => $currentStep >= $info['step'] && $currentStatus !== 'cancelled',
+                'is_current' => $status === $currentStatus,
+            ];
+        }
+
+        // Estimated times
+        $estimatedDelivery = null;
+        if (in_array($currentStatus, ['pending', 'confirmed', 'preparing', 'ready', 'out_for_delivery'])) {
+            if ($order->delivery_type === 'scheduled' && $order->scheduled_for) {
+                $estimatedDelivery = $order->scheduled_for->toISOString();
+            } else {
+                // ASAP - estimate based on status
+                $minutesRemaining = match($currentStatus) {
+                    'pending' => 45,
+                    'confirmed' => 40,
+                    'preparing' => 25,
+                    'ready' => 15,
+                    'out_for_delivery' => 10,
+                    default => 30,
+                };
+                $estimatedDelivery = now()->addMinutes($minutesRemaining)->toISOString();
+            }
+        }
+
+        return $this->success([
+            'order' => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'status' => $currentStatus,
+                'status_label' => $statusFlow[$currentStatus]['label'] ?? $currentStatus,
+                'payment_status' => $order->payment_status,
+                'delivery_type' => $order->delivery_type ?? 'asap',
+                'delivery_address' => $order->delivery_address,
+                'total_amount' => (float) $order->total_amount,
+                'items_count' => $order->items->count(),
+                'created_at' => $order->created_at->toISOString(),
+            ],
+            'chef' => $order->chef ? [
+                'id' => $order->chef->id,
+                'name' => $order->chef->full_name,
+                'business_name' => $order->chef->chefProfile?->business_name,
+                'phone' => $order->chef->phone,
+            ] : null,
+            'timeline' => $timeline,
+            'current_step' => $currentStep,
+            'total_steps' => 6,
+            'estimated_delivery' => $estimatedDelivery,
+            'is_cancelled' => $currentStatus === 'cancelled',
+            'is_completed' => in_array($currentStatus, ['delivered', 'completed']),
+            'can_cancel' => in_array($currentStatus, ['pending_payment', 'pending', 'confirmed']),
+        ]);
+    }
+
+    /**
      * Initialize Paystack payment.
      */
     protected function initializePaystackPayment($user, $amount, $orders)

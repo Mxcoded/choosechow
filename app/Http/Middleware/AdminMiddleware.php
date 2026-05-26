@@ -13,6 +13,9 @@ class AdminMiddleware
     {
         // Check if user is authenticated
         if (!Auth::check()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
+            }
             return redirect()->route('login');
         }
         
@@ -29,6 +32,9 @@ class AdminMiddleware
         }
         
         // Neither condition met - unauthorized
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Access denied. Administrator access required.'], 403);
+        }
         abort(403, 'Access denied. Administrator access required.');
     }
 }

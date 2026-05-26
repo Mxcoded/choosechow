@@ -105,6 +105,65 @@ class ReviewController extends Controller
     }
 
     /**
+     * Update a review.
+     * 
+     * PUT /api/v1/reviews/{id}
+     */
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'rating' => ['sometimes', 'integer', 'min:1', 'max:5'],
+            'comment' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationError($validator->errors());
+        }
+
+        $review = Review::where('customer_id', $request->user()->id)
+            ->findOrFail($id);
+
+        // Check if review can still be edited (within 24 hours)
+        if ($review->created_at->diffInHours(now()) > 24) {
+            return $this->error('Reviews can only be edited within 24 hours of submission', 400);
+        }
+
+        $review->update($request->only(['rating', 'comment']));
+
+        // Update chef's rating
+        $this->updateChefRating($review->chef_id);
+
+        return $this->success(
+            new ReviewResource($review->fresh()->load(['chef.chefProfile', 'order'])),
+            'Review updated successfully'
+        );
+    }
+
+    /**
+     * Delete a review.
+     * 
+     * DELETE /api/v1/reviews/{id}
+     */
+    public function destroy(Request $request, $id)
+    {
+        $review = Review::where('customer_id', $request->user()->id)
+            ->findOrFail($id);
+
+        // Check if review can still be deleted (within 24 hours)
+        if ($review->created_at->diffInHours(now()) > 24) {
+            return $this->error('Reviews can only be deleted within 24 hours of submission', 400);
+        }
+
+        $chefId = $review->chef_id;
+        $review->delete();
+
+        // Update chef's rating
+        $this->updateChefRating($chefId);
+
+        return $this->success(null, 'Review deleted successfully');
+    }
+
+    /**
      * Update chef's average rating.
      */
     protected function updateChefRating($chefId)

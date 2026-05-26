@@ -7,6 +7,8 @@ use App\Http\Traits\ApiResponse;
 use App\Http\Resources\CartResource;
 use App\Models\Cart;
 use App\Models\Menu;
+use App\Models\Coupon;
+use App\Models\CouponUsage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -245,6 +247,153 @@ class CartController extends Controller
             'formatted_grand_total' => '₦' . number_format($grandTotal, 2),
             'can_checkout' => $allMinimumsMet,
             'chef_summaries' => $chefSummaries,
+        ]);
+    }
+
+    /**
+     * Apply a coupon code to cart.
+     * 
+     * POST /api/v1/cart/coupon
+     */
+    public function applyCoupon(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'code' => ['required', 'string'],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationError($validator->errors());
+        }
+
+        $user = $request->user();
+        $code = strtoupper(trim($request->code));
+
+        // Find the coupon
+        $coupon = Coupon::where('code', $code)->first();
+
+        if (!$coupon) {
+            return $this->error('Invalid coupon code', 400);
+        }
+
+        // Check if coupon is active and valid
+        if (!$coupon->is_active) {
+            return $this->error('This coupon is no longer active', 400);
+        }
+
+        if ($coupon->starts_at && $coupon->starts_at > now()) {
+            return $this->error('This coupon is not yet valid', 400);
+        }
+
+        if ($coupon->expires_at && $coupon->expires_at < now()) {
+            return $this->error('This coupon has expired', 400);
+        }
+
+        // Check usage limits
+        if ($coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit) {
+            return $this->error('This coupon has reached its usage limit', 400);
+        }
+
+        // Check per-user limit
+        if ($coupon->usage_limit_per_user) {
+            $userUsageCount = CouponUsage::where('coupon_id', $coupon->id)
+                ->where('user_id', $user->id)
+                ->count();
+
+            if ($userUsageCount >= $coupon->usage_limit_per_user) {
+                return $this->error('You have already used this coupon', 400);
+            }
+        }
+
+        // Get cart total to check minimum order
+        $cartItems = Cart::where('user_id', $user->id)
+            ->with(['menu.chef.chefProfile'])
+            ->get();
+
+        if ($cartItems->isEmpty()) {
+            return $this->error('Your cart is empty', 400);
+        }
+
+        $subtotal = $cartItems->sum(fn($item) => $item->menu->price * $item->quantity);
+
+        // Check minimum order amount
+        if ($coupon->minimum_order_amount && $subtotal < $coupon->minimum_order_amount) {
+            return $this->error(
+                'Minimum order of ₦' . number_format($coupon->minimum_order_amount, 2) . ' required for this coupon',
+                400
+            );
+        }
+
+        // Calculate discount
+        $discount = $coupon->calculateDiscount($subtotal);
+
+        // Store coupon in session/cache for checkout
+        cache()->put("cart_coupon_{$user->id}", [
+            'coupon_id' => $coupon->id,
+            'code' => $coupon->code,
+            'type' => $coupon->type,
+            'discount' => $discount,
+        ], now()->addHours(2));
+
+        return $this->success([
+            'coupon' => [
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'name' => $coupon->name,
+                'type' => $coupon->type,
+                'description' => $coupon->description,
+            ],
+            'discount' => $discount,
+            'formatted_discount' => '₦' . number_format($discount, 2),
+            'subtotal' => $subtotal,
+            'new_total' => $subtotal - $discount,
+            'formatted_new_total' => '₦' . number_format($subtotal - $discount, 2),
+        ], 'Coupon applied successfully');
+    }
+
+    /**
+     * Remove coupon from cart.
+     * 
+     * DELETE /api/v1/cart/coupon
+     */
+    public function removeCoupon(Request $request)
+    {
+        $user = $request->user();
+        cache()->forget("cart_coupon_{$user->id}");
+
+        return $this->success(null, 'Coupon removed');
+    }
+
+    /**
+     * Get currently applied coupon.
+     * 
+     * GET /api/v1/cart/coupon
+     */
+    public function getCoupon(Request $request)
+    {
+        $user = $request->user();
+        $couponData = cache()->get("cart_coupon_{$user->id}");
+
+        if (!$couponData) {
+            return $this->success(['coupon' => null]);
+        }
+
+        $coupon = Coupon::find($couponData['coupon_id']);
+
+        if (!$coupon) {
+            cache()->forget("cart_coupon_{$user->id}");
+            return $this->success(['coupon' => null]);
+        }
+
+        return $this->success([
+            'coupon' => [
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'name' => $coupon->name,
+                'type' => $coupon->type,
+                'description' => $coupon->description,
+                'discount' => $couponData['discount'],
+                'formatted_discount' => '₦' . number_format($couponData['discount'], 2),
+            ],
         ]);
     }
 }

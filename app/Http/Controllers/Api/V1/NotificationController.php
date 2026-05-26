@@ -117,4 +117,89 @@ class NotificationController extends Controller
 
         return $this->success(null, 'All notifications marked as read');
     }
+
+    /**
+     * Get notification settings.
+     * 
+     * GET /api/v1/notifications/settings
+     */
+    public function settings(Request $request)
+    {
+        $user = $request->user();
+        $preferences = $user->preferences ?? [];
+        
+        // Default notification settings
+        $defaultSettings = [
+            'push_enabled' => true,
+            'email_enabled' => true,
+            'order_updates' => true,
+            'promotions' => true,
+            'new_menu_items' => true,
+            'chat_messages' => true,
+            'review_reminders' => true,
+        ];
+
+        $notificationSettings = array_merge(
+            $defaultSettings,
+            $preferences['notifications'] ?? []
+        );
+
+        return $this->success([
+            'settings' => $notificationSettings,
+        ]);
+    }
+
+    /**
+     * Update notification settings.
+     * 
+     * PUT /api/v1/notifications/settings
+     */
+    public function updateSettings(Request $request)
+    {
+        $user = $request->user();
+
+        $validatedSettings = $request->validate([
+            'push_enabled' => 'sometimes|boolean',
+            'email_enabled' => 'sometimes|boolean',
+            'order_updates' => 'sometimes|boolean',
+            'promotions' => 'sometimes|boolean',
+            'new_menu_items' => 'sometimes|boolean',
+            'chat_messages' => 'sometimes|boolean',
+            'review_reminders' => 'sometimes|boolean',
+        ]);
+
+        $preferences = $user->preferences ?? [];
+        $preferences['notifications'] = array_merge(
+            $preferences['notifications'] ?? [],
+            $validatedSettings
+        );
+
+        $user->update(['preferences' => $preferences]);
+
+        return $this->success([
+            'settings' => $preferences['notifications'],
+        ], 'Notification settings updated');
+    }
+
+    /**
+     * Delete a notification.
+     * 
+     * DELETE /api/v1/notifications/{id}
+     */
+    public function destroy(Request $request, $id)
+    {
+        $userId = $request->user()->id;
+        
+        $notification = Notification::where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)
+              ->orWhere(function ($q2) use ($userId) {
+                  $q2->where('notifiable_type', \App\Models\User::class)
+                     ->where('notifiable_id', $userId);
+              });
+        })->findOrFail($id);
+
+        $notification->delete();
+
+        return $this->success(null, 'Notification deleted');
+    }
 }
