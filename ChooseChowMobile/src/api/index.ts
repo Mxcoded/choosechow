@@ -15,7 +15,7 @@ export { vendorService } from './vendorService';
 export { customerService } from './customerService';
 
 // Admin Types
-export type { AdminStats, AdminUser, AdminVendor, AdminOrder, ActivityLog } from './adminService';
+export type { AdminStats, AdminUser, AdminVendor, AdminOrder, ActivityLog, ReportData, PayoutStats, AdminPayout } from './adminService';
 
 // Vendor Types
 export type {

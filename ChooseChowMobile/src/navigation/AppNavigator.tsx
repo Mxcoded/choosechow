@@ -31,7 +31,14 @@ import CheckoutScreen from '../screens/main/CheckoutScreen';
 import { VendorDashboardScreen } from '../screens/vendor';
 
 // Admin Screens
-import { AdminDashboardScreen, AdminUsersScreen, AdminVendorsScreen } from '../screens/admin';
+import { 
+  AdminDashboardScreen, 
+  AdminUsersScreen, 
+  AdminVendorsScreen,
+  AdminOrdersScreen,
+  AdminPayoutsScreen,
+  AdminReportsScreen,
+} from '../screens/admin';
 
 // Import navigation types
 import { 
@@ -652,6 +659,9 @@ const AdminTabNavigator = () => {
 const AdminNavigator = () => (
   <AdminStack.Navigator screenOptions={{ headerShown: false }}>
     <AdminStack.Screen name="AdminTabs" component={AdminTabNavigator} />
+    <AdminStack.Screen name="AdminOrders" component={AdminOrdersScreen} />
+    <AdminStack.Screen name="AdminPayouts" component={AdminPayoutsScreen} />
+    <AdminStack.Screen name="AdminReports" component={AdminReportsScreen} />
   </AdminStack.Navigator>
 );
 

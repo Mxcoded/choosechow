@@ -328,12 +328,23 @@ export const AdminDashboardScreen: React.FC<AdminDashboardProps> = ({ navigation
               </View>
               <Text style={styles.actionLabel}>Orders</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('AdminPayouts')}>
+              <View style={[styles.actionIcon, { backgroundColor: '#EDE9FE' }]}>
+                <Text style={styles.actionEmoji}>💳</Text>
+              </View>
+              <Text style={styles.actionLabel}>Payouts</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={[styles.actionsGrid, { marginTop: 12 }]}>
             <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('AdminReports')}>
               <View style={[styles.actionIcon, { backgroundColor: '#FEF3C7' }]}>
                 <Text style={styles.actionEmoji}>📊</Text>
               </View>
               <Text style={styles.actionLabel}>Reports</Text>
             </TouchableOpacity>
+            <View style={styles.actionCard} />
+            <View style={styles.actionCard} />
+            <View style={styles.actionCard} />
           </View>
         </View>
 

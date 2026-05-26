@@ -57,6 +57,7 @@ export type AdminStackParamList = {
   AdminVendorDetail: { vendorId: number };
   AdminOrders: undefined;
   AdminOrderDetail: { orderId: number };
+  AdminPayouts: undefined;
   AdminReports: undefined;
   AdminActivity: undefined;
   AdminSettings: undefined;
