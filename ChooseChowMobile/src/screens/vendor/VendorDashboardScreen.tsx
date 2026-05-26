@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,44 +7,127 @@ import {
   TouchableOpacity,
   RefreshControl,
   Image,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts';
 import { COLORS } from '../../utils/theme';
-import { scaleWidth, scaleFont } from '../../utils/dimensions';
 import { ChooseChowLogo } from '../../assets';
+import { vendorService, VendorStats, VendorOrder, VendorProfile } from '../../api';
 
 type VendorDashboardProps = {
   navigation: NativeStackNavigationProp<any>;
 };
 
-// Sample stats data (will be replaced with API data)
-const SAMPLE_STATS = {
-  todayOrders: 12,
-  pendingOrders: 3,
-  totalEarnings: 45000,
-  rating: 4.8,
-  totalReviews: 156,
+// Default stats for initial state
+const DEFAULT_STATS: VendorStats = {
+  today_orders: 0,
+  today_earnings: 0,
+  pending_orders: 0,
+  completed_orders: 0,
+  weekly_orders: 0,
+  weekly_earnings: 0,
+  monthly_orders: 0,
+  monthly_earnings: 0,
+  total_orders: 0,
+  total_earnings: 0,
+  rating: 0,
+  total_reviews: 0,
+  menu_items: 0,
+  is_online: false,
 };
 
-// Sample recent orders
-const SAMPLE_ORDERS = [
-  { id: 'ORD001', customer: 'John D.', items: 3, total: 4500, status: 'pending', time: '5 min ago' },
-  { id: 'ORD002', customer: 'Sarah M.', items: 2, total: 3200, status: 'preparing', time: '15 min ago' },
-  { id: 'ORD003', customer: 'Mike K.', items: 5, total: 8750, status: 'ready', time: '30 min ago' },
+// Mock data for when API is not available
+const MOCK_STATS: VendorStats = {
+  today_orders: 12,
+  today_earnings: 45000,
+  pending_orders: 3,
+  completed_orders: 156,
+  weekly_orders: 68,
+  weekly_earnings: 285000,
+  monthly_orders: 245,
+  monthly_earnings: 1250000,
+  total_orders: 1520,
+  total_earnings: 8500000,
+  rating: 4.8,
+  total_reviews: 156,
+  menu_items: 24,
+  is_online: true,
+};
+
+const MOCK_ORDERS: VendorOrder[] = [
+  { id: 1, order_number: 'ORD001', customer: { id: 1, name: 'John D.', phone: '080...' }, items_count: 3, total_amount: 4500, status: 'pending', payment_status: 'paid', subtotal: 4200, delivery_fee: 300, delivery_type: 'asap', created_at: new Date().toISOString(), time_ago: '5 min ago' },
+  { id: 2, order_number: 'ORD002', customer: { id: 2, name: 'Sarah M.', phone: '081...' }, items_count: 2, total_amount: 3200, status: 'preparing', payment_status: 'paid', subtotal: 3000, delivery_fee: 200, delivery_type: 'asap', created_at: new Date().toISOString(), time_ago: '15 min ago' },
+  { id: 3, order_number: 'ORD003', customer: { id: 3, name: 'Mike K.', phone: '070...' }, items_count: 5, total_amount: 8750, status: 'ready', payment_status: 'paid', subtotal: 8500, delivery_fee: 250, delivery_type: 'asap', created_at: new Date().toISOString(), time_ago: '30 min ago' },
 ];
 
 export const VendorDashboardScreen: React.FC<VendorDashboardProps> = ({ navigation }) => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
+  
+  // State
+  const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [isAvailable, setIsAvailable] = useState(true);
+  const [stats, setStats] = useState<VendorStats>(DEFAULT_STATS);
+  const [pendingOrders, setPendingOrders] = useState<VendorOrder[]>([]);
+  const [recentOrders, setRecentOrders] = useState<VendorOrder[]>([]);
+  const [profile, setProfile] = useState<VendorProfile | null>(null);
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load dashboard data
+  const loadDashboardData = useCallback(async () => {
+    try {
+      setError(null);
+      const data = await vendorService.getDashboard();
+      setStats(data.stats);
+      setPendingOrders(data.pending_orders || []);
+      setRecentOrders(data.recent_orders || []);
+      setProfile(data.profile);
+      setIsAvailable(data.stats.is_online);
+    } catch (err: any) {
+      console.error('Failed to load dashboard:', err);
+      // Use mock data if API returns 404
+      if (err.response?.status === 404 || err.response?.status === 401) {
+        console.log('API not available, using mock data');
+        setStats(MOCK_STATS);
+        setPendingOrders(MOCK_ORDERS.filter(o => o.status === 'pending'));
+        setRecentOrders(MOCK_ORDERS);
+        setIsAvailable(true);
+      } else {
+        setError(err.response?.data?.message || 'Failed to load dashboard');
+      }
+    } finally {
+      setIsLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // TODO: Fetch fresh data from API
-    setTimeout(() => setRefreshing(false), 1000);
+    await loadDashboardData();
+  };
+
+  const handleToggleAvailability = async () => {
+    try {
+      const result = await vendorService.toggleAvailability();
+      setIsAvailable(result.is_online);
+      setStats(prev => ({ ...prev, is_online: result.is_online }));
+    } catch (err: any) {
+      // Demo mode fallback
+      if (err.response?.status === 404) {
+        setIsAvailable(!isAvailable);
+        setStats(prev => ({ ...prev, is_online: !prev.is_online }));
+      } else {
+        Alert.alert('Error', 'Failed to update availability');
+      }
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -58,8 +141,37 @@ export const VendorDashboardScreen: React.FC<VendorDashboardProps> = ({ navigati
   };
 
   const formatCurrency = (amount: number) => {
+    if (amount >= 1000000) {
+      return `₦${(amount / 1000000).toFixed(1)}M`;
+    }
+    if (amount >= 1000) {
+      return `₦${(amount / 1000).toFixed(0)}K`;
+    }
     return `₦${amount.toLocaleString()}`;
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centerContent, { paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Loading dashboard...</Text>
+      </View>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent, { paddingTop: insets.top }]}>
+        <Text style={styles.errorIcon}>⚠️</Text>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={loadDashboardData}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -88,7 +200,7 @@ export const VendorDashboardScreen: React.FC<VendorDashboardProps> = ({ navigati
         {/* Availability Toggle */}
         <TouchableOpacity 
           style={[styles.availabilityCard, isAvailable ? styles.available : styles.unavailable]}
-          onPress={() => setIsAvailable(!isAvailable)}
+          onPress={handleToggleAvailability}
           activeOpacity={0.8}
         >
           <View style={styles.availabilityContent}>
@@ -110,24 +222,24 @@ export const VendorDashboardScreen: React.FC<VendorDashboardProps> = ({ navigati
         {/* Stats Cards */}
         <View style={styles.statsGrid}>
           <View style={[styles.statCard, styles.statCardPrimary]}>
-            <Text style={styles.statIcon}>📦</Text>
-            <Text style={styles.statValue}>{SAMPLE_STATS.todayOrders}</Text>
-            <Text style={styles.statLabel}>Today's Orders</Text>
+            <Text style={[styles.statIcon, { color: '#FFFFFF' }]}>📦</Text>
+            <Text style={[styles.statValue, { color: '#FFFFFF' }]}>{stats.today_orders}</Text>
+            <Text style={[styles.statLabel, { color: '#FFE4E6' }]}>Today's Orders</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statIcon}>⏳</Text>
-            <Text style={[styles.statValue, { color: '#F59E0B' }]}>{SAMPLE_STATS.pendingOrders}</Text>
+            <Text style={[styles.statValue, { color: '#F59E0B' }]}>{stats.pending_orders}</Text>
             <Text style={styles.statLabel}>Pending</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statIcon}>💰</Text>
-            <Text style={styles.statValue}>{formatCurrency(SAMPLE_STATS.totalEarnings)}</Text>
+            <Text style={styles.statValue}>{formatCurrency(stats.total_earnings)}</Text>
             <Text style={styles.statLabel}>Total Earnings</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statIcon}>⭐</Text>
-            <Text style={styles.statValue}>{SAMPLE_STATS.rating}</Text>
-            <Text style={styles.statLabel}>{SAMPLE_STATS.totalReviews} reviews</Text>
+            <Text style={styles.statValue}>{stats.rating.toFixed(1)}</Text>
+            <Text style={styles.statLabel}>{stats.total_reviews} reviews</Text>
           </View>
         </View>
 
@@ -171,29 +283,37 @@ export const VendorDashboardScreen: React.FC<VendorDashboardProps> = ({ navigati
             </TouchableOpacity>
           </View>
           
-          {SAMPLE_ORDERS.map((order) => (
-            <TouchableOpacity 
-              key={order.id} 
-              style={styles.orderCard}
-              onPress={() => navigation.navigate('VendorOrderDetail', { orderId: order.id })}
-            >
-              <View style={styles.orderHeader}>
-                <View>
-                  <Text style={styles.orderId}>#{order.id}</Text>
-                  <Text style={styles.orderCustomer}>{order.customer}</Text>
+          {recentOrders.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>📦</Text>
+              <Text style={styles.emptyText}>No orders yet</Text>
+              <Text style={styles.emptySubtext}>Orders will appear here when customers place them</Text>
+            </View>
+          ) : (
+            recentOrders.slice(0, 5).map((order) => (
+              <TouchableOpacity 
+                key={order.id} 
+                style={styles.orderCard}
+                onPress={() => navigation.navigate('VendorOrderDetail', { orderId: order.id })}
+              >
+                <View style={styles.orderHeader}>
+                  <View>
+                    <Text style={styles.orderId}>#{order.order_number}</Text>
+                    <Text style={styles.orderCustomer}>{order.customer?.name || 'Customer'}</Text>
+                  </View>
+                  <View style={[styles.statusBadge, { backgroundColor: `${getStatusColor(order.status)}20` }]}>
+                    <Text style={[styles.statusText, { color: getStatusColor(order.status) }]}>
+                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </Text>
+                  </View>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: `${getStatusColor(order.status)}20` }]}>
-                  <Text style={[styles.statusText, { color: getStatusColor(order.status) }]}>
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </Text>
+                <View style={styles.orderFooter}>
+                  <Text style={styles.orderItems}>{order.items_count} items • {formatCurrency(order.total_amount)}</Text>
+                  <Text style={styles.orderTime}>{order.time_ago}</Text>
                 </View>
-              </View>
-              <View style={styles.orderFooter}>
-                <Text style={styles.orderItems}>{order.items} items • {formatCurrency(order.total)}</Text>
-                <Text style={styles.orderTime}>{order.time}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            ))
+          )}
         </View>
 
         <View style={styles.bottomPadding} />
@@ -206,6 +326,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F9FAFB',
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#6B7280',
+  },
+  errorIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#EF4444',
+    textAlign: 'center',
+    marginHorizontal: 32,
+  },
+  retryButton: {
+    marginTop: 16,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   header: {
     flexDirection: 'row',
@@ -442,6 +592,27 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 100,
+  },
+  emptyState: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 32,
+    alignItems: 'center',
+  },
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 4,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
   },
 });
 

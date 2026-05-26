@@ -12,6 +12,9 @@ export const API_CONFIG = {
   
   // API Version
   VERSION: 'v1',
+  
+  // Enable debug logging in development
+  DEBUG: __DEV__ ?? false,
 };
 
 // API Endpoints
@@ -32,11 +35,12 @@ export const ENDPOINTS = {
   
   // User Profile
   USER: {
-    PROFILE: '/user/profile',
-    UPDATE_PROFILE: '/user/profile',
-    CHANGE_PASSWORD: '/user/change-password',
+    PROFILE: '/user',
+    UPDATE_PROFILE: '/user',
+    AVATAR: '/user/avatar',
+    CHANGE_PASSWORD: '/auth/change-password',
     PREFERENCES: '/user/preferences',
-    DELETE_ACCOUNT: '/user/delete-account',
+    DELETE_ACCOUNT: '/auth/account',
   },
   
   // Addresses
@@ -72,7 +76,7 @@ export const ENDPOINTS = {
   // Cuisines
   CUISINES: {
     LIST: '/cuisines',
-    DIETARY: '/cuisines/dietary-preferences',
+    DIETARY: '/dietary-preferences',
   },
   
   // Cart
@@ -81,7 +85,9 @@ export const ENDPOINTS = {
     ADD: '/cart/items',
     UPDATE: (itemId: number) => `/cart/items/${itemId}`,
     REMOVE: (itemId: number) => `/cart/items/${itemId}`,
-    CLEAR: '/cart/clear',
+    CLEAR: '/cart',
+    SUMMARY: '/cart/summary',
+    GET_COUPON: '/cart/coupon',
     APPLY_COUPON: '/cart/coupon',
     REMOVE_COUPON: '/cart/coupon',
   },
@@ -90,23 +96,27 @@ export const ENDPOINTS = {
   ORDERS: {
     LIST: '/orders',
     CREATE: '/orders',
+    ACTIVE: '/orders/active',
+    TIME_SLOTS: '/orders/time-slots',
     DETAIL: (id: number) => `/orders/${id}`,
     CANCEL: (id: number) => `/orders/${id}/cancel`,
     TRACK: (id: number) => `/orders/${id}/track`,
     REORDER: (id: number) => `/orders/${id}/reorder`,
-    HISTORY: '/orders/history',
   },
   
   // Payment
   PAYMENT: {
+    METHODS: '/payment/methods',
     INITIALIZE: '/payment/initialize',
     VERIFY: '/payment/verify',
-    METHODS: '/payment/methods',
+    HISTORY: '/payment/history',
   },
   
   // Reviews
   REVIEWS: {
+    LIST: '/reviews',
     CREATE: '/reviews',
+    DETAIL: (id: number) => `/reviews/${id}`,
     UPDATE: (id: number) => `/reviews/${id}`,
     DELETE: (id: number) => `/reviews/${id}`,
   },
@@ -114,17 +124,70 @@ export const ENDPOINTS = {
   // Favorites
   FAVORITES: {
     LIST: '/favorites',
-    ADD: '/favorites',
-    REMOVE: (id: number) => `/favorites/${id}`,
+    ADD: (chefId: number) => `/favorites/${chefId}`,
+    REMOVE: (chefId: number) => `/favorites/${chefId}`,
+    CHECK: (chefId: number) => `/favorites/check/${chefId}`,
   },
   
   // Notifications
   NOTIFICATIONS: {
     LIST: '/notifications',
+    UNREAD_COUNT: '/notifications/unread-count',
+    SETTINGS: '/notifications/settings',
+    UPDATE_SETTINGS: '/notifications/settings',
     MARK_READ: (id: number) => `/notifications/${id}/read`,
     MARK_ALL_READ: '/notifications/read-all',
-    SETTINGS: '/notifications/settings',
-    REGISTER_DEVICE: '/notifications/device',
+    DELETE: (id: number) => `/notifications/${id}`,
+  },
+  
+  // Vendor/Chef Endpoints
+  VENDOR: {
+    // Dashboard
+    DASHBOARD: '/chef/dashboard',
+    STATISTICS: '/chef/statistics',
+    
+    // Orders
+    ORDERS: {
+      LIST: '/chef/orders',
+      DETAIL: (id: number) => `/chef/orders/${id}`,
+      UPDATE_STATUS: (id: number) => `/chef/orders/${id}/status`,
+    },
+    
+    // Menu Management
+    MENUS: {
+      LIST: '/chef/menus',
+      CREATE: '/chef/menus',
+      UPDATE: (id: number) => `/chef/menus/${id}`,
+      DELETE: (id: number) => `/chef/menus/${id}`,
+      TOGGLE_AVAILABILITY: (id: number) => `/chef/menus/${id}/toggle-availability`,
+    },
+    
+    // Earnings
+    EARNINGS: '/chef/earnings',
+    
+    // Reviews
+    REVIEWS: '/chef/reviews',
+    
+    // Profile
+    PROFILE: {
+      GET: '/chef/profile',
+      UPDATE: '/chef/profile',
+      SETUP: '/chef/profile/setup',
+    },
+    
+    // Business Settings
+    BANK_DETAILS: '/chef/bank-details',
+    OPERATING_HOURS: '/chef/operating-hours',
+    
+    // Documents & Verification
+    DOCUMENTS: {
+      LIST: '/chef/documents',
+      UPLOAD: '/chef/documents',
+    },
+    REQUEST_VERIFICATION: '/chef/request-verification',
+    
+    // Availability
+    TOGGLE_AVAILABILITY: '/chef/toggle-availability',
   },
   
   // Admin Endpoints

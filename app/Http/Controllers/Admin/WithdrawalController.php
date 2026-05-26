@@ -13,14 +13,42 @@ use App\Mail\PayoutApprovedMail;
 
 class WithdrawalController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $withdrawals = Withdrawal::with('user.chefProfile')
+        $query = Withdrawal::with('user.chefProfile');
+        
+        // Search by chef name or email
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+        
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        // Stats
+        $stats = [
+            'total_requests' => Withdrawal::count(),
+            'pending' => Withdrawal::where('status', 'pending')->count(),
+            'pending_amount' => Withdrawal::where('status', 'pending')->sum('amount'),
+            'approved' => Withdrawal::where('status', 'approved')->count(),
+            'approved_amount' => Withdrawal::where('status', 'approved')->sum('amount'),
+            'rejected' => Withdrawal::where('status', 'rejected')->count(),
+        ];
+        
+        $withdrawals = $query
             ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('admin.withdrawals.index', compact('withdrawals'));
+        return view('admin.withdrawals.index', compact('withdrawals', 'stats'));
     }
 
     public function approve($id)

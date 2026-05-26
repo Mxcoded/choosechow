@@ -85,6 +85,12 @@ export interface ReportData {
   change_percentage: number;
 }
 
+// Helper to extract data from response (handles both {data: {...}} and direct response)
+const extractData = <T>(responseData: any): T => {
+  // If response has a nested data property, use it; otherwise use the response directly
+  return responseData?.data !== undefined ? responseData.data : responseData;
+};
+
 // Admin Service
 export const adminService = {
   // Dashboard & Stats
@@ -100,12 +106,12 @@ export const adminService = {
       recent_orders: AdminOrder[];
       recent_activity: ActivityLog[];
     }>(ENDPOINTS.ADMIN.DASHBOARD);
-    return response.data.data;
+    return extractData(response.data);
   },
 
   getStats: async (): Promise<AdminStats> => {
     const response = await api.get<AdminStats>(ENDPOINTS.ADMIN.STATS);
-    return response.data.data;
+    return extractData(response.data);
   },
 
   // Users Management
