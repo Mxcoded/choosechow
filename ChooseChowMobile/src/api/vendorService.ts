@@ -304,17 +304,30 @@ export const vendorService = {
     // Use FormData for file upload support
     const formData = new FormData();
     
+    // Helper to check if value is a valid file for upload
+    const isValidFile = (val: any): boolean => {
+      if (!val) return false;
+      // Check if it's an empty object
+      if (typeof val === 'object' && Object.keys(val).length === 0) return false;
+      // Check for common file properties
+      return val.uri || val.name || val instanceof Blob;
+    };
+    
     Object.entries(data).forEach(([key, value]) => {
       if (value === undefined || value === null) return;
       
       if (key === 'cuisine_ids' || key === 'dietary_preference_ids') {
         // Arrays need special handling
-        (value as number[]).forEach((id, index) => {
-          formData.append(`${key}[${index}]`, String(id));
-        });
-      } else if (key === 'image' && value) {
-        // File upload
-        formData.append('image', value);
+        if (Array.isArray(value) && value.length > 0) {
+          (value as number[]).forEach((id, index) => {
+            formData.append(`${key}[${index}]`, String(id));
+          });
+        }
+      } else if (key === 'image') {
+        // File upload - only append if valid file
+        if (isValidFile(value)) {
+          formData.append('image', value as Blob);
+        }
       } else {
         formData.append(key, String(value));
       }
@@ -339,15 +352,29 @@ export const vendorService = {
     // Use FormData for file upload support
     const formData = new FormData();
     
+    // Helper to check if value is a valid file for upload
+    const isValidFile = (val: any): boolean => {
+      if (!val) return false;
+      // Check if it's an empty object
+      if (typeof val === 'object' && Object.keys(val).length === 0) return false;
+      // Check for common file properties
+      return val.uri || val.name || val instanceof Blob;
+    };
+    
     Object.entries(data).forEach(([key, value]) => {
       if (value === undefined || value === null) return;
       
       if (key === 'cuisine_ids' || key === 'dietary_preference_ids') {
-        (value as number[]).forEach((id, index) => {
-          formData.append(`${key}[${index}]`, String(id));
-        });
-      } else if (key === 'image' && value) {
-        formData.append('image', value);
+        if (Array.isArray(value) && value.length > 0) {
+          (value as number[]).forEach((id, index) => {
+            formData.append(`${key}[${index}]`, String(id));
+          });
+        }
+      } else if (key === 'image') {
+        // File upload - only append if valid file
+        if (isValidFile(value)) {
+          formData.append('image', value as Blob);
+        }
       } else {
         formData.append(key, String(value));
       }

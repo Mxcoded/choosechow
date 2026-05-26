@@ -7,12 +7,42 @@ interface CreateOrderData {
   payment_method: 'paystack' | 'card' | 'cash';
   special_instructions?: string;
   scheduled_for?: string;
+  delivery_type?: 'asap' | 'scheduled';
+  tip_amount?: number;
+}
+
+interface RateOrderData {
+  rating: number;
+  comment?: string;
+  food_rating?: number;
+  delivery_rating?: number;
+  would_recommend?: boolean;
 }
 
 export const orderService = {
-  // Get user's orders
-  getOrders: async (page = 1): Promise<PaginatedResponse<Order>> => {
-    const response = await api.get<Order[]>(ENDPOINTS.ORDERS.LIST, { page });
+  // Get user's orders (all orders)
+  getOrders: async (params?: {
+    page?: number;
+    status?: string;
+    from_date?: string;
+    to_date?: string;
+  }): Promise<PaginatedResponse<Order>> => {
+    const response = await api.get<Order[]>(ENDPOINTS.ORDERS.LIST, params);
+    return response.data as unknown as PaginatedResponse<Order>;
+  },
+
+  // Get active orders (pending, preparing, on the way)
+  getActiveOrders: async (): Promise<Order[]> => {
+    const response = await api.get<Order[]>(ENDPOINTS.ORDERS.ACTIVE);
+    return response.data.data || [];
+  },
+
+  // Get order history (completed/cancelled orders)
+  getOrderHistory: async (params?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResponse<Order>> => {
+    const response = await api.get<Order[]>(ENDPOINTS.ORDERS.HISTORY, params);
     return response.data as unknown as PaginatedResponse<Order>;
   },
 
@@ -44,15 +74,32 @@ export const orderService = {
   },
 
   // Reorder (add same items to cart)
-  reorder: async (orderId: number): Promise<{ message: string }> => {
-    const response = await api.post<{ message: string }>(ENDPOINTS.ORDERS.REORDER(orderId));
+  reorder: async (orderId: number): Promise<{ message: string; cart_items_count: number }> => {
+    const response = await api.post<{ message: string; cart_items_count: number }>(
+      ENDPOINTS.ORDERS.REORDER(orderId)
+    );
     return response.data.data;
   },
 
-  // Get order history (past completed/cancelled orders)
-  getOrderHistory: async (page = 1): Promise<PaginatedResponse<Order>> => {
-    const response = await api.get<Order[]>(ENDPOINTS.ORDERS.HISTORY, { page });
-    return response.data as unknown as PaginatedResponse<Order>;
+  // Rate an order
+  rateOrder: async (orderId: number, data: RateOrderData): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>(
+      ENDPOINTS.ORDERS.RATE(orderId),
+      data
+    );
+    return response.data.data;
+  },
+
+  // Get available time slots for scheduled delivery
+  getTimeSlots: async (chefId?: number): Promise<{
+    date: string;
+    slots: Array<{ time: string; available: boolean }>;
+  }[]> => {
+    const response = await api.get<{
+      date: string;
+      slots: Array<{ time: string; available: boolean }>;
+    }[]>(ENDPOINTS.ORDERS.TIME_SLOTS, chefId ? { chef_id: chefId } : undefined);
+    return response.data.data || [];
   },
 
   // Initialize Paystack payment

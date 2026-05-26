@@ -13,6 +13,8 @@ export { orderService } from './orderService';
 export { adminService } from './adminService';
 export { vendorService } from './vendorService';
 export { customerService } from './customerService';
+export { subscriptionService } from './subscriptionService';
+export { deliveryService } from './deliveryService';
 
 // Admin Types
 export type { AdminStats, AdminUser, AdminVendor, AdminOrder, ActivityLog, ReportData, PayoutStats, AdminPayout } from './adminService';
@@ -35,6 +37,25 @@ export type {
   CreateMenuItemData,
   UpdateMenuItemData,
 } from './vendorService';
+
+// Subscription Types
+export type {
+  ChefSubscription,
+  SubscriptionSettings,
+  MenuUpdate,
+  Subscriber,
+} from './subscriptionService';
+
+// Delivery Types
+export type {
+  DeliveryStatus,
+  DeliveryStatusInfo,
+  DeliveryTimelineEvent,
+  DeliveryDriver,
+  DeliveryLocation,
+  DeliveryETA,
+  DeliverySubscription,
+} from './deliveryService';
 
 // Customer Types
 export type {

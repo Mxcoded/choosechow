@@ -69,6 +69,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     // --- ORDER RELATIONSHIPS (CRITICAL FIXES) ---
 
+    // Default orders() - As a Customer (Buying food) - for backward compatibility
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
     // As a Customer (Buying food) - Maps to 'user_id' in orders table
     public function ordersPlaced()
     {

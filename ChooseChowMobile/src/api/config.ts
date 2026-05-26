@@ -97,11 +97,31 @@ export const ENDPOINTS = {
     LIST: '/orders',
     CREATE: '/orders',
     ACTIVE: '/orders/active',
+    HISTORY: '/orders/history',
     TIME_SLOTS: '/orders/time-slots',
     DETAIL: (id: number) => `/orders/${id}`,
     CANCEL: (id: number) => `/orders/${id}/cancel`,
     TRACK: (id: number) => `/orders/${id}/track`,
     REORDER: (id: number) => `/orders/${id}/reorder`,
+    RATE: (id: number) => `/orders/${id}/rate`,
+  },
+  
+  // Delivery Tracking
+  DELIVERY: {
+    STATUS: (orderId: number) => `/delivery/${orderId}/status`,
+    LOCATION: (orderId: number) => `/delivery/${orderId}/location`,
+    SUBSCRIBE: (orderId: number) => `/delivery/${orderId}/subscribe`,
+    ETA: (orderId: number) => `/delivery/${orderId}/eta`,
+  },
+  
+  // Subscriptions (Customer subscribing to Chef/Vendor)
+  SUBSCRIPTIONS: {
+    LIST: '/subscriptions',
+    SUBSCRIBE: (chefId: number) => `/subscriptions/chef/${chefId}`,
+    UNSUBSCRIBE: (chefId: number) => `/subscriptions/chef/${chefId}`,
+    CHECK: (chefId: number) => `/subscriptions/check/${chefId}`,
+    SETTINGS: '/subscriptions/settings',
+    CHEF_MENU_UPDATES: '/subscriptions/menu-updates',
   },
   
   // Payment
@@ -127,6 +147,15 @@ export const ENDPOINTS = {
     ADD: (chefId: number) => `/favorites/${chefId}`,
     REMOVE: (chefId: number) => `/favorites/${chefId}`,
     CHECK: (chefId: number) => `/favorites/check/${chefId}`,
+  },
+  
+  // Chef Menu Subscriptions (get notified when chef updates menu)
+  MENU_SUBSCRIPTIONS: {
+    LIST: '/menu-subscriptions',
+    SUBSCRIBE: (chefId: number) => `/menu-subscriptions/${chefId}`,
+    UNSUBSCRIBE: (chefId: number) => `/menu-subscriptions/${chefId}`,
+    CHECK: (chefId: number) => `/menu-subscriptions/check/${chefId}`,
+    UPDATES: '/menu-subscriptions/updates',
   },
   
   // Notifications
@@ -188,6 +217,13 @@ export const ENDPOINTS = {
     
     // Availability
     TOGGLE_AVAILABILITY: '/chef/toggle-availability',
+    
+    // Subscribers
+    SUBSCRIBERS: {
+      LIST: '/chef/subscribers',
+      COUNT: '/chef/subscribers/count',
+      NOTIFY: '/chef/subscribers/notify',
+    },
   },
   
   // Admin Endpoints

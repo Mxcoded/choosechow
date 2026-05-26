@@ -73,7 +73,8 @@ export const AdminReportsScreen: React.FC<AdminReportsScreenProps> = ({ navigati
     await loadReports(selectedPeriod);
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | undefined | null) => {
+    if (amount == null) return '₦0';
     if (amount >= 1000000) {
       return `₦${(amount / 1000000).toFixed(1)}M`;
     }
@@ -135,7 +136,7 @@ export const AdminReportsScreen: React.FC<AdminReportsScreenProps> = ({ navigati
             <Text style={styles.overviewLabel}>Total Revenue</Text>
           </View>
           <View style={[styles.overviewCard, { backgroundColor: '#D1FAE5' }]}>
-            <Text style={styles.overviewValue}>{overview.total_orders.toLocaleString()}</Text>
+            <Text style={styles.overviewValue}>{(overview.total_orders ?? 0).toLocaleString()}</Text>
             <Text style={styles.overviewLabel}>Total Orders</Text>
           </View>
         </View>
@@ -145,7 +146,7 @@ export const AdminReportsScreen: React.FC<AdminReportsScreenProps> = ({ navigati
             <Text style={styles.overviewLabel}>Avg Order Value</Text>
           </View>
           <View style={[styles.overviewCard, { backgroundColor: '#EDE9FE' }]}>
-            <Text style={styles.overviewValue}>{overview.new_users}</Text>
+            <Text style={styles.overviewValue}>{overview.new_users ?? 0}</Text>
             <Text style={styles.overviewLabel}>New Users</Text>
           </View>
         </View>
@@ -158,9 +159,14 @@ export const AdminReportsScreen: React.FC<AdminReportsScreenProps> = ({ navigati
     icon: string,
     report: ReportData | null,
     color: string,
-    formatValue: (val: number) => string = (v) => v.toLocaleString()
+    formatValue: (val: number) => string = (v) => (v ?? 0).toLocaleString()
   ) => {
     if (!report) return null;
+
+    const total = report.total ?? 0;
+    const changePercentage = report.change_percentage ?? 0;
+    const data = report.data ?? [];
+    const labels = report.labels ?? [];
 
     return (
       <View style={styles.reportCard}>
@@ -170,15 +176,15 @@ export const AdminReportsScreen: React.FC<AdminReportsScreenProps> = ({ navigati
             <Text style={styles.reportTitle}>{title}</Text>
           </View>
           <View style={styles.reportStats}>
-            <Text style={styles.reportTotal}>{formatValue(report.total)}</Text>
-            <View style={[styles.changeBadge, { backgroundColor: getChangeColor(report.change_percentage) + '20' }]}>
-              <Text style={[styles.changeText, { color: getChangeColor(report.change_percentage) }]}>
-                {getChangeIcon(report.change_percentage)} {Math.abs(report.change_percentage)}%
+            <Text style={styles.reportTotal}>{formatValue(total)}</Text>
+            <View style={[styles.changeBadge, { backgroundColor: getChangeColor(changePercentage) + '20' }]}>
+              <Text style={[styles.changeText, { color: getChangeColor(changePercentage) }]}>
+                {getChangeIcon(changePercentage)} {Math.abs(changePercentage)}%
               </Text>
             </View>
           </View>
         </View>
-        {renderBarChart(report.data, report.labels, color)}
+        {renderBarChart(data, labels, color)}
       </View>
     );
   };
