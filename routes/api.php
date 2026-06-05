@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Chef\ChefDashboardController;
 use App\Http\Controllers\Api\V1\PaymentController;
+use App\Http\Controllers\Api\V1\SubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -130,6 +131,19 @@ Route::prefix('v1')->group(function () {
         Route::post('/favorites/{chefId}', [FavoriteController::class, 'store']);
         Route::delete('/favorites/{chefId}', [FavoriteController::class, 'destroy']);
         Route::get('/favorites/check/{chefId}', [FavoriteController::class, 'check']);
+
+        // --- Subscriptions ---
+        Route::prefix('subscriptions')->group(function () {
+            Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
+            Route::post('/upgrade', [SubscriptionController::class, 'upgrade']);
+            Route::post('/downgrade', [SubscriptionController::class, 'downgrade']);
+            Route::post('/cancel', [SubscriptionController::class, 'cancel']);
+            Route::get('/status', [SubscriptionController::class, 'status']);
+            Route::get('/plans', [SubscriptionController::class, 'plans']);
+        });
+
+        // --- Checkout with Subscription Pricing ---
+        Route::post('/checkout/calculate', [SubscriptionController::class, 'calculateCheckout']);
 
         // --- Notifications ---
         Route::prefix('notifications')->group(function () {

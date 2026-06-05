@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   },
   roleCardSelected: {
     borderColor: COLORS.primary,
-    backgroundColor: '#FFF5F5',
+    backgroundColor: COLORS.primaryFaded,
   },
   roleIconContainer: {
     width: 120,

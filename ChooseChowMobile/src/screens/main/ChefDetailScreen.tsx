@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { chefService } from '../../api';
+import { chefService, subscriptionService } from '../../api';
 import { Chef, MenuItem } from '../../types';
-import { useCart } from '../../contexts';
+import { useCart, useAuth } from '../../contexts';
 import { COLORS } from '../../utils/theme';
 
 type ChefDetailScreenProps = {
@@ -62,7 +62,10 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
   const [chef, setChef] = useState<Chef | null>(null);
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubscribing, setIsSubscribing] = useState(false);
   const { addToCart, cart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     loadChefData();
@@ -76,11 +79,50 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
       ]);
       setChef(chefData);
       setMenus(menuData);
+      
+      // Check subscription status if authenticated
+      if (isAuthenticated) {
+        try {
+          const subStatus = await subscriptionService.isSubscribed(chefId);
+          setIsSubscribed(subStatus.subscribed);
+        } catch {
+          // Subscription check failed, ignore
+        }
+      }
     } catch (error) {
       console.error('Failed to load chef data:', error);
       Alert.alert('Error', 'Failed to load chef details');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSubscriptionToggle = async () => {
+    if (!isAuthenticated) {
+      Alert.alert('Sign In Required', 'Please sign in to subscribe to this chef.');
+      return;
+    }
+
+    setIsSubscribing(true);
+    try {
+      if (isSubscribed) {
+        await subscriptionService.unsubscribeFromChef(chefId);
+        setIsSubscribed(false);
+        Alert.alert('Unsubscribed', `You will no longer receive updates from ${chef?.business_name}`);
+      } else {
+        await subscriptionService.subscribeToChef(chefId);
+        setIsSubscribed(true);
+        Alert.alert('Subscribed!', `You will now receive updates when ${chef?.business_name} adds new menu items!`);
+      }
+    } catch (error: any) {
+      // Demo mode fallback
+      if (error.response?.status === 404) {
+        setIsSubscribed(!isSubscribed);
+      } else {
+        Alert.alert('Error', 'Failed to update subscription');
+      }
+    } finally {
+      setIsSubscribing(false);
     }
   };
 
@@ -180,6 +222,30 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
         {chef.description && (
           <Text style={styles.description}>{chef.description}</Text>
         )}
+
+        {/* Subscribe Button */}
+        <TouchableOpacity
+          style={[
+            styles.subscribeButton,
+            isSubscribed && styles.subscribedButton
+          ]}
+          onPress={handleSubscriptionToggle}
+          disabled={isSubscribing}
+        >
+          {isSubscribing ? (
+            <ActivityIndicator size="small" color={isSubscribed ? COLORS.primary : '#FFFFFF'} />
+          ) : (
+            <>
+              <Text style={styles.subscribeIcon}>{isSubscribed ? '🔔' : '🔕'}</Text>
+              <Text style={[
+                styles.subscribeText,
+                isSubscribed && styles.subscribedText
+              ]}>
+                {isSubscribed ? 'Subscribed' : 'Subscribe for Updates'}
+              </Text>
+            </>
+          )}
+        </TouchableOpacity>
 
         {!chef.is_available && (
           <View style={styles.unavailableBanner}>
@@ -331,6 +397,33 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 16,
     lineHeight: 22,
+  },
+  subscribeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginTop: 16,
+    gap: 8,
+  },
+  subscribedButton: {
+    backgroundColor: '#D1FAE5',
+    borderWidth: 1,
+    borderColor: '#10B981',
+  },
+  subscribeIcon: {
+    fontSize: 18,
+  },
+  subscribeText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  subscribedText: {
+    color: '#10B981',
   },
   unavailableBanner: {
     backgroundColor: '#FEE2E2',

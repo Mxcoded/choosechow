@@ -35,5 +35,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ActorCategorySeeder::class);
         //7.run Neighborhood Seeder
         $this->call(NeighborhoodSeeder::class);
+        //8. Subscription Plan Seeder
+        $this->call(SubscriptionPlanSeeder::class);
     }
 }

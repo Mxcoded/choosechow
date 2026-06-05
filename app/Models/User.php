@@ -28,6 +28,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'referred_by',
         'device_token',
         'preferences',
+        'subscription_tier',
+        'subscription_status',
+        'renews_at',
+        'free_delivery_used',
+        'dedicated_rider_id',
     ];
 
     protected $hidden = [
@@ -41,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'date_of_birth' => 'date',
         'last_login_at' => 'datetime',
         'preferences' => 'array',
+        'renews_at' => 'datetime',
     ];
 
     // --- RELATIONSHIPS ---
@@ -227,5 +233,27 @@ class User extends Authenticatable implements MustVerifyEmail
     public function chefOrders()
     {
         return $this->hasMany(Order::class, 'chef_id');
+    }
+
+    public function customerSubscription()
+    {
+        return $this->hasOne(UserSubscription::class)
+            ->whereIn('status', ['active', 'trial'])
+            ->latest();
+    }
+
+    public function allSubscriptions()
+    {
+        return $this->hasMany(UserSubscription::class)->latest();
+    }
+
+    public function supportTickets()
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
+    public function dedicatedRider()
+    {
+        return $this->belongsTo(User::class, 'dedicated_rider_id');
     }
 }

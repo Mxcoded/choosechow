@@ -28,7 +28,14 @@ import ChefDetailScreen from '../screens/main/ChefDetailScreen';
 import CheckoutScreen from '../screens/main/CheckoutScreen';
 
 // Vendor Screens
-import { VendorDashboardScreen } from '../screens/vendor';
+import { 
+  VendorDashboardScreen,
+  VendorOrdersScreen,
+  VendorMenuScreen,
+  VendorEarningsScreen,
+  VendorProfileScreen,
+  VendorOrderDetailScreen,
+} from '../screens/vendor';
 
 // Admin Screens
 import { 
@@ -376,74 +383,6 @@ const MainNavigator = () => (
   </MainStack.Navigator>
 );
 
-// Vendor Profile Screen (placeholder)
-const VendorProfileScreen = ({ navigation }: any) => {
-  const { user, logout } = useAuth();
-  const insets = useSafeAreaInsets();
-  
-  const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Sign Out', 
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await logout();
-            } catch (error) {
-              console.error('Logout error:', error);
-            }
-          }
-        },
-      ]
-    );
-  };
-  
-  return (
-    <ScrollView style={styles.profileContainer} contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
-      <View style={styles.profileHeader}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{user?.first_name?.charAt(0) || 'V'}</Text>
-        </View>
-        <Text style={styles.profileName}>
-          {user?.first_name && user?.last_name 
-            ? `${user.first_name} ${user.last_name}` 
-            : user?.name || 'Vendor'}
-        </Text>
-        <Text style={styles.profileEmail}>{user?.email || ''}</Text>
-        <View style={styles.roleBadge}>
-          <Text style={styles.roleBadgeText}>🏪 Vendor</Text>
-        </View>
-      </View>
-      
-      <TouchableOpacity style={styles.logoutContainer} onPress={handleLogout} activeOpacity={0.7}>
-        <Text style={styles.logoutButton}>Sign Out</Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
-};
-
-// Vendor Orders Placeholder
-const VendorOrdersScreen = () => (
-  <View style={styles.placeholder}>
-    <Text style={styles.placeholderText}>🛍️</Text>
-    <Text style={styles.placeholderTitle}>Vendor Orders</Text>
-    <Text style={styles.placeholderSubtitle}>Manage incoming orders here</Text>
-  </View>
-);
-
-// Vendor Menu Placeholder
-const VendorMenuScreen = () => (
-  <View style={styles.placeholder}>
-    <Text style={styles.placeholderText}>📋</Text>
-    <Text style={styles.placeholderTitle}>My Menu</Text>
-    <Text style={styles.placeholderSubtitle}>Manage your menu items here</Text>
-  </View>
-);
-
 // Vendor Tab Navigator
 const VendorTabNavigator = () => {
   const insets = useSafeAreaInsets();
@@ -527,6 +466,8 @@ const VendorTabNavigator = () => {
 const VendorNavigator = () => (
   <VendorStack.Navigator screenOptions={{ headerShown: false }}>
     <VendorStack.Screen name="VendorTabs" component={VendorTabNavigator} />
+    <VendorStack.Screen name="VendorEarnings" component={VendorEarningsScreen} />
+    <VendorStack.Screen name="VendorOrderDetail" component={VendorOrderDetailScreen} />
   </VendorStack.Navigator>
 );
 

@@ -28,6 +28,11 @@ class Order extends Model
         'scheduled_date',     // Date for scheduled delivery
         'scheduled_time_slot', // e.g., '12:00-13:00'
         'scheduled_for',      // Full datetime
+        // Subscription fields
+        'order_priority',
+        'delivery_fee_override',
+        'discount_applied',
+        'assigned_rider_id',
     ];
 
     protected $casts = [
@@ -35,6 +40,8 @@ class Order extends Model
         'scheduled_for' => 'datetime',
         'subtotal' => 'decimal:2',
         'delivery_fee' => 'decimal:2',
+        'delivery_fee_override' => 'decimal:2',
+        'discount_applied' => 'decimal:2',
         'total_amount' => 'decimal:2',
     ];
 
@@ -168,5 +175,10 @@ class Order extends Model
     public function scopeScheduledFor($query, $date)
     {
         return $query->whereDate('scheduled_date', $date);
+    }
+
+    public function assignedRider()
+    {
+        return $this->belongsTo(User::class, 'assigned_rider_id');
     }
 }

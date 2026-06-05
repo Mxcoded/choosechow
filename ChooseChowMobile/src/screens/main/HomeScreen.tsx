@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryIconContainerSelected: {
-    backgroundColor: '#FEE2E2',
+    backgroundColor: COLORS.primaryFaded,
     borderWidth: 2,
     borderColor: COLORS.primary,
   },

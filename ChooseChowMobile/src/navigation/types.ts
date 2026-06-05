@@ -35,10 +35,11 @@ export type VendorStackParamList = {
   VendorAddMenuItem: undefined;
   VendorEditMenuItem: { menuId: number };
   VendorOrders: undefined;
-  VendorOrderDetail: { orderId: string };
+  VendorOrderDetail: { orderId: number };
   VendorEarnings: undefined;
   VendorProfile: undefined;
   VendorSettings: undefined;
+  VendorSubscribers: undefined;
 };
 
 export type VendorTabParamList = {

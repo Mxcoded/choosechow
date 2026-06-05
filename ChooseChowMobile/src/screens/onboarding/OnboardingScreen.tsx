@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: height * 0.35,
-    backgroundColor: '#FFF5F5',
+    backgroundColor: COLORS.primaryFaded,
     borderBottomLeftRadius: 100,
     borderBottomRightRadius: 100,
   },
