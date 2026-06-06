@@ -22,6 +22,7 @@ use App\Http\Controllers\Chef\ChefProfileController;
 use App\Http\Controllers\Chef\WalletController;
 use App\Http\Controllers\WaitlistController;
 use App\Http\Controllers\Admin\WaitlistAnalyticsController;
+use App\Http\Controllers\Admin\SubscriptionPlanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -140,6 +141,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/waitlist', 'dashboard')->name('waitlist');
             Route::get('/waitlist/export', 'export')->name('waitlist.export');
         });
+
+        // Subscription Plans
+        Route::resource('subscription-plans', SubscriptionPlanController::class)->except(['show']);
     });
 
     // ------------------------------------------

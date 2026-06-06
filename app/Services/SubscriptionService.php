@@ -67,7 +67,7 @@ class SubscriptionService
 
     public function upgrade(User $user, string $newTier): array
     {
-        $allowedUpgrades = ['basic' => 'plus', 'plus' => 'premium', 'basic' => 'premium'];
+        $allowedUpgrades = ['basic' => 'plus', 'plus' => 'premium'];
 
         if (!isset($allowedUpgrades[$user->subscription_tier]) || !in_array($newTier, [$allowedUpgrades[$user->subscription_tier], 'premium'])) {
             return ['success' => false, 'message' => 'Invalid upgrade path.'];
@@ -121,9 +121,9 @@ class SubscriptionService
 
     public function downgrade(User $user, string $newTier): array
     {
-        $allowedDowngrades = ['premium' => 'plus', 'premium' => 'basic', 'plus' => 'basic'];
+        $allowedDowngrades = ['premium' => ['plus', 'basic'], 'plus' => ['basic']];
 
-        if (!isset($allowedDowngrades[$user->subscription_tier]) || !in_array($newTier, $allowedDowngrades)) {
+        if (!isset($allowedDowngrades[$user->subscription_tier]) || !in_array($newTier, $allowedDowngrades[$user->subscription_tier])) {
             return ['success' => false, 'message' => 'Invalid downgrade path.'];
         }
 

@@ -53,14 +53,14 @@ const CartItemRow: React.FC<{
       <View style={styles.quantityContainer}>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={() => item.quantity > 1 ? onUpdateQuantity(item.quantity - 1) : onRemove()}
+          onPress={() => Number(item.quantity) > 1 ? onUpdateQuantity(Number(item.quantity) - 1) : onRemove()}
         >
           <Text style={styles.quantityButtonText}>−</Text>
         </TouchableOpacity>
         <Text style={styles.quantity}>{item.quantity}</Text>
         <TouchableOpacity
           style={[styles.quantityButton, styles.quantityButtonPlus]}
-          onPress={() => onUpdateQuantity(item.quantity + 1)}
+          onPress={() => onUpdateQuantity(Number(item.quantity) + 1)}
         >
           <Text style={[styles.quantityButtonText, styles.quantityButtonPlusText]}>+</Text>
         </TouchableOpacity>
@@ -77,16 +77,13 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
   const items = cart?.items || [];
   const hasItems = items.length > 0;
 
-  const handleUpdateQuantity = async (itemId: number, quantity: number) => {
-    if (quantity < 1) {
-      await handleRemoveItem(itemId);
+  const handleUpdateQuantity = (itemId: number, quantity: number) => {
+    const qty = Number(quantity);
+    if (qty < 1 || isNaN(qty)) {
+      handleRemoveItem(itemId);
       return;
     }
-    try {
-      await updateCartItem(itemId, quantity);
-    } catch {
-      Alert.alert('Error', 'Failed to update item quantity');
-    }
+    updateCartItem(itemId, qty);
   };
 
   const handleRemoveItem = async (itemId: number) => {

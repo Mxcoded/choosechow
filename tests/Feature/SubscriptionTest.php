@@ -35,6 +35,7 @@ class SubscriptionTest extends TestCase
 
         Role::firstOrCreate(['name' => 'customer']);
         Role::firstOrCreate(['name' => 'chef']);
+        Role::firstOrCreate(['name' => 'rider']);
 
         $this->customer = User::factory()->create(['status' => 'active']);
         $this->customer->assignRole('customer');
@@ -421,6 +422,8 @@ class SubscriptionTest extends TestCase
     #[Test]
     public function premium_gets_monthly_wallet_credit(): void
     {
+        $this->setSubscription('premium');
+
         Wallet::firstOrCreate(
             ['user_id' => $this->customer->id],
             ['balance' => 0]

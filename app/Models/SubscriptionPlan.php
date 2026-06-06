@@ -35,6 +35,11 @@ class SubscriptionPlan extends Model
         'is_active' => 'boolean',
     ];
 
+    public function subscriptions()
+    {
+        return $this->hasMany(UserSubscription::class, 'subscription_plan_id');
+    }
+
     public function getPriceFor($billingCycle): float
     {
         return $billingCycle === 'yearly' ? $this->yearly_price : $this->monthly_price;

@@ -8,7 +8,7 @@ interface CartContextType {
   isLoading: boolean;
   itemCount: number;
   addToCart: (menuId: number, quantity: number, instructions?: string, customizations?: SelectedCustomization[]) => Promise<void>;
-  updateCartItem: (itemId: number, quantity: number) => Promise<void>;
+  updateCartItem: (itemId: number, quantity: number) => void;
   removeFromCart: (itemId: number) => Promise<void>;
   clearCart: () => Promise<void>;
   applyCoupon: (code: string) => Promise<void>;
@@ -23,8 +23,12 @@ interface CartProviderProps {
 }
 
 function recalcTotals(cart: Cart): Cart {
-  const subtotal = cart.items.reduce((s, i) => s + i.total_price, 0);
-  return { ...cart, subtotal, total: subtotal + cart.delivery_fee + cart.service_fee - cart.discount };
+  const subtotal = cart.items.reduce((s, i) => s + (Number(i.total_price) || 0), 0);
+  return {
+    ...cart,
+    subtotal,
+    total: subtotal + (Number(cart.delivery_fee) || 0) + (Number(cart.service_fee) || 0) - (Number(cart.discount) || 0),
+  };
 }
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
@@ -32,6 +36,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { isAuthenticated } = useAuth();
   const cartSnapshot = useRef<Cart | null>(null);
+  const updateTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
 
   const refreshCart = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -63,7 +68,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     } else {
       setCart(null);
     }
+
   }, [isAuthenticated, refreshCart]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(updateTimers.current).forEach(clearTimeout);
+    };
+  }, []);
 
   const addToCart = async (
     menuId: number,
@@ -80,26 +92,35 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
   };
 
-  const updateCartItem = async (itemId: number, quantity: number) => {
+  const updateCartItem = (itemId: number, quantity: number) => {
+    const qty = Number(quantity);
+    if (isNaN(qty) || qty < 1) return;
+
     cartSnapshot.current = cart ? { ...cart, items: [...cart.items] } : null;
 
     setCart((prev) => {
       if (!prev) return prev;
       const items = prev.items.map((item) => {
         if (item.id !== itemId) return item;
-        const unitPrice = item.unit_price;
-        return { ...item, quantity, total_price: unitPrice * quantity };
+        const unitPrice = Number(item.unit_price) || 0;
+        return { ...item, quantity: qty, total_price: unitPrice * qty };
       });
       return recalcTotals({ ...prev, items });
     });
 
-    try {
-      await cartService.updateItem(itemId, { quantity });
-      silentRefresh();
-    } catch (error) {
-      setCart(cartSnapshot.current);
-      console.error('Failed to update cart item:', error);
+    if (updateTimers.current[itemId]) {
+      clearTimeout(updateTimers.current[itemId]);
     }
+
+    updateTimers.current[itemId] = setTimeout(async () => {
+      try {
+        await cartService.updateItem(itemId, { quantity: qty });
+        silentRefresh();
+      } catch (error) {
+        setCart(cartSnapshot.current);
+        console.error('Failed to update cart item:', error);
+      }
+    }, 300);
   };
 
   const removeFromCart = async (itemId: number) => {

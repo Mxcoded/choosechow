@@ -139,6 +139,7 @@
                         <li><a href="{{ route('admin.chef') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.chef*') ? 'active-nav' : '' }}"><i class="fas fa-utensils w-6"></i> Kitchens</a></li>
                         <li><a href="{{ route('admin.orders') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.orders*') ? 'active-nav' : '' }}"><i class="fas fa-receipt w-6"></i> All Orders</a></li>
                         <li><a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.reports*') ? 'active-nav' : '' }}"><i class="fas fa-chart-pie w-6"></i> Reports</a></li>
+                        <li><a href="{{ route('admin.subscription-plans.index') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.subscription-plans*') ? 'active-nav' : '' }}"><i class="fas fa-crown w-6"></i> Subscriptions</a></li>
                         <li><a href="{{ route('admin.settings') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.settings*') ? 'active-nav' : '' }}"><i class="fas fa-cogs w-6"></i> Settings</a></li>
                     @elseif(Auth::user()->hasRole('chef'))
                         <li class="px-6 py-2 text-xs font-bold text-chow-orange-200 uppercase mt-4">Kitchen</li>
@@ -203,6 +204,7 @@
                         <li><a href="{{ route('admin.chef') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.chef*') ? 'active-nav' : '' }}"><i class="fas fa-utensils w-6"></i> Kitchens</a></li>
                         <li><a href="{{ route('admin.orders') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.orders*') ? 'active-nav' : '' }}"><i class="fas fa-receipt w-6"></i> All Orders</a></li>
                         <li><a href="{{ route('admin.reports') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.reports*') ? 'active-nav' : '' }}"><i class="fas fa-chart-pie w-6"></i> Reports</a></li>
+                        <li><a href="{{ route('admin.subscription-plans.index') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.subscription-plans*') ? 'active-nav' : '' }}"><i class="fas fa-crown w-6"></i> Subscriptions</a></li>
                         <li><a href="{{ route('admin.settings') }}" class="flex items-center px-6 py-3 hover:bg-white/10 {{ request()->routeIs('admin.settings*') ? 'active-nav' : '' }}"><i class="fas fa-cogs w-6"></i> Settings</a></li>
 
                     {{-- 3. CHEF LINKS --}}
