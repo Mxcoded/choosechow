@@ -288,5 +288,7 @@ export const ENDPOINTS = {
     UPGRADE: '/subscriptions/upgrade',
     DOWNGRADE: '/subscriptions/downgrade',
     CANCEL: '/subscriptions/cancel',
+    VERIFY_PAYMENT: '/subscriptions/verify-payment',
+    VERIFY_UPGRADE_PAYMENT: '/subscriptions/verify-upgrade-payment',
   },
 };

@@ -9,24 +9,37 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { orderService } from '../../api';
+import { orderService, planSubscriptionService } from '../../api';
 import { COLORS } from '../../utils/theme';
+
+type VerificationType = 'order' | 'subscription' | 'upgrade';
+
+const VERIFICATION_LABELS: Record<VerificationType, { successMsg: string; navScreen: string }> = {
+  order: { successMsg: 'Your order has been confirmed.', navScreen: 'Orders' },
+  subscription: { successMsg: 'Your subscription has been activated.', navScreen: 'MySubscription' },
+  upgrade: { successMsg: 'Your plan has been upgraded.', navScreen: 'MySubscription' },
+};
 
 export const PaymentScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { authorizationUrl, reference } = route.params || {};
+  const { authorizationUrl, reference, verificationType: rawType } = route.params || {};
+  const verificationType: VerificationType = rawType === 'upgrade' ? 'upgrade' : rawType === 'subscription' ? 'subscription' : 'order';
   const webViewRef = useRef<any>(null);
   const verifyingRef = useRef(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
+
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const onBackPress = () => {
       if (!verified && !isVerifying) {
         Alert.alert(
           'Cancel Payment?',
-          'Are you sure you want to cancel this payment? Your order will not be processed.',
+          verificationType === 'order'
+            ? 'Your order will not be processed.'
+            : 'Your subscription will not be activated.',
           [
             { text: 'Continue Payment', style: 'cancel' },
             {
@@ -43,23 +56,31 @@ export const PaymentScreen: React.FC = () => {
 
     const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
     return () => subscription.remove();
-  }, [verified, isVerifying, navigation]);
+  }, [verified, isVerifying, navigation, verificationType]);
 
   const handleVerifyPayment = useCallback(async (ref: string) => {
     if (verifyingRef.current || verified) return;
     verifyingRef.current = true;
     setIsVerifying(true);
     try {
-      await orderService.verifyPayment(ref);
+      if (verificationType === 'subscription') {
+        await planSubscriptionService.verifyPayment(ref);
+      } else if (verificationType === 'upgrade') {
+        await planSubscriptionService.verifyUpgradePayment(ref);
+      } else {
+        await orderService.verifyPayment(ref);
+      }
       setVerified(true);
+      const labels = VERIFICATION_LABELS[verificationType];
       Alert.alert(
         'Payment Successful!',
-        'Your order has been confirmed.',
+        labels.successMsg,
         [
           {
-            text: 'View Orders',
+            text: 'OK',
             onPress: () => {
-              navigation.navigate('MainTabs', { screen: 'Orders' });
+              const tabName = verificationType === 'order' ? 'Orders' : 'Subscription';
+              navigation.navigate('MainTabs', { screen: tabName });
             },
           },
         ]
@@ -67,13 +88,13 @@ export const PaymentScreen: React.FC = () => {
     } catch (error: any) {
       Alert.alert(
         'Verification Failed',
-        error.response?.data?.message || 'Could not verify payment. Your order may still be pending.'
+        error.response?.data?.message || 'Could not verify payment. Please contact support.'
       );
     } finally {
       setIsVerifying(false);
       verifyingRef.current = false;
     }
-  }, [verified, navigation]);
+  }, [verified, navigation, verificationType]);
 
   const handleShouldStartLoad = useCallback((request: { url: string; navigationType: string }) => {
     const { url } = request;

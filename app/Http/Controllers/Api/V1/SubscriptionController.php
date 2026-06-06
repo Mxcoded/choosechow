@@ -24,6 +24,7 @@ class SubscriptionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'tier' => 'required|string|in:basic,plus,premium',
+            'payment_method' => 'sometimes|string|in:wallet,paystack',
         ]);
 
         if ($validator->fails()) {
@@ -31,19 +32,67 @@ class SubscriptionController extends Controller
         }
 
         $user = $request->user();
-        $result = $this->subscriptionService->subscribe($user, $request->tier);
+        $result = $this->subscriptionService->subscribe($user, $request->tier, $request->payment_method);
 
         if (!$result['success']) {
             return response()->json($result, 400);
         }
 
-        return response()->json($result, 201);
+        if (isset($result['authorization_url'])) {
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ], 200);
+        }
+
+        return response()->json(['success' => true, 'data' => $result], 201);
+    }
+
+    public function verifyPayment(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'reference' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $user = $request->user();
+        $result = $this->subscriptionService->verifyAndActivate($user, $request->reference);
+
+        if (!$result['success']) {
+            return response()->json($result, 400);
+        }
+
+        return response()->json(['success' => true, 'data' => $result]);
+    }
+
+    public function verifyUpgradePayment(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'reference' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $user = $request->user();
+        $result = $this->subscriptionService->verifyAndApplyUpgrade($user, $request->reference);
+
+        if (!$result['success']) {
+            return response()->json($result, 400);
+        }
+
+        return response()->json(['success' => true, 'data' => $result]);
     }
 
     public function upgrade(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'tier' => 'required|string|in:plus,premium',
+            'payment_method' => 'sometimes|string|in:wallet,paystack',
         ]);
 
         if ($validator->fails()) {
@@ -51,13 +100,20 @@ class SubscriptionController extends Controller
         }
 
         $user = $request->user();
-        $result = $this->subscriptionService->upgrade($user, $request->tier);
+        $result = $this->subscriptionService->upgrade($user, $request->tier, $request->payment_method);
 
         if (!$result['success']) {
             return response()->json($result, 400);
         }
 
-        return response()->json($result);
+        if (isset($result['authorization_url'])) {
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ], 200);
+        }
+
+        return response()->json(['success' => true, 'data' => $result]);
     }
 
     public function downgrade(Request $request): JsonResponse
@@ -77,7 +133,7 @@ class SubscriptionController extends Controller
             return response()->json($result, 400);
         }
 
-        return response()->json($result);
+        return response()->json(['success' => true, 'data' => $result]);
     }
 
     public function cancel(Request $request): JsonResponse
@@ -97,7 +153,7 @@ class SubscriptionController extends Controller
             return response()->json($result, 400);
         }
 
-        return response()->json($result);
+        return response()->json(['success' => true, 'data' => $result]);
     }
 
     public function status(Request $request): JsonResponse

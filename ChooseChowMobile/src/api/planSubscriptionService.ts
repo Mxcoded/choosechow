@@ -11,6 +11,14 @@ interface SubscribeResult {
   ends_at?: string;
 }
 
+interface PaystackInitResult {
+  success: boolean;
+  authorization_url: string;
+  reference: string;
+  message: string;
+  prorated_charge?: number;
+}
+
 export const planSubscriptionService = {
   getPlans: async (): Promise<SubscriptionPlan[]> => {
     const response = await api.get<SubscriptionPlan[]>(ENDPOINTS.SUBSCRIPTION_PLANS.LIST);
@@ -28,23 +36,33 @@ export const planSubscriptionService = {
     }
   },
 
-  subscribe: async (tier: string): Promise<SubscribeResult> => {
-    const response = await api.post<SubscribeResult>(ENDPOINTS.SUBSCRIPTION_PLANS.SUBSCRIBE, { tier });
+  subscribe: async (tier: string, paymentMethod: 'wallet' | 'paystack' = 'paystack'): Promise<SubscribeResult | PaystackInitResult> => {
+    const response = await api.post<SubscribeResult | PaystackInitResult>(ENDPOINTS.SUBSCRIPTION_PLANS.SUBSCRIBE, { tier, payment_method: paymentMethod });
     return response.data.data;
   },
 
-  upgrade: async (tier: string): Promise<SubscribeResult> => {
-    const response = await api.put<SubscribeResult>(ENDPOINTS.SUBSCRIPTION_PLANS.UPGRADE, { tier });
+  upgrade: async (tier: string, paymentMethod: 'wallet' | 'paystack' = 'paystack'): Promise<SubscribeResult | PaystackInitResult> => {
+    const response = await api.post<SubscribeResult | PaystackInitResult>(ENDPOINTS.SUBSCRIPTION_PLANS.UPGRADE, { tier, payment_method: paymentMethod });
     return response.data.data;
   },
 
   downgrade: async (tier: string): Promise<SubscribeResult> => {
-    const response = await api.put<SubscribeResult>(ENDPOINTS.SUBSCRIPTION_PLANS.DOWNGRADE, { tier });
+    const response = await api.post<SubscribeResult>(ENDPOINTS.SUBSCRIPTION_PLANS.DOWNGRADE, { tier });
     return response.data.data;
   },
 
   cancel: async (): Promise<SubscribeResult> => {
-    const response = await api.put<SubscribeResult>(ENDPOINTS.SUBSCRIPTION_PLANS.CANCEL);
+    const response = await api.post<SubscribeResult>(ENDPOINTS.SUBSCRIPTION_PLANS.CANCEL);
+    return response.data.data;
+  },
+
+  verifyPayment: async (reference: string): Promise<SubscribeResult> => {
+    const response = await api.post<SubscribeResult>(ENDPOINTS.SUBSCRIPTION_PLANS.VERIFY_PAYMENT, { reference });
+    return response.data.data;
+  },
+
+  verifyUpgradePayment: async (reference: string): Promise<SubscribeResult> => {
+    const response = await api.post<SubscribeResult>(ENDPOINTS.SUBSCRIPTION_PLANS.VERIFY_UPGRADE_PAYMENT, { reference });
     return response.data.data;
   },
 };

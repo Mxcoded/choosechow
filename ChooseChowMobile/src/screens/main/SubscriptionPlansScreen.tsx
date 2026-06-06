@@ -8,12 +8,14 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
+  Modal,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { planSubscriptionService } from '../../api';
 import { COLORS } from '../../utils/theme';
 import type { SubscriptionPlan, SubscriptionStatusResponse } from '../../types';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 type SubscriptionPlansScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -38,6 +40,7 @@ export const SubscriptionPlansScreen: React.FC<SubscriptionPlansScreenProps> = (
   const [isLoading, setIsLoading] = useState(true);
   const [subscribing, setSubscribing] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [paymentModal, setPaymentModal] = useState<{ visible: boolean; slug: string; action: 'subscribe' | 'upgrade' }>({ visible: false, slug: '', action: 'subscribe' });
 
   const loadData = useCallback(async () => {
     try {
@@ -64,30 +67,52 @@ export const SubscriptionPlansScreen: React.FC<SubscriptionPlansScreenProps> = (
     loadData();
   };
 
-  const handleSubscribe = async (slug: string) => {
+  const processWalletPayment = async (slug: string, action: 'subscribe' | 'upgrade') => {
     setSubscribing(plans.find(p => p.slug === slug)?.id ?? null);
+    setPaymentModal({ visible: false, slug: '', action: 'subscribe' });
     try {
-      const result = await planSubscriptionService.subscribe(slug);
-      Alert.alert('Subscribed!', result.message);
+      const fn = action === 'upgrade' ? planSubscriptionService.upgrade : planSubscriptionService.subscribe;
+      const result = await fn(slug, 'wallet');
+      Alert.alert('Success!', (result as any).message);
       loadData();
     } catch (error: any) {
-      Alert.alert('Error', error?.response?.data?.message || 'Failed to subscribe. Please try again.');
+      const msg = error?.response?.data?.message || error?.message || `Failed to ${action}. Please try again.`;
+      Alert.alert('Error', msg);
     } finally {
       setSubscribing(null);
     }
   };
 
-  const handleUpgrade = async (slug: string) => {
+  const processPaystackPayment = async (slug: string, action: 'subscribe' | 'upgrade') => {
     setSubscribing(plans.find(p => p.slug === slug)?.id ?? null);
+    setPaymentModal({ visible: false, slug: '', action: 'subscribe' });
     try {
-      const result = await planSubscriptionService.upgrade(slug);
-      Alert.alert('Upgraded!', result.message);
-      loadData();
+      const fn = action === 'upgrade' ? planSubscriptionService.upgrade : planSubscriptionService.subscribe;
+      const result = await fn(slug, 'paystack');
+
+      if ((result as any).authorization_url) {
+        navigation.navigate('PaymentScreen', {
+          authorizationUrl: (result as any).authorization_url,
+          reference: (result as any).reference,
+          verificationType: action === 'upgrade' ? 'upgrade' : 'subscription',
+        });
+      } else {
+        Alert.alert('Error', 'Could not initialize payment. Please try again.');
+      }
     } catch (error: any) {
-      Alert.alert('Error', error?.response?.data?.message || 'Failed to upgrade. Please try again.');
+      const msg = error?.response?.data?.message || error?.message || `Failed to ${action}. Please try again.`;
+      Alert.alert('Error', msg);
     } finally {
       setSubscribing(null);
     }
+  };
+
+  const handleSubscribe = async (slug: string) => {
+    setPaymentModal({ visible: true, slug, action: 'subscribe' });
+  };
+
+  const handleUpgrade = async (slug: string) => {
+    setPaymentModal({ visible: true, slug, action: 'upgrade' });
   };
 
   const handleDowngrade = async (slug: string) => {
@@ -254,6 +279,57 @@ export const SubscriptionPlansScreen: React.FC<SubscriptionPlansScreenProps> = (
           </View>
         );
       })}
+
+      <Modal
+        visible={paymentModal.visible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPaymentModal({ visible: false, slug: '', action: 'subscribe' })}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setPaymentModal({ visible: false, slug: '', action: 'subscribe' })}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Choose Payment Method</Text>
+            <Text style={styles.modalSubtitle}>
+              {paymentModal.action === 'upgrade' ? 'Pay prorated upgrade charge' : 'Pay to activate subscription'}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.paymentOption}
+              onPress={() => processWalletPayment(paymentModal.slug, paymentModal.action)}
+            >
+              <MaterialCommunityIcons name="wallet" size={24} color={COLORS.primary} />
+              <View style={styles.paymentOptionText}>
+                <Text style={styles.paymentOptionLabel}>Wallet Balance</Text>
+                <Text style={styles.paymentOptionDesc}>Pay with your account wallet</Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={20} color={COLORS.text.secondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.paymentOption}
+              onPress={() => processPaystackPayment(paymentModal.slug, paymentModal.action)}
+            >
+              <MaterialCommunityIcons name="credit-card-outline" size={24} color={COLORS.primary} />
+              <View style={styles.paymentOptionText}>
+                <Text style={styles.paymentOptionLabel}>Paystack</Text>
+                <Text style={styles.paymentOptionDesc}>Pay with card, bank transfer, or USSD</Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-right" size={20} color={COLORS.text.secondary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setPaymentModal({ visible: false, slug: '', action: 'subscribe' })}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </ScrollView>
   );
 };
@@ -412,6 +488,62 @@ const styles = StyleSheet.create({
   currentBadgeText: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 24,
+    paddingBottom: 40,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.text.primary,
+    marginBottom: 4,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    marginBottom: 24,
+  },
+  paymentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    backgroundColor: COLORS.background.secondary,
+    marginBottom: 12,
+  },
+  paymentOptionText: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  paymentOptionLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text.primary,
+  },
+  paymentOptionDesc: {
+    fontSize: 13,
+    color: COLORS.text.secondary,
+    marginTop: 2,
+  },
+  cancelButton: {
+    alignItems: 'center',
+    paddingVertical: 14,
+    marginTop: 8,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: COLORS.text.secondary,
+    fontWeight: '500',
   },
 });
 

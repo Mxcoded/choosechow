@@ -19,7 +19,7 @@ class SubscriptionService
         protected PaystackService $paystack,
     ) {}
 
-    public function subscribe(User $user, string $tier): array
+    public function subscribe(User $user, string $tier, ?string $paymentMethod = null): array
     {
         $plan = SubscriptionPlan::where('slug', $tier)
             ->where('user_type', 'customer')
@@ -34,38 +34,18 @@ class SubscriptionService
             return $this->cancelToNone($user);
         }
 
-        return DB::transaction(function () use ($user, $plan, $tier) {
-            $subscription = UserSubscription::create([
-                'user_id' => $user->id,
-                'subscription_plan_id' => $plan->id,
-                'status' => 'active',
-                'billing_cycle' => 'monthly',
-                'amount' => $plan->monthly_price,
-                'current_period_start' => now(),
-                'current_period_end' => now()->addMonth(),
-            ]);
+        if ($paymentMethod === 'wallet') {
+            return $this->subscribeWithWallet($user, $plan);
+        }
 
-            $user->update([
-                'subscription_tier' => $tier,
-                'subscription_status' => 'active',
-                'renews_at' => now()->addMonth(),
-                'free_delivery_used' => 0,
-            ]);
+        if ($paymentMethod === 'paystack') {
+            return $this->initiatePaystackSubscription($user, $plan);
+        }
 
-            if ($tier === 'premium') {
-                $this->assignDedicatedRider($user);
-                $this->billingService->creditPremiumWallet($user);
-            }
-
-            return [
-                'success' => true,
-                'subscription' => $subscription,
-                'message' => "Subscribed to {$plan->name} successfully.",
-            ];
-        });
+        return $this->activateSubscription($user, $plan);
     }
 
-    public function upgrade(User $user, string $newTier): array
+    public function upgrade(User $user, string $newTier, ?string $paymentMethod = null): array
     {
         $allowedUpgrades = ['basic' => 'plus', 'plus' => 'premium'];
 
@@ -79,44 +59,17 @@ class SubscriptionService
 
         $currentPlan = SubscriptionPlan::where('slug', $user->subscription_tier)->first();
         $newPlan = SubscriptionPlan::where('slug', $newTier)->firstOrFail();
+        $proratedAmount = $this->billingService->calculateProratedAmount($currentPlan, $newPlan);
 
-        return DB::transaction(function () use ($user, $newTier, $currentPlan, $newPlan) {
-            $proratedAmount = $this->billingService->calculateProratedAmount($currentPlan, $newPlan);
+        if ($proratedAmount > 0 && $paymentMethod === 'wallet') {
+            return $this->upgradeWithWallet($user, $newPlan, $currentPlan, $proratedAmount);
+        }
 
-            $subscription = $user->activeSubscription;
-            if ($subscription) {
-                $subscription->update([
-                    'subscription_plan_id' => $newPlan->id,
-                    'amount' => $newPlan->monthly_price,
-                    'status' => 'active',
-                ]);
-            }
+        if ($proratedAmount > 0 && $paymentMethod === 'paystack') {
+            return $this->initiatePaystackUpgrade($user, $newPlan, $currentPlan, $proratedAmount);
+        }
 
-            $user->update([
-                'subscription_tier' => $newTier,
-                'subscription_status' => 'active',
-                'free_delivery_used' => 0,
-            ]);
-
-            if ($newTier === 'premium') {
-                $this->assignDedicatedRider($user);
-            }
-
-            $result = [
-                'success' => true,
-                'message' => "Upgraded to {$newPlan->name}. ",
-                'subscription' => $subscription,
-            ];
-
-            if ($proratedAmount > 0) {
-                $result['prorated_charge'] = $proratedAmount;
-                $result['message'] .= "Prorated charge of ₦{$proratedAmount} will be applied.";
-            } else {
-                $result['message'] .= "No additional charge for this billing period.";
-            }
-
-            return $result;
-        });
+        return $this->applyUpgrade($user, $newPlan, $currentPlan, $proratedAmount);
     }
 
     public function downgrade(User $user, string $newTier): array
@@ -270,6 +223,389 @@ class SubscriptionService
         if ($user->subscription_tier === 'basic') {
             $user->increment('free_delivery_used');
         }
+    }
+
+    /**
+     * Verify Paystack payment and activate a pending subscription.
+     */
+    public function verifyAndActivate(User $user, string $reference): array
+    {
+        $payment = Payment::where('reference', $reference)
+            ->where('user_id', $user->id)
+            ->where('type', 'subscription')
+            ->first();
+
+        if (!$payment) {
+            return ['success' => false, 'message' => 'Payment not found.'];
+        }
+
+        if ($payment->isSuccessful()) {
+            return ['success' => false, 'message' => 'Payment already processed.'];
+        }
+
+        $result = $this->paystack->verifyTransaction($reference);
+
+        if (!isset($result['status']) || $result['status'] !== true) {
+            $payment->update([
+                'status' => 'failed',
+                'failure_reason' => $result['message'] ?? 'Paystack verification failed',
+            ]);
+            return ['success' => false, 'message' => $result['message'] ?? 'Payment verification failed.'];
+        }
+
+        return DB::transaction(function () use ($user, $payment, $result) {
+            $payment->markAsSuccessful($result);
+
+            $plan = SubscriptionPlan::find($payment->metadata['plan_id'] ?? 0);
+            if (!$plan) {
+                return ['success' => false, 'message' => 'Subscription plan not found.'];
+            }
+
+            $tier = $plan->slug;
+
+            $subscription = UserSubscription::create([
+                'user_id' => $user->id,
+                'subscription_plan_id' => $plan->id,
+                'status' => 'active',
+                'billing_cycle' => 'monthly',
+                'amount' => $plan->monthly_price,
+                'current_period_start' => now(),
+                'current_period_end' => now()->addMonth(),
+            ]);
+
+            $user->update([
+                'subscription_tier' => $tier,
+                'subscription_status' => 'active',
+                'renews_at' => now()->addMonth(),
+                'free_delivery_used' => 0,
+            ]);
+
+            if ($tier === 'premium') {
+                $this->assignDedicatedRider($user);
+                $this->billingService->creditPremiumWallet($user);
+            }
+
+            return [
+                'success' => true,
+                'subscription' => $subscription,
+                'message' => "Subscribed to {$plan->name} successfully.",
+            ];
+        });
+    }
+
+    public function verifyAndApplyUpgrade(User $user, string $reference): array
+    {
+        $payment = Payment::where('reference', $reference)
+            ->where('user_id', $user->id)
+            ->where('type', 'subscription_upgrade')
+            ->first();
+
+        if (!$payment) {
+            return ['success' => false, 'message' => 'Payment not found.'];
+        }
+
+        if ($payment->isSuccessful()) {
+            return ['success' => false, 'message' => 'Payment already processed.'];
+        }
+
+        $result = $this->paystack->verifyTransaction($reference);
+
+        if (!isset($result['status']) || $result['status'] !== true) {
+            $payment->update([
+                'status' => 'failed',
+                'failure_reason' => $result['message'] ?? 'Paystack verification failed',
+            ]);
+            return ['success' => false, 'message' => $result['message'] ?? 'Payment verification failed.'];
+        }
+
+        return DB::transaction(function () use ($user, $payment, $result) {
+            $payment->markAsSuccessful($result);
+
+            $newPlan = SubscriptionPlan::find($payment->metadata['plan_id'] ?? 0);
+            $currentPlan = SubscriptionPlan::find($payment->metadata['current_plan_id'] ?? 0);
+
+            if (!$newPlan || !$currentPlan) {
+                return ['success' => false, 'message' => 'Subscription plans not found.'];
+            }
+
+            $proratedAmount = $this->billingService->calculateProratedAmount($currentPlan, $newPlan);
+
+            return $this->applyUpgrade($user, $newPlan, $currentPlan, $proratedAmount);
+        });
+    }
+
+    // ===================== INTERNAL HELPERS =====================
+
+    protected function subscribeWithWallet(User $user, SubscriptionPlan $plan): array
+    {
+        $wallet = Wallet::firstOrCreate(
+            ['user_id' => $user->id],
+            ['balance' => 0]
+        );
+
+        if (!$wallet->hasSufficientBalance($plan->monthly_price)) {
+            return [
+                'success' => false,
+                'message' => 'Insufficient wallet balance. You need ₦' . number_format($plan->monthly_price) . '.',
+            ];
+        }
+
+        return DB::transaction(function () use ($user, $plan, $wallet) {
+            $payment = Payment::create([
+                'reference' => Payment::generateReference(),
+                'user_id' => $user->id,
+                'amount' => $plan->monthly_price,
+                'currency' => 'NGN',
+                'type' => 'subscription',
+                'status' => 'success',
+                'payment_method' => 'wallet',
+                'gateway' => 'wallet',
+                'paid_at' => now(),
+            ]);
+
+            $wallet->deduct(
+                $plan->monthly_price,
+                $payment->reference,
+                "Subscription payment: {$plan->name}"
+            );
+
+            $subscription = UserSubscription::create([
+                'user_id' => $user->id,
+                'subscription_plan_id' => $plan->id,
+                'status' => 'active',
+                'billing_cycle' => 'monthly',
+                'amount' => $plan->monthly_price,
+                'current_period_start' => now(),
+                'current_period_end' => now()->addMonth(),
+            ]);
+
+            $user->update([
+                'subscription_tier' => $plan->slug,
+                'subscription_status' => 'active',
+                'renews_at' => now()->addMonth(),
+                'free_delivery_used' => 0,
+            ]);
+
+            if ($plan->slug === 'premium') {
+                $this->assignDedicatedRider($user);
+                $this->billingService->creditPremiumWallet($user);
+            }
+
+            return [
+                'success' => true,
+                'subscription' => $subscription,
+                'message' => "Subscribed to {$plan->name} via wallet.",
+            ];
+        });
+    }
+
+    protected function initiatePaystackSubscription(User $user, SubscriptionPlan $plan): array
+    {
+        $payment = Payment::create([
+            'reference' => Payment::generateReference(),
+            'user_id' => $user->id,
+            'amount' => $plan->monthly_price,
+            'currency' => 'NGN',
+            'type' => 'subscription',
+            'status' => 'pending',
+            'payment_method' => 'paystack',
+            'gateway' => 'paystack',
+            'metadata' => ['plan_id' => $plan->id, 'plan_slug' => $plan->slug],
+        ]);
+
+        $result = $this->paystack->initializeTransaction(
+            $user->email,
+            $plan->monthly_price,
+            $payment->reference,
+        );
+
+        if (!isset($result['status']) || !$result['status']) {
+            $payment->update([
+                'status' => 'failed',
+                'gateway_response' => $result,
+                'failure_reason' => $result['message'] ?? 'Paystack initialization failed',
+            ]);
+            return ['success' => false, 'message' => $result['message'] ?? 'Payment initiation failed'];
+        }
+
+        $payment->update([
+            'gateway_reference' => $result['data']['reference'] ?? null,
+            'gateway_response' => $result,
+            'metadata' => array_merge($payment->metadata ?? [], [
+                'authorization_url' => $result['data']['authorization_url'] ?? null,
+                'access_code' => $result['data']['access_code'] ?? null,
+            ]),
+        ]);
+
+        return [
+            'success' => true,
+            'authorization_url' => $result['data']['authorization_url'] ?? null,
+            'reference' => $payment->reference,
+            'message' => 'Proceed to payment.',
+        ];
+    }
+
+    protected function activateSubscription(User $user, SubscriptionPlan $plan): array
+    {
+        return DB::transaction(function () use ($user, $plan) {
+            $subscription = UserSubscription::create([
+                'user_id' => $user->id,
+                'subscription_plan_id' => $plan->id,
+                'status' => 'active',
+                'billing_cycle' => 'monthly',
+                'amount' => $plan->monthly_price,
+                'current_period_start' => now(),
+                'current_period_end' => now()->addMonth(),
+            ]);
+
+            $user->update([
+                'subscription_tier' => $plan->slug,
+                'subscription_status' => 'active',
+                'renews_at' => now()->addMonth(),
+                'free_delivery_used' => 0,
+            ]);
+
+            if ($plan->slug === 'premium') {
+                $this->assignDedicatedRider($user);
+                $this->billingService->creditPremiumWallet($user);
+            }
+
+            return [
+                'success' => true,
+                'subscription' => $subscription,
+                'message' => "Subscribed to {$plan->name} successfully.",
+            ];
+        });
+    }
+
+    protected function upgradeWithWallet(User $user, SubscriptionPlan $newPlan, SubscriptionPlan $currentPlan, float $proratedAmount): array
+    {
+        $wallet = Wallet::firstOrCreate(
+            ['user_id' => $user->id],
+            ['balance' => 0]
+        );
+
+        if (!$wallet->hasSufficientBalance($proratedAmount)) {
+            return [
+                'success' => false,
+                'message' => 'Insufficient wallet balance for prorated charge of ₦' . number_format($proratedAmount) . '.',
+            ];
+        }
+
+        return DB::transaction(function () use ($user, $newPlan, $currentPlan, $proratedAmount, $wallet) {
+            $payment = Payment::create([
+                'reference' => Payment::generateReference(),
+                'user_id' => $user->id,
+                'amount' => $proratedAmount,
+                'currency' => 'NGN',
+                'type' => 'subscription_upgrade',
+                'status' => 'success',
+                'payment_method' => 'wallet',
+                'gateway' => 'wallet',
+                'paid_at' => now(),
+            ]);
+
+            $wallet->deduct(
+                $proratedAmount,
+                $payment->reference,
+                "Upgrade prorated charge: {$currentPlan->name} → {$newPlan->name}"
+            );
+
+            return $this->applyUpgrade($user, $newPlan, $currentPlan, $proratedAmount);
+        });
+    }
+
+    protected function initiatePaystackUpgrade(User $user, SubscriptionPlan $newPlan, SubscriptionPlan $currentPlan, float $proratedAmount): array
+    {
+        $payment = Payment::create([
+            'reference' => Payment::generateReference(),
+            'user_id' => $user->id,
+            'amount' => $proratedAmount,
+            'currency' => 'NGN',
+            'type' => 'subscription_upgrade',
+            'status' => 'pending',
+            'payment_method' => 'paystack',
+            'gateway' => 'paystack',
+            'metadata' => [
+                'plan_id' => $newPlan->id,
+                'plan_slug' => $newPlan->slug,
+                'current_plan_id' => $currentPlan->id,
+                'current_plan_slug' => $currentPlan->slug,
+            ],
+        ]);
+
+        $result = $this->paystack->initializeTransaction(
+            $user->email,
+            $proratedAmount,
+            $payment->reference,
+        );
+
+        if (!isset($result['status']) || !$result['status']) {
+            $payment->update([
+                'status' => 'failed',
+                'gateway_response' => $result,
+                'failure_reason' => $result['message'] ?? 'Paystack initialization failed',
+            ]);
+            return ['success' => false, 'message' => $result['message'] ?? 'Payment initiation failed'];
+        }
+
+        $payment->update([
+            'gateway_reference' => $result['data']['reference'] ?? null,
+            'gateway_response' => $result,
+            'metadata' => array_merge($payment->metadata ?? [], [
+                'authorization_url' => $result['data']['authorization_url'] ?? null,
+                'access_code' => $result['data']['access_code'] ?? null,
+            ]),
+        ]);
+
+        return [
+            'success' => true,
+            'authorization_url' => $result['data']['authorization_url'] ?? null,
+            'reference' => $payment->reference,
+            'prorated_charge' => $proratedAmount,
+            'message' => "Proceed to pay prorated charge of ₦{$proratedAmount}.",
+        ];
+    }
+
+    protected function applyUpgrade(User $user, SubscriptionPlan $newPlan, SubscriptionPlan $currentPlan, float $proratedAmount): array
+    {
+        return DB::transaction(function () use ($user, $newPlan, $currentPlan, $proratedAmount) {
+            $newTier = $newPlan->slug;
+
+            $subscription = $user->activeSubscription;
+            if ($subscription) {
+                $subscription->update([
+                    'subscription_plan_id' => $newPlan->id,
+                    'amount' => $newPlan->monthly_price,
+                    'status' => 'active',
+                ]);
+            }
+
+            $user->update([
+                'subscription_tier' => $newTier,
+                'subscription_status' => 'active',
+                'free_delivery_used' => 0,
+            ]);
+
+            if ($newTier === 'premium') {
+                $this->assignDedicatedRider($user);
+            }
+
+            $result = [
+                'success' => true,
+                'message' => "Upgraded to {$newPlan->name}. ",
+                'subscription' => $subscription,
+            ];
+
+            if ($proratedAmount > 0) {
+                $result['prorated_charge'] = $proratedAmount;
+                $result['message'] .= "Prorated charge of ₦{$proratedAmount} applied.";
+            } else {
+                $result['message'] .= "No additional charge for this billing period.";
+            }
+
+            return $result;
+        });
     }
 
     protected function assignDedicatedRider(User $user): void

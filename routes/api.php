@@ -140,6 +140,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/cancel', [SubscriptionController::class, 'cancel']);
             Route::get('/status', [SubscriptionController::class, 'status']);
             Route::get('/plans', [SubscriptionController::class, 'plans']);
+            Route::post('/verify-payment', [SubscriptionController::class, 'verifyPayment']);
+            Route::post('/verify-upgrade-payment', [SubscriptionController::class, 'verifyUpgradePayment']);
         });
 
         // --- Checkout with Subscription Pricing ---

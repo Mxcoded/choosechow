@@ -31,7 +31,7 @@ class Wallet extends Model
     /**
      * Log a wallet transaction with complete audit trail
      * 
-     * @param string $type 'earning', 'payout', 'refund', 'adjustment'
+     * @param string $type 'earning', 'payout', 'refund', 'adjustment', 'subscription_payment'
      * @param float $amount Amount to add/subtract
      * @param string|null $reference Order/payment/withdrawal ID for traceability
      * @param string|null $description Human-readable description
@@ -42,14 +42,11 @@ class Wallet extends Model
         $balanceBefore = $this->balance;
         
         // Update wallet balance based on transaction type
-        if ($type === 'payout') {
-            // Payout: money going out
+        if (in_array($type, ['payout', 'subscription_payment'])) {
             $this->balance -= $amount;
         } elseif ($type === 'refund') {
-            // Refund: money coming back in
             $this->balance += $amount;
         } else {
-            // earning, adjustment, etc: money coming in
             $this->balance += $amount;
         }
         
@@ -66,6 +63,22 @@ class Wallet extends Model
             'reference' => $reference,
             'description' => $description,
         ]);
+    }
+
+    /**
+     * Deduct from wallet balance and log the transaction.
+     */
+    public function deduct(float $amount, string $reference, string $description = ''): WalletTransactionLog
+    {
+        return $this->logTransaction('subscription_payment', $amount, $reference, $description);
+    }
+
+    /**
+     * Check if wallet has sufficient balance.
+     */
+    public function hasSufficientBalance(float $amount): bool
+    {
+        return $this->balance >= $amount;
     }
 
     /**
