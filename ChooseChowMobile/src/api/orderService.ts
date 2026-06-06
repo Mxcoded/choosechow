@@ -3,11 +3,14 @@ import { ENDPOINTS } from './config';
 import { Order, OrderTracking, PaymentIntent } from '../types';
 
 interface CreateOrderData {
-  address_id: number;
-  payment_method: 'paystack' | 'card' | 'cash';
-  special_instructions?: string;
-  scheduled_for?: string;
-  delivery_type?: 'asap' | 'scheduled';
+  address_id?: number;
+  delivery_address?: string;
+  phone_number: string;
+  payment_method: 'card' | 'bank_transfer';
+  notes?: string;
+  delivery_type: 'asap' | 'scheduled';
+  scheduled_date?: string;
+  scheduled_time_slot?: string;
   tip_amount?: number;
 }
 
@@ -47,8 +50,18 @@ export const orderService = {
   },
 
   // Create a new order
-  createOrder: async (data: CreateOrderData): Promise<{ order: Order; payment?: PaymentIntent }> => {
-    const response = await api.post<{ order: Order; payment?: PaymentIntent }>(
+  createOrder: async (data: CreateOrderData): Promise<{
+    orders: Order[];
+    payment?: { authorization_url: string; access_code: string; reference: string };
+    total_amount: number;
+    formatted_total: string;
+  }> => {
+    const response = await api.post<{
+      orders: Order[];
+      payment?: { authorization_url: string; access_code: string; reference: string };
+      total_amount: number;
+      formatted_total: string;
+    }>(
       ENDPOINTS.ORDERS.CREATE,
       data
     );

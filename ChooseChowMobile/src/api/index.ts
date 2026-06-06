@@ -14,6 +14,7 @@ export { adminService } from './adminService';
 export { vendorService } from './vendorService';
 export { customerService } from './customerService';
 export { subscriptionService } from './subscriptionService';
+export { planSubscriptionService } from './planSubscriptionService';
 export { deliveryService } from './deliveryService';
 
 // Admin Types
@@ -38,13 +39,19 @@ export type {
   UpdateMenuItemData,
 } from './vendorService';
 
-// Subscription Types
+// Subscription Types (Chef follow)
 export type {
   ChefSubscription,
   SubscriptionSettings,
   MenuUpdate,
   Subscriber,
 } from './subscriptionService';
+
+// Plan Subscription Types (Customer tier)
+export type {
+  SubscriptionPlan,
+  SubscriptionStatusResponse,
+} from '../types';
 
 // Delivery Types
 export type {

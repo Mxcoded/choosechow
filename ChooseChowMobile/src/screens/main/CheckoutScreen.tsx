@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,23 +8,42 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
-  Linking,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCart } from '../../contexts';
-import { orderService } from '../../api';
+import { orderService, planSubscriptionService } from '../../api';
 import { COLORS } from '../../utils/theme';
+import type { SubscriptionStatusResponse } from '../../types';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 type CheckoutScreenProps = {
   navigation: NativeStackNavigationProp<any>;
 };
 
+type PaymentMethod = 'card' | 'bank_transfer';
+
 export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) => {
   const { cart, clearCart } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [specialInstructions, setSpecialInstructions] = useState('');
-  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'cash'>('paystack');
+  const [notes, setNotes] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryType, setDeliveryType] = useState<'asap' | 'scheduled'>('asap');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [subscription, setSubscription] = useState<SubscriptionStatusResponse | null | undefined>(undefined);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const sub = await planSubscriptionService.getStatus();
+        setSubscription(sub);
+      } catch {
+        setSubscription(null);
+      }
+    })();
+  }, []);
 
   const handlePlaceOrder = async () => {
     if (!cart) {
@@ -32,43 +51,42 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
       return;
     }
 
-    // For demo, use a default address ID of 1
-    const addressId = selectedAddressId || 1;
+    if (!phoneNumber.trim()) {
+      Alert.alert('Required', 'Please enter your phone number');
+      return;
+    }
+
+    if (!deliveryAddress.trim()) {
+      Alert.alert('Required', 'Please enter your delivery address');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
       const result = await orderService.createOrder({
-        address_id: addressId,
+        delivery_address: deliveryAddress.trim(),
+        phone_number: phoneNumber.trim(),
         payment_method: paymentMethod,
-        special_instructions: specialInstructions || undefined,
+        notes: notes.trim() || undefined,
+        delivery_type: deliveryType,
       });
 
-      if (paymentMethod === 'paystack' && result.payment?.authorization_url) {
-        // Open Paystack payment page
-        await Linking.openURL(result.payment.authorization_url);
-        Alert.alert(
-          'Complete Payment',
-          'Please complete your payment in the browser. Your order will be confirmed once payment is successful.',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                clearCart();
-                navigation.navigate('MainTabs', { screen: 'Orders' });
-              },
-            },
-          ]
-        );
+      clearCart();
+
+      if (result.payment?.authorization_url) {
+        navigation.navigate('Payment', {
+          authorizationUrl: result.payment.authorization_url,
+          reference: result.payment.reference,
+        });
       } else {
-        // Cash on delivery
+        const orderNumber = result.orders?.[0]?.order_number;
         Alert.alert(
           'Order Placed!',
-          `Your order #${result.order.order_number} has been placed successfully.`,
+          `Your order${orderNumber ? ` #${orderNumber}` : ''} has been placed successfully.`,
           [
             {
               text: 'View Order',
               onPress: () => {
-                clearCart();
                 navigation.navigate('MainTabs', { screen: 'Orders' });
               },
             },
@@ -101,21 +119,70 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
   }
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
+        {/* Delivery Type */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Delivery Type</Text>
+          <View style={styles.deliveryTypeRow}>
+            <TouchableOpacity
+              style={[styles.deliveryTypeOption, deliveryType === 'asap' && styles.deliveryTypeSelected]}
+              onPress={() => setDeliveryType('asap')}
+            >
+              <MaterialCommunityIcons
+                name="lightning-bolt"
+                size={20}
+                color={deliveryType === 'asap' ? COLORS.primary : '#6B7280'}
+              />
+              <Text style={[styles.deliveryTypeLabel, deliveryType === 'asap' && styles.deliveryTypeLabelSelected]}>
+                ASAP
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.deliveryTypeOption, deliveryType === 'scheduled' && styles.deliveryTypeSelected]}
+              onPress={() => setDeliveryType('scheduled')}
+            >
+              <MaterialCommunityIcons
+                name="calendar-clock"
+                size={20}
+                color={deliveryType === 'scheduled' ? COLORS.primary : '#6B7280'}
+              />
+              <Text style={[styles.deliveryTypeLabel, deliveryType === 'scheduled' && styles.deliveryTypeLabelSelected]}>
+                Schedule
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Phone Number */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Phone Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. 08012345678"
+            placeholderTextColor="#9CA3AF"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
+            maxLength={20}
+          />
+        </View>
+
         {/* Delivery Address */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Delivery Address</Text>
-          <TouchableOpacity style={styles.addressCard}>
-            <View style={styles.addressIcon}>
-              <Text>📍</Text>
-            </View>
-            <View style={styles.addressDetails}>
-              <Text style={styles.addressLabel}>Home</Text>
-              <Text style={styles.addressText}>123 Main Street, Lagos, Nigeria</Text>
-            </View>
-            <Text style={styles.changeText}>Change</Text>
-          </TouchableOpacity>
+          <TextInput
+            style={[styles.input, styles.addressInput]}
+            placeholder="Enter your full delivery address"
+            placeholderTextColor="#9CA3AF"
+            value={deliveryAddress}
+            onChangeText={setDeliveryAddress}
+            multiline
+            numberOfLines={3}
+          />
         </View>
 
         {/* Payment Method */}
@@ -123,41 +190,61 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
           <Text style={styles.sectionTitle}>Payment Method</Text>
           
           <TouchableOpacity
-            style={[styles.paymentOption, paymentMethod === 'paystack' && styles.paymentOptionSelected]}
-            onPress={() => setPaymentMethod('paystack')}
+            style={[styles.paymentOption, paymentMethod === 'card' && styles.paymentOptionSelected]}
+            onPress={() => setPaymentMethod('card')}
           >
             <View style={styles.radioOuter}>
-              {paymentMethod === 'paystack' && <View style={styles.radioInner} />}
+              {paymentMethod === 'card' && <View style={styles.radioInner} />}
             </View>
             <View style={styles.paymentDetails}>
-              <Text style={styles.paymentTitle}>💳 Pay with Paystack</Text>
-              <Text style={styles.paymentSubtitle}>Card, Bank Transfer, USSD</Text>
+              <Text style={styles.paymentTitle}>💳 Pay with Card</Text>
+              <Text style={styles.paymentSubtitle}>Visa, Mastercard, Verve</Text>
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.paymentOption, paymentMethod === 'cash' && styles.paymentOptionSelected]}
-            onPress={() => setPaymentMethod('cash')}
+            style={[styles.paymentOption, paymentMethod === 'bank_transfer' && styles.paymentOptionSelected]}
+            onPress={() => setPaymentMethod('bank_transfer')}
           >
             <View style={styles.radioOuter}>
-              {paymentMethod === 'cash' && <View style={styles.radioInner} />}
+              {paymentMethod === 'bank_transfer' && <View style={styles.radioInner} />}
             </View>
             <View style={styles.paymentDetails}>
-              <Text style={styles.paymentTitle}>💵 Cash on Delivery</Text>
-              <Text style={styles.paymentSubtitle}>Pay when your order arrives</Text>
+              <Text style={styles.paymentTitle}>🏦 Bank Transfer</Text>
+              <Text style={styles.paymentSubtitle}>Pay via bank transfer</Text>
             </View>
           </TouchableOpacity>
         </View>
 
-        {/* Special Instructions */}
+        {/* Subscription Banner */}
+        {subscription === null && (
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.subscribeBanner}
+              onPress={() => navigation.navigate('SubscriptionPlans')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.subscribeIcon}>⭐</Text>
+              <View style={styles.subscribeContent}>
+                <Text style={styles.subscribeTitle}>Subscribe & Save</Text>
+                <Text style={styles.subscribeSubtitle}>
+                  Get free delivery and discounts on every order
+                </Text>
+              </View>
+              <Text style={styles.subscribeArrow}>›</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Order Notes */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Special Instructions</Text>
+          <Text style={styles.sectionTitle}>Order Notes</Text>
           <TextInput
             style={styles.instructionsInput}
             placeholder="Any special requests? (optional)"
             placeholderTextColor="#9CA3AF"
-            value={specialInstructions}
-            onChangeText={setSpecialInstructions}
+            value={notes}
+            onChangeText={setNotes}
             multiline
             numberOfLines={3}
           />
@@ -185,6 +272,11 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
                 <Text style={styles.discountValue}>-₦{cart.discount.toLocaleString()}</Text>
               </View>
             )}
+            {subscription && subscription.is_active && (
+              <View style={styles.summaryRow}>
+                <Text style={styles.subscriptionBadge}>⭐ {subscription.plan_name} Savings</Text>
+              </View>
+            )}
             <View style={styles.divider} />
             <View style={styles.summaryRow}>
               <Text style={styles.totalLabel}>Total</Text>
@@ -210,7 +302,7 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
           )}
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -370,6 +462,42 @@ const styles = StyleSheet.create({
     color: '#10B981',
     fontWeight: '500',
   },
+  subscriptionBadge: {
+    fontSize: 13,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  subscribeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary + '10',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '30',
+  },
+  subscribeIcon: {
+    fontSize: 28,
+    marginRight: 14,
+  },
+  subscribeContent: {
+    flex: 1,
+  },
+  subscribeTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  subscribeSubtitle: {
+    fontSize: 13,
+    color: COLORS.text.secondary,
+    marginTop: 2,
+  },
+  subscribeArrow: {
+    fontSize: 24,
+    color: COLORS.primary,
+    fontWeight: 'bold',
+  },
   divider: {
     height: 1,
     backgroundColor: '#E5E7EB',
@@ -404,6 +532,52 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  // Delivery Type
+  deliveryTypeRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  deliveryTypeOption: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  deliveryTypeSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryFaded,
+  },
+  deliveryTypeLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#6B7280',
+  },
+  deliveryTypeLabelSelected: {
+    color: COLORS.primary,
+  },
+  // Input fields
+  input: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: '#1F2937',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  addressInput: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  bottomPadding: {
+    height: 24,
   },
 });
 

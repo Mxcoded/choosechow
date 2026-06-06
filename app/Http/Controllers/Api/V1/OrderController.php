@@ -474,7 +474,7 @@ class OrderController extends Controller
                     'email' => $user->email,
                     'amount' => $amount * 100, // Paystack expects amount in kobo
                     'reference' => $reference,
-                    'callback_url' => config('app.url') . '/api/v1/payments/verify',
+                    'callback_url' => config('app.url') . '/api/v1/payment/verify',
                     'metadata' => [
                         'user_id' => $user->id,
                         'order_numbers' => $orderNumbers,

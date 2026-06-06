@@ -279,4 +279,14 @@ export const ENDPOINTS = {
     // Activity Log
     ACTIVITY: '/admin/activity',
   },
+
+  // Subscription Plans (Customer Tier Subscription)
+  SUBSCRIPTION_PLANS: {
+    LIST: '/subscriptions/plans',
+    STATUS: '/subscriptions/status',
+    SUBSCRIBE: '/subscriptions/subscribe',
+    UPGRADE: '/subscriptions/upgrade',
+    DOWNGRADE: '/subscriptions/downgrade',
+    CANCEL: '/subscriptions/cancel',
+  },
 };

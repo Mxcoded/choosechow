@@ -16,6 +16,7 @@ import { chefService, subscriptionService } from '../../api';
 import { Chef, MenuItem } from '../../types';
 import { useCart, useAuth } from '../../contexts';
 import { COLORS } from '../../utils/theme';
+import { CartToast } from '../../components/CartToast';
 
 type ChefDetailScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -64,8 +65,9 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
-  const { addToCart, cart } = useCart();
+  const { addToCart, clearCart, cart } = useCart();
   const { isAuthenticated } = useAuth();
+  const [toastItem, setToastItem] = useState<{ visible: boolean; name: string }>({ visible: false, name: '' });
 
   useEffect(() => {
     loadChefData();
@@ -127,7 +129,6 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
   };
 
   const handleAddToCart = async (menuItem: MenuItem) => {
-    // Check if cart has items from different chef
     if (cart && cart.chef_id && cart.chef_id !== chefId) {
       Alert.alert(
         'Different Chef',
@@ -138,9 +139,10 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
             text: 'Clear & Add',
             onPress: async () => {
               try {
+                await clearCart();
                 await addToCart(menuItem.id, 1);
-                Alert.alert('Added!', `${menuItem.name} added to cart`);
-              } catch (error) {
+                setToastItem({ visible: true, name: menuItem.name });
+              } catch {
                 Alert.alert('Error', 'Failed to add item to cart');
               }
             },
@@ -152,10 +154,15 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
 
     try {
       await addToCart(menuItem.id, 1);
-      Alert.alert('Added!', `${menuItem.name} added to cart`);
-    } catch (error) {
+      setToastItem({ visible: true, name: menuItem.name });
+    } catch {
       Alert.alert('Error', 'Failed to add item to cart');
     }
+  };
+
+  const handleViewCart = () => {
+    setToastItem({ visible: false, name: '' });
+    navigation.navigate('MainTabs', { screen: 'Cart' });
   };
 
   if (isLoading) {
@@ -175,6 +182,7 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
   }
 
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView style={styles.container}>
       {/* Header Image */}
       <View style={styles.headerImage}>
@@ -272,6 +280,13 @@ export const ChefDetailScreen: React.FC<ChefDetailScreenProps> = ({ navigation, 
 
       <View style={styles.bottomPadding} />
     </ScrollView>
+      <CartToast
+        visible={toastItem.visible}
+        itemName={toastItem.name}
+        onViewCart={handleViewCart}
+        onDismiss={() => setToastItem({ visible: false, name: '' })}
+      />
+    </View>
   );
 };
 

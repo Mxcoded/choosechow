@@ -13,23 +13,20 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart } from '../../contexts';
-import { CartItem as CartItemType } from '../../types';
 import { COLORS } from '../../utils/theme';
-import { scaleWidth, scaleHeight, screenWidth } from '../../utils/dimensions';
 
 type CartScreenProps = {
   navigation: NativeStackNavigationProp<any>;
 };
 
-// Sample cart items for demo
-const SAMPLE_CART_ITEMS = [
-  { id: 1, name: 'Prime Pancake with egg yoke sauce', price: 2500, quantity: 2, image: null },
-  { id: 2, name: 'Grilled Chicken Salad', price: 3500, quantity: 1, image: null },
-  { id: 3, name: 'Fresh Orange Juice', price: 1200, quantity: 2, image: null },
-];
-
 const CartItemRow: React.FC<{
-  item: typeof SAMPLE_CART_ITEMS[0];
+  item: {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+    image_url?: string | null;
+  };
   onUpdateQuantity: (quantity: number) => void;
   onRemove: () => void;
 }> = ({ item, onUpdateQuantity, onRemove }) => {
@@ -37,9 +34,13 @@ const CartItemRow: React.FC<{
     <View style={styles.cartItem}>
       {/* Item Image */}
       <View style={styles.itemImageContainer}>
-        <View style={styles.itemImagePlaceholder}>
-          <Text style={styles.itemImageEmoji}>🍽️</Text>
-        </View>
+        {item.image_url ? (
+          <Image source={{ uri: item.image_url }} style={styles.itemImage} />
+        ) : (
+          <View style={styles.itemImagePlaceholder}>
+            <Text style={styles.itemImageText}>{item.name.charAt(0)}</Text>
+          </View>
+        )}
       </View>
       
       {/* Item Details */}
@@ -70,33 +71,29 @@ const CartItemRow: React.FC<{
 
 export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { cart, isLoading, updateCartItem, removeFromCart, clearCart } = useCart();
+  const { cart, isLoading, updateCartItem, removeFromCart, clearCart, refreshCart } = useCart();
   const [promoCode, setPromoCode] = useState('');
-  const [localItems, setLocalItems] = useState(SAMPLE_CART_ITEMS);
 
-  // Use local items for demo, or cart items if available
-  const items = cart?.items?.length ? cart.items : null;
-  const hasItems = items ? items.length > 0 : localItems.length > 0;
+  const items = cart?.items || [];
+  const hasItems = items.length > 0;
 
-  const handleUpdateQuantity = (itemId: number, quantity: number) => {
-    if (items) {
-      updateCartItem(itemId, quantity).catch(() => {
-        Alert.alert('Error', 'Failed to update item quantity');
-      });
-    } else {
-      setLocalItems(localItems.map(item => 
-        item.id === itemId ? { ...item, quantity } : item
-      ));
+  const handleUpdateQuantity = async (itemId: number, quantity: number) => {
+    if (quantity < 1) {
+      await handleRemoveItem(itemId);
+      return;
+    }
+    try {
+      await updateCartItem(itemId, quantity);
+    } catch {
+      Alert.alert('Error', 'Failed to update item quantity');
     }
   };
 
-  const handleRemoveItem = (itemId: number) => {
-    if (items) {
-      removeFromCart(itemId).catch(() => {
-        Alert.alert('Error', 'Failed to remove item');
-      });
-    } else {
-      setLocalItems(localItems.filter(item => item.id !== itemId));
+  const handleRemoveItem = async (itemId: number) => {
+    try {
+      await removeFromCart(itemId);
+    } catch {
+      Alert.alert('Error', 'Failed to remove item');
     }
   };
 
@@ -109,13 +106,7 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
         { 
           text: 'Clear', 
           style: 'destructive', 
-          onPress: () => {
-            if (items) {
-              clearCart();
-            } else {
-              setLocalItems([]);
-            }
-          }
+          onPress: () => clearCart(),
         },
       ]
     );
@@ -131,14 +122,11 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
     }
   };
 
-  // Calculate totals
-  const subtotal = items 
-    ? cart?.subtotal || 0 
-    : localItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const deliveryFee = items ? cart?.delivery_fee || 500 : 500;
-  const serviceFee = items ? cart?.service_fee || 100 : 100;
-  const discount = items ? cart?.discount || 0 : 0;
-  const total = subtotal + deliveryFee + serviceFee - discount;
+  const subtotal = cart?.subtotal ?? items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+  const deliveryFee = cart?.delivery_fee ?? 0;
+  const serviceFee = cart?.service_fee ?? 0;
+  const discount = cart?.discount ?? 0;
+  const total = cart?.total ?? (subtotal + deliveryFee + serviceFee - discount);
 
   if (isLoading) {
     return (
@@ -168,8 +156,6 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
     );
   }
 
-  const displayItems = items || localItems;
-
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -187,15 +173,15 @@ export const CartScreen: React.FC<CartScreenProps> = ({ navigation }) => {
 
         {/* Cart Items */}
         <View style={styles.itemsContainer}>
-          {displayItems.map((item: any) => (
+          {items.map((item) => (
             <CartItemRow
               key={item.id}
               item={{
                 id: item.id,
-                name: item.menu?.name || item.name,
-                price: item.unit_price || item.price,
+                name: item.menu?.name || 'Item',
+                price: item.unit_price || (item.menu?.price ?? 0),
                 quantity: item.quantity,
-                image: item.menu?.image_url || item.image,
+                image_url: item.menu?.image_url,
               }}
               onUpdateQuantity={(qty) => handleUpdateQuantity(item.id, qty)}
               onRemove={() => handleRemoveItem(item.id)}
@@ -377,8 +363,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  itemImageEmoji: {
-    fontSize: 32,
+  itemImage: {
+    width: '100%',
+    height: '100%',
+  },
+  itemImageText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#9CA3AF',
   },
   itemDetails: {
     flex: 1,

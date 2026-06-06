@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { cartService } from '../api';
 import { Cart, SelectedCustomization } from '../types';
 import { useAuth } from './AuthContext';
@@ -22,23 +22,20 @@ interface CartProviderProps {
   children: ReactNode;
 }
 
+function recalcTotals(cart: Cart): Cart {
+  const subtotal = cart.items.reduce((s, i) => s + i.total_price, 0);
+  return { ...cart, subtotal, total: subtotal + cart.delivery_fee + cart.service_fee - cart.discount };
+}
+
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cart, setCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { isAuthenticated } = useAuth();
+  const cartSnapshot = useRef<Cart | null>(null);
 
-  // Load cart when user is authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      refreshCart();
-    } else {
-      setCart(null);
-    }
-  }, [isAuthenticated]);
-
-  const refreshCart = async () => {
+  const refreshCart = useCallback(async () => {
     if (!isAuthenticated) return;
-    
+
     setIsLoading(true);
     try {
       const cartData = await cartService.getCart();
@@ -48,7 +45,25 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isAuthenticated]);
+
+  const silentRefresh = useCallback(async () => {
+    if (!isAuthenticated) return;
+    try {
+      const cartData = await cartService.getCart();
+      setCart(cartData);
+    } catch {
+      // silent fail — optimistic state remains
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshCart();
+    } else {
+      setCart(null);
+    }
+  }, [isAuthenticated, refreshCart]);
 
   const addToCart = async (
     menuId: number,
@@ -56,71 +71,90 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     instructions?: string,
     customizations?: SelectedCustomization[]
   ) => {
-    setIsLoading(true);
     try {
-      const updatedCart = await cartService.addItem({
-        menu_id: menuId,
-        quantity,
-        special_instructions: instructions,
-        customizations,
-      });
-      setCart(updatedCart);
-    } finally {
-      setIsLoading(false);
+      await cartService.addItem({ menu_id: menuId, quantity, special_instructions: instructions, customizations });
+      await silentRefresh();
+    } catch (error) {
+      console.error('Failed to add item to cart:', error);
+      throw error;
     }
   };
 
   const updateCartItem = async (itemId: number, quantity: number) => {
-    setIsLoading(true);
+    cartSnapshot.current = cart ? { ...cart, items: [...cart.items] } : null;
+
+    setCart((prev) => {
+      if (!prev) return prev;
+      const items = prev.items.map((item) => {
+        if (item.id !== itemId) return item;
+        const unitPrice = item.unit_price;
+        return { ...item, quantity, total_price: unitPrice * quantity };
+      });
+      return recalcTotals({ ...prev, items });
+    });
+
     try {
-      const updatedCart = await cartService.updateItem(itemId, { quantity });
-      setCart(updatedCart);
-    } finally {
-      setIsLoading(false);
+      await cartService.updateItem(itemId, { quantity });
+      silentRefresh();
+    } catch (error) {
+      setCart(cartSnapshot.current);
+      console.error('Failed to update cart item:', error);
     }
   };
 
   const removeFromCart = async (itemId: number) => {
-    setIsLoading(true);
+    cartSnapshot.current = cart ? { ...cart, items: [...cart.items] } : null;
+
+    setCart((prev) => {
+      if (!prev) return prev;
+      const items = prev.items.filter((item) => item.id !== itemId);
+      const updated = recalcTotals({ ...prev, items });
+      return updated.items.length === 0 ? null : updated;
+    });
+
     try {
-      const updatedCart = await cartService.removeItem(itemId);
-      setCart(updatedCart);
-    } finally {
-      setIsLoading(false);
+      await cartService.removeItem(itemId);
+      silentRefresh();
+    } catch (error) {
+      setCart(cartSnapshot.current);
+      console.error('Failed to remove cart item:', error);
     }
   };
 
   const clearCart = async () => {
-    setIsLoading(true);
+    cartSnapshot.current = cart ? { ...cart, items: [...cart.items] } : null;
+    setCart(null);
+
     try {
       await cartService.clearCart();
-      setCart(null);
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      setCart(cartSnapshot.current);
+      console.error('Failed to clear cart:', error);
+      throw error;
     }
   };
 
   const applyCoupon = async (code: string) => {
-    setIsLoading(true);
     try {
-      const updatedCart = await cartService.applyCoupon(code);
-      setCart(updatedCart);
-    } finally {
-      setIsLoading(false);
+      await cartService.applyCoupon(code);
+      await silentRefresh();
+    } catch (error) {
+      console.error('Failed to apply coupon:', error);
+      throw error;
     }
   };
 
   const removeCoupon = async () => {
-    setIsLoading(true);
     try {
-      const updatedCart = await cartService.removeCoupon();
-      setCart(updatedCart);
-    } finally {
-      setIsLoading(false);
+      await cartService.removeCoupon();
+      await silentRefresh();
+    } catch (error) {
+      console.error('Failed to remove coupon:', error);
+      throw error;
     }
   };
 
-  const itemCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const itemCount = cart?.items?.reduce((sum, item) => sum + Number(item.quantity), 0) || 0;
 
   const value: CartContextType = {
     cart,

@@ -4,12 +4,10 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { COLORS } from '../../utils/theme';
-
-const { width } = Dimensions.get('window');
 
 type WelcomeScreenProps = {
   navigation: NativeStackNavigationProp<any>;
@@ -46,10 +44,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
           activeOpacity={0.8}
         >
           <View style={styles.roleIconContainer}>
-            <Text style={styles.roleIcon}>🏪</Text>
-            <View style={styles.iconDecoration}>
-              <Text style={styles.smallIcon}>🍽️</Text>
-            </View>
+            <MaterialCommunityIcons name="food-fork-drink" size={72} color={COLORS.primary} />
           </View>
           <View style={styles.roleTextContainer}>
             <Text style={styles.roleLabel}>I am a FOODIE</Text>
@@ -69,10 +64,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
           activeOpacity={0.8}
         >
           <View style={styles.roleIconContainer}>
-            <Text style={styles.roleIcon}>🍝</Text>
-            <View style={styles.iconDecoration}>
-              <Text style={styles.smallIcon}>🍒</Text>
-            </View>
+            <MaterialCommunityIcons name="chef-hat" size={72} color={COLORS.primary} />
           </View>
           <View style={styles.roleTextContainer}>
             <Text style={styles.roleLabel}>I am a VENDOR</Text>
@@ -139,22 +131,10 @@ const styles = StyleSheet.create({
   },
   roleIconContainer: {
     width: 120,
-    height: 100,
+    height: 110,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
-    position: 'relative',
-  },
-  roleIcon: {
-    fontSize: 64,
-  },
-  iconDecoration: {
-    position: 'absolute',
-    top: 0,
-    right: 10,
-  },
-  smallIcon: {
-    fontSize: 24,
   },
   roleTextContainer: {
     paddingVertical: 12,

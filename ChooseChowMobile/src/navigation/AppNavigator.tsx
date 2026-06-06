@@ -26,6 +26,10 @@ import CartScreen from '../screens/main/CartScreen';
 import ChefListScreen from '../screens/main/ChefListScreen';
 import ChefDetailScreen from '../screens/main/ChefDetailScreen';
 import CheckoutScreen from '../screens/main/CheckoutScreen';
+import PaymentScreen from '../screens/main/PaymentScreen';
+import OrdersScreen from '../screens/main/OrdersScreen';
+import SubscriptionPlansScreen from '../screens/main/SubscriptionPlansScreen';
+import MySubscriptionScreen from '../screens/main/MySubscriptionScreen';
 
 // Vendor Screens
 import { 
@@ -84,20 +88,7 @@ const SearchScreen = ({ navigation }: any) => (
   </View>
 );
 
-// Orders Screen
-const OrdersScreen = ({ navigation }: any) => (
-  <View style={styles.placeholder}>
-    <Text style={styles.placeholderText}>📋</Text>
-    <Text style={styles.placeholderTitle}>My Orders</Text>
-    <Text style={styles.placeholderSubtitle}>Your order history will appear here</Text>
-    <TouchableOpacity 
-      style={styles.actionButton}
-      onPress={() => navigation.navigate('Home')}
-    >
-      <Text style={styles.actionButtonText}>Start Ordering</Text>
-    </TouchableOpacity>
-  </View>
-);
+// Orders Screen (imported from screens/main/OrdersScreen)
 
 // Profile Screen
 const ProfileScreen = ({ navigation }: any) => {
@@ -129,6 +120,7 @@ const ProfileScreen = ({ navigation }: any) => {
     { title: 'Edit Profile', icon: '👤', onPress: () => {} },
     { title: 'My Addresses', icon: '📍', onPress: () => {} },
     { title: 'Payment Methods', icon: '💳', onPress: () => {} },
+    { title: 'Subscription', icon: '⭐', onPress: () => navigation.navigate('MySubscription') },
     { title: 'Notifications', icon: '🔔', onPress: () => {} },
     { title: 'Help & Support', icon: '❓', onPress: () => {} },
     { title: 'About ChooseChow', icon: 'ℹ️', onPress: () => {} },
@@ -379,6 +371,21 @@ const MainNavigator = () => (
       name="Checkout"
       component={CheckoutScreen}
       options={{ headerTitle: 'Checkout' }}
+    />
+    <MainStack.Screen
+      name="Payment"
+      component={PaymentScreen}
+      options={{ headerTitle: 'Complete Payment', headerBackVisible: false }}
+    />
+    <MainStack.Screen
+      name="SubscriptionPlans"
+      component={SubscriptionPlansScreen}
+      options={{ headerTitle: 'Subscription Plans' }}
+    />
+    <MainStack.Screen
+      name="MySubscription"
+      component={MySubscriptionScreen}
+      options={{ headerTitle: 'My Subscription' }}
     />
   </MainStack.Navigator>
 );

@@ -265,6 +265,7 @@ export interface Order {
 }
 
 export type OrderStatus = 
+  | 'pending_payment'
   | 'pending'
   | 'confirmed'
   | 'preparing'
@@ -378,6 +379,38 @@ export interface AuthResponse {
   token: string;
   token_type: string;
 }
+
+// Subscription Plan Types
+export type SubscriptionTier = 'none' | 'basic' | 'plus' | 'premium';
+export type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'past_due' | 'trialing' | 'none';
+
+export interface SubscriptionPlan {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  monthly_price: number;
+  features: string[];
+  is_popular?: boolean;
+}
+
+export interface SubscriptionStatusResponse {
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  is_active: boolean;
+  plan_name: string | null;
+  plan_price: number;
+  started_at: string | null;
+  renews_at: string | null;
+  cancelled_at: string | null;
+  ends_at: string | null;
+  free_delivery_used: number;
+  free_delivery_limit: number;
+  has_dedicated_rider: boolean;
+  benefits: string[];
+}
+
+export type Period = 'monthly' | 'yearly';
 
 // Search/Filter Types
 export interface ChefFilters {

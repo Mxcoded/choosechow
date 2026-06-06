@@ -13,8 +13,9 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth, useCart } from '../../contexts';
 import { COLORS } from '../../utils/theme';
-import { scaleWidth, scaleFont, screenWidth } from '../../utils/dimensions';
+import { scaleWidth, screenWidth } from '../../utils/dimensions';
 import { ChooseChowLogo } from '../../assets';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Card dimensions based on design (375px width, 2 columns with 16px padding each side and 12px gap)
 const CARD_WIDTH = (screenWidth - scaleWidth(40)) / 2;
@@ -45,7 +46,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { user } = useAuth();
   const { itemCount } = useCart();
   const insets = useSafeAreaInsets();
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('popular');
   const [foods, setFoods] = useState(SAMPLE_FOODS);
   const [isLoading, setIsLoading] = useState(false);
@@ -72,9 +72,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     ));
   };
 
-  const toggleBookmark = (id: number) => {
-    // TODO: Implement bookmark functionality
-  };
+  const firstName = user?.name?.split(' ')[0] || 'Foodie';
 
   if (isLoading) {
     return (
@@ -98,14 +96,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.headerIconButton}>
-            <Text style={styles.headerIcon}>🔔</Text>
+            <MaterialCommunityIcons name="bell-outline" size={24} color="#4B5563" />
             <View style={styles.notificationBadge} />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.headerIconButton}
             onPress={() => navigation.navigate('Cart')}
           >
-            <Text style={styles.headerIcon}>🛒</Text>
+            <MaterialCommunityIcons name="cart-outline" size={24} color="#4B5563" />
             {itemCount > 0 && (
               <View style={styles.cartBadge}>
                 <Text style={styles.cartBadgeText}>{itemCount}</Text>
@@ -122,23 +120,34 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.primary]} />
         }
       >
+        {/* Greeting */}
+        <View style={styles.greetingContainer}>
+          <Text style={styles.greeting}>Hey {firstName} 👋</Text>
+        </View>
+
         {/* Headline */}
         <View style={styles.headlineContainer}>
           <Text style={styles.headline}>
-            Find what your{"\n"}cooking, <Text style={styles.headlineAccent}>today</Text>
+            Find Your <Text style={styles.headlineAccent}>Chow...</Text>
           </Text>
         </View>
 
         {/* Search Bar */}
         <TouchableOpacity style={styles.searchContainer} onPress={handleSearch} activeOpacity={0.8}>
-          <Text style={styles.searchIcon}>🔍</Text>
-          <Text style={styles.searchPlaceholder}>Find Chow...</Text>
-          <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterIcon}>⚙️</Text>
-          </TouchableOpacity>
+          <MaterialCommunityIcons name="magnify" size={20} color="#9CA3AF" />
+          <Text style={styles.searchPlaceholder}>Search menus, chefs...</Text>
+          <View style={styles.filterButton}>
+            <MaterialCommunityIcons name="tune-vertical" size={20} color="#6B7280" />
+          </View>
         </TouchableOpacity>
 
         {/* Categories */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Categories</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('ChefList')}>
+            <Text style={styles.seeAll}>See All</Text>
+          </TouchableOpacity>
+        </View>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false} 
@@ -170,6 +179,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           ))}
         </ScrollView>
 
+        {/* Recommended Section */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recommended</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('ChefList')}>
+            <Text style={styles.seeAll}>See All</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Food Grid */}
         <View style={styles.foodGrid}>
           {foods.map((food) => (
@@ -182,19 +199,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               {/* Food Image */}
               <View style={styles.foodImageContainer}>
                 <View style={styles.foodImagePlaceholder}>
-                  <Text style={styles.foodImageEmoji}>🍽️</Text>
+                  <MaterialCommunityIcons name="food" size={40} color="#D1D5DB" />
                 </View>
                 {/* Rating Badge */}
                 <View style={styles.ratingBadge}>
                   <Text style={styles.ratingIcon}>⭐</Text>
                   <Text style={styles.ratingText}>{food.rating}</Text>
                 </View>
-                {/* Bookmark Button */}
+                {/* Favorite Button */}
                 <TouchableOpacity 
-                  style={styles.bookmarkButton}
-                  onPress={() => toggleBookmark(food.id)}
+                  style={styles.favoriteButton}
+                  onPress={() => toggleFavorite(food.id)}
                 >
-                  <Text style={styles.bookmarkIcon}>🔖</Text>
+                  <MaterialCommunityIcons
+                    name={food.isFavorite ? 'heart' : 'heart-outline'}
+                    size={18}
+                    color={food.isFavorite ? '#EF4444' : '#6B7280'}
+                  />
                 </TouchableOpacity>
               </View>
               {/* Food Info */}
@@ -202,11 +223,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <Text style={styles.foodName} numberOfLines={2}>{food.name}</Text>
                 <View style={styles.foodFooter}>
                   <Text style={styles.foodCategory}>{food.category}</Text>
-                  <TouchableOpacity onPress={() => toggleFavorite(food.id)}>
-                    <Text style={styles.favoriteIcon}>
-                      {food.isFavorite ? '❤️' : '🤍'}
-                    </Text>
-                  </TouchableOpacity>
                 </View>
               </View>
             </TouchableOpacity>
@@ -264,9 +280,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     padding: 4,
   },
-  headerIcon: {
-    fontSize: 22,
-  },
   notificationBadge: {
     position: 'absolute',
     top: 2,
@@ -278,11 +291,11 @@ const styles = StyleSheet.create({
   },
   cartBadge: {
     position: 'absolute',
-    top: -2,
-    right: -2,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
@@ -293,20 +306,31 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
+  // Greeting
+  greetingContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 4,
+  },
+  greeting: {
+    fontSize: 15,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
   // Headline
   headlineContainer: {
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 16,
+    paddingTop: 4,
+    paddingBottom: 20,
   },
   headline: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#1F2937',
-    lineHeight: 36,
+    lineHeight: 38,
   },
   headlineAccent: {
     color: COLORS.primary,
+    fontSize: 34,
   },
   // Search
   searchContainer: {
@@ -314,29 +338,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 12,
     backgroundColor: '#F3F4F6',
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-  searchIcon: {
-    fontSize: 18,
-    marginRight: 12,
+    borderRadius: 14,
+    marginBottom: 24,
+    gap: 10,
   },
   searchPlaceholder: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: '#9CA3AF',
   },
   filterButton: {
-    padding: 4,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  filterIcon: {
+  // Section Headers
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 14,
+  },
+  sectionTitle: {
     fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  seeAll: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '600',
   },
   // Categories
   categoriesContainer: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   categoriesContent: {
     paddingHorizontal: 16,
@@ -344,7 +385,7 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     alignItems: 'center',
-    marginRight: 20,
+    marginRight: 16,
   },
   categoryItemSelected: {},
   categoryIconContainer: {
@@ -404,9 +445,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  foodImageEmoji: {
-    fontSize: 48,
-  },
   ratingBadge: {
     position: 'absolute',
     top: 10,
@@ -427,19 +465,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
-  bookmarkButton: {
+  favoriteButton: {
     position: 'absolute',
-    bottom: 10,
+    top: 10,
     right: 10,
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  bookmarkIcon: {
-    fontSize: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   foodInfo: {
     padding: 12,
@@ -448,20 +488,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#1F2937',
-    marginBottom: 8,
+    marginBottom: 6,
     lineHeight: 20,
   },
   foodFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
   foodCategory: {
     fontSize: 12,
     color: '#9CA3AF',
-  },
-  favoriteIcon: {
-    fontSize: 18,
   },
   bottomPadding: {
     height: 100,
