@@ -54,7 +54,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
         const data = await orderService.getActiveOrders();
         setOrders(data);
       } else {
-        const data = await orderService.getOrders({ per_page: 50 });
+        const data = await orderService.getOrders({});
         setOrders((data as any).data || []);
       }
     } catch {
@@ -82,14 +82,9 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
     : orders.filter(o => ['delivered', 'completed', 'cancelled'].includes(o.status));
 
   const renderOrderCard = (order: Order) => (
-    <TouchableOpacity
+    <View
       key={order.id}
       style={styles.orderCard}
-      onPress={() => {
-        if (order.status === 'pending_payment') return;
-        navigation.navigate('OrderTracking', { orderId: order.id });
-      }}
-      activeOpacity={order.status === 'pending_payment' ? 1 : 0.7}
     >
       <View style={styles.orderHeader}>
         <Text style={styles.orderNumber}>#{order.order_number}</Text>
@@ -104,7 +99,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
       <View style={styles.orderItems}>
         {order.items?.slice(0, 3).map((item, idx) => (
           <Text key={idx} style={styles.itemText} numberOfLines={1}>
-            {item.quantity}x {item.menu_name}
+            {item.quantity}x {item.name}
           </Text>
         ))}
         {order.items && order.items.length > 3 && (
@@ -113,7 +108,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
       </View>
 
       <View style={styles.orderFooter}>
-        <Text style={styles.orderTotal}>₦{(order.total || order.total_amount || 0).toLocaleString()}</Text>
+        <Text style={styles.orderTotal}>₦{(order.total_amount || 0).toLocaleString()}</Text>
         <Text style={styles.orderDate}>
           {new Date(order.created_at).toLocaleDateString('en-NG', {
             day: 'numeric',
@@ -122,7 +117,7 @@ export const OrdersScreen: React.FC<Props> = ({ navigation }) => {
           })}
         </Text>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   return (

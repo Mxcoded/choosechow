@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,52 +7,47 @@ import {
   ActivityIndicator,
   BackHandler,
 } from 'react-native';
-import { WebView, WebViewNavigation } from 'react-native-webview';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { orderService } from '../../api';
 import { COLORS } from '../../utils/theme';
-import type { MainStackParamList } from '../../navigation/types';
 
-type PaymentScreenProps = {
-  navigation: NativeStackNavigationProp<MainStackParamList, 'Payment'>;
-  route: RouteProp<MainStackParamList, 'Payment'>;
-};
-
-export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route }) => {
-  const { authorizationUrl, reference } = route.params;
-  const webViewRef = useRef<WebView>(null);
+export const PaymentScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const { authorizationUrl, reference } = route.params || {};
+  const webViewRef = useRef<any>(null);
+  const verifyingRef = useRef(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const onBackPress = () => {
-        if (!verified && !isVerifying) {
-          Alert.alert(
-            'Cancel Payment?',
-            'Are you sure you want to cancel this payment? Your order will not be processed.',
-            [
-              { text: 'Continue Payment', style: 'cancel' },
-              {
-                text: 'Cancel',
-                style: 'destructive',
-                onPress: () => navigation.goBack(),
-              },
-            ]
-          );
-          return true;
-        }
-        return false;
-      };
+  useEffect(() => {
+    const onBackPress = () => {
+      if (!verified && !isVerifying) {
+        Alert.alert(
+          'Cancel Payment?',
+          'Are you sure you want to cancel this payment? Your order will not be processed.',
+          [
+            { text: 'Continue Payment', style: 'cancel' },
+            {
+              text: 'Cancel',
+              style: 'destructive',
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+        return true;
+      }
+      return false;
+    };
 
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-    }, [verified, isVerifying, navigation])
-  );
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => subscription.remove();
+  }, [verified, isVerifying, navigation]);
 
-  const handleVerifyPayment = async (ref: string) => {
-    if (isVerifying || verified) return;
+  const handleVerifyPayment = useCallback(async (ref: string) => {
+    if (verifyingRef.current || verified) return;
+    verifyingRef.current = true;
     setIsVerifying(true);
     try {
       await orderService.verifyPayment(ref);
@@ -76,21 +71,37 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route 
       );
     } finally {
       setIsVerifying(false);
+      verifyingRef.current = false;
     }
-  };
+  }, [verified, navigation]);
 
-  const handleNavigationStateChange = (navState: WebViewNavigation) => {
-    const { url } = navState;
+  const handleShouldStartLoad = useCallback((request: { url: string; navigationType: string }) => {
+    const { url } = request;
 
-    if (url.includes('reference=') || url.includes('trxref=')) {
+    if (!url.includes('paystack.com') && (url.includes('reference=') || url.includes('trxref='))) {
       const match = url.match(/reference=([^&]+)/);
       const ref = match?.[1] || reference;
-      if (ref && webViewRef.current) {
-        webViewRef.current.stopLoading();
+      if (ref && !verifyingRef.current && !verified) {
+        handleVerifyPayment(ref);
+      }
+      return false;
+    }
+
+    return true;
+  }, [reference, handleVerifyPayment, verified]);
+
+  const handleNavigationStateChange = useCallback((navState: { url: string }) => {
+    const { url } = navState;
+
+    if (!url.includes('paystack.com') && (url.includes('reference=') || url.includes('trxref='))) {
+      const match = url.match(/reference=([^&]+)/);
+      const ref = match?.[1] || reference;
+      if (ref && !verifyingRef.current && !verified) {
+        webViewRef.current?.stopLoading();
         handleVerifyPayment(ref);
       }
     }
-  };
+  }, [reference, handleVerifyPayment, verified]);
 
   if (isVerifying) {
     return (
@@ -116,6 +127,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route 
       <WebView
         ref={webViewRef}
         source={{ uri: authorizationUrl }}
+        onShouldStartLoadWithRequest={handleShouldStartLoad}
         onNavigationStateChange={handleNavigationStateChange}
         startInLoadingState
         renderLoading={() => (
@@ -126,7 +138,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({ navigation, route 
         )}
         javaScriptEnabled
         domStorageEnabled
-        sharedCookiesEnabled
+        originWhitelist={['*']}
         style={styles.webview}
       />
     </View>

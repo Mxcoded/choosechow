@@ -255,7 +255,8 @@ export interface Order {
   delivery_fee: number;
   service_fee: number;
   discount: number;
-  total: number;
+  total_amount: number;
+  formatted_total?: string;
   special_instructions?: string;
   scheduled_for?: string;
   estimated_delivery?: string;
@@ -265,7 +266,6 @@ export interface Order {
 }
 
 export type OrderStatus = 
-  | 'pending_payment'
   | 'pending'
   | 'confirmed'
   | 'preparing'
@@ -282,13 +282,20 @@ export type PaymentStatus =
 
 export interface OrderItem {
   id: number;
-  order_id: number;
   menu_id: number;
-  menu_name: string;
+  name: string;
   quantity: number;
-  unit_price: number;
-  total_price: number;
+  price: number;
+  total: number;
+  formatted_price?: string;
+  formatted_total?: string;
   special_instructions?: string;
+  menu?: {
+    id: number;
+    name: string;
+    image: string | null;
+    is_available: boolean;
+  };
 }
 
 export interface OrderTracking {

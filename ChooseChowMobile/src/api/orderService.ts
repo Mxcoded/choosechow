@@ -124,8 +124,18 @@ export const orderService = {
   },
 
   // Verify Paystack payment
-  verifyPayment: async (reference: string): Promise<{ status: string; order: Order }> => {
-    const response = await api.post<{ status: string; order: Order }>(ENDPOINTS.PAYMENT.VERIFY, {
+  verifyPayment: async (reference: string): Promise<{
+    status: string;
+    message: string;
+    payment: Record<string, unknown>;
+    orders: Array<{ id: number; order_number: string; status: string; payment_status: string }>;
+  }> => {
+    const response = await api.post<{
+      status: string;
+      message: string;
+      payment: Record<string, unknown>;
+      orders: Array<{ id: number; order_number: string; status: string; payment_status: string }>;
+    }>(ENDPOINTS.PAYMENT.VERIFY, {
       reference,
     });
     return response.data.data;
