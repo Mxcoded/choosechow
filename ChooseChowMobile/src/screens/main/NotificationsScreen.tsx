@@ -10,6 +10,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp, useFocusEffect } from '@react-navigation/native';
 import { customerService } from '../../api';
 import type { Notification } from '../../api/customerService';
 import { COLORS } from '../../utils/theme';
@@ -50,7 +51,10 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
     }
   }, []);
 
-  useEffect(() => { loadNotifications(); }, [loadNotifications]);
+  useFocusEffect(useCallback(() => {
+    setLoading(true);
+    loadNotifications();
+  }, [loadNotifications]));
 
   const handleMarkRead = async (id: number) => {
     try {

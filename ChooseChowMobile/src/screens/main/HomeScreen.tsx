@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth, useCart } from '../../contexts';
 import { COLORS } from '../../utils/theme';
@@ -91,6 +92,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Refresh unread badge every time screen comes into focus
+  useFocusEffect(useCallback(() => {
+    customerService.getUnreadCount().then(res => {
+      setUnreadCount(res.count ?? 0);
+    }).catch(() => {});
+  }, []));
 
   const onRefresh = async () => {
     setRefreshing(true);

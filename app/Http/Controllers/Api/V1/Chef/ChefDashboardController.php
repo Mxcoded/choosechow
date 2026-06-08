@@ -220,7 +220,7 @@ class ChefDashboardController extends Controller
             'user_id' => $order->user_id,
             'notifiable_type' => User::class,
             'notifiable_id' => $order->user_id,
-            'type' => 'order_status',
+            'type' => 'order',
             'title' => $statusLabel,
             'message' => "Order #{$order->order_number}: {$statusLabel}",
             'data' => [
