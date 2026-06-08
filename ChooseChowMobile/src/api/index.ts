@@ -15,6 +15,7 @@ export { vendorService } from './vendorService';
 export { customerService } from './customerService';
 export { subscriptionService } from './subscriptionService';
 export { planSubscriptionService } from './planSubscriptionService';
+export { walletService } from './walletService';
 export { deliveryService } from './deliveryService';
 
 // Admin Types

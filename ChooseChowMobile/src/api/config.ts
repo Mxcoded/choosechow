@@ -280,6 +280,14 @@ export const ENDPOINTS = {
     ACTIVITY: '/admin/activity',
   },
 
+  // Wallet
+  WALLET: {
+    BALANCE: '/wallet/balance',
+    TRANSACTIONS: '/wallet/transactions',
+    FUND: '/wallet/fund',
+    VERIFY_FUNDING: '/wallet/verify-funding',
+  },
+
   // Subscription Plans (Customer Tier Subscription)
   SUBSCRIPTION_PLANS: {
     LIST: '/subscriptions/plans',

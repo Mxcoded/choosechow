@@ -30,6 +30,7 @@ import PaymentScreen from '../screens/main/PaymentScreen';
 import OrdersScreen from '../screens/main/OrdersScreen';
 import SubscriptionPlansScreen from '../screens/main/SubscriptionPlansScreen';
 import MySubscriptionScreen from '../screens/main/MySubscriptionScreen';
+import WalletScreen from '../screens/main/WalletScreen';
 
 // Vendor Screens
 import { 
@@ -119,7 +120,7 @@ const ProfileScreen = ({ navigation }: any) => {
   const menuItems = [
     { title: 'Edit Profile', icon: '👤', onPress: () => {} },
     { title: 'My Addresses', icon: '📍', onPress: () => {} },
-    { title: 'Payment Methods', icon: '💳', onPress: () => {} },
+    { title: 'Wallet', icon: '💳', onPress: () => navigation.navigate('Wallet') },
     { title: 'Subscription', icon: '⭐', onPress: () => navigation.navigate('MySubscription') },
     { title: 'Notifications', icon: '🔔', onPress: () => {} },
     { title: 'Help & Support', icon: '❓', onPress: () => {} },
@@ -386,6 +387,11 @@ const MainNavigator = () => (
       name="MySubscription"
       component={MySubscriptionScreen}
       options={{ headerTitle: 'My Subscription' }}
+    />
+    <MainStack.Screen
+      name="Wallet"
+      component={WalletScreen}
+      options={{ headerTitle: 'My Wallet' }}
     />
   </MainStack.Navigator>
 );

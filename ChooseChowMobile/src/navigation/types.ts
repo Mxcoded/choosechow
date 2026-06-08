@@ -16,11 +16,12 @@ export type MainStackParamList = {
   ChefList: { search?: string; cuisine?: string; sortBy?: string };
   MenuDetail: { menuId: number };
   Checkout: undefined;
-  Payment: { authorizationUrl: string; reference: string };
+  Payment: { authorizationUrl: string; reference: string; verificationType?: 'order' | 'subscription' | 'upgrade' | 'wallet_funding' };
   OrderDetail: { orderId: number };
   OrderTracking: { orderId: number };
   SubscriptionPlans: undefined;
   MySubscription: undefined;
+  Wallet: undefined;
 };
 
 export type MainTabParamList = {

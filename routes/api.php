@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Chef\ChefDashboardController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
+use App\Http\Controllers\Api\V1\WalletController;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +132,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/favorites/{chefId}', [FavoriteController::class, 'store']);
         Route::delete('/favorites/{chefId}', [FavoriteController::class, 'destroy']);
         Route::get('/favorites/check/{chefId}', [FavoriteController::class, 'check']);
+
+        // --- Wallet ---
+        Route::prefix('wallet')->group(function () {
+            Route::get('/balance', [WalletController::class, 'balance']);
+            Route::get('/transactions', [WalletController::class, 'transactions']);
+            Route::post('/fund', [WalletController::class, 'fund']);
+            Route::post('/verify-funding', [WalletController::class, 'verifyFunding']);
+        });
 
         // --- Subscriptions ---
         Route::prefix('subscriptions')->group(function () {

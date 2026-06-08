@@ -9,22 +9,23 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { orderService, planSubscriptionService } from '../../api';
+import { orderService, planSubscriptionService, walletService } from '../../api';
 import { COLORS } from '../../utils/theme';
 
-type VerificationType = 'order' | 'subscription' | 'upgrade';
+type VerificationType = 'order' | 'subscription' | 'upgrade' | 'wallet_funding';
 
 const VERIFICATION_LABELS: Record<VerificationType, { successMsg: string; navScreen: string }> = {
   order: { successMsg: 'Your order has been confirmed.', navScreen: 'Orders' },
   subscription: { successMsg: 'Your subscription has been activated.', navScreen: 'MySubscription' },
   upgrade: { successMsg: 'Your plan has been upgraded.', navScreen: 'MySubscription' },
+  wallet_funding: { successMsg: 'Your wallet has been funded.', navScreen: 'Wallet' },
 };
 
 export const PaymentScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { authorizationUrl, reference, verificationType: rawType } = route.params || {};
-  const verificationType: VerificationType = rawType === 'upgrade' ? 'upgrade' : rawType === 'subscription' ? 'subscription' : 'order';
+  const verificationType: VerificationType = rawType === 'wallet_funding' ? 'wallet_funding' : rawType === 'upgrade' ? 'upgrade' : rawType === 'subscription' ? 'subscription' : 'order';
   const webViewRef = useRef<any>(null);
   const verifyingRef = useRef(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -35,11 +36,14 @@ export const PaymentScreen: React.FC = () => {
   useEffect(() => {
     const onBackPress = () => {
       if (!verified && !isVerifying) {
+        const cancelMsg = verificationType === 'wallet_funding'
+          ? 'Your wallet will not be funded.'
+          : verificationType === 'order'
+            ? 'Your order will not be processed.'
+            : 'Your subscription will not be activated.';
         Alert.alert(
           'Cancel Payment?',
-          verificationType === 'order'
-            ? 'Your order will not be processed.'
-            : 'Your subscription will not be activated.',
+          cancelMsg,
           [
             { text: 'Continue Payment', style: 'cancel' },
             {
@@ -63,7 +67,9 @@ export const PaymentScreen: React.FC = () => {
     verifyingRef.current = true;
     setIsVerifying(true);
     try {
-      if (verificationType === 'subscription') {
+      if (verificationType === 'wallet_funding') {
+        await walletService.verifyFunding(ref);
+      } else if (verificationType === 'subscription') {
         await planSubscriptionService.verifyPayment(ref);
       } else if (verificationType === 'upgrade') {
         await planSubscriptionService.verifyUpgradePayment(ref);
@@ -79,7 +85,7 @@ export const PaymentScreen: React.FC = () => {
           {
             text: 'OK',
             onPress: () => {
-              const tabName = verificationType === 'order' ? 'Orders' : 'Subscription';
+              const tabName = verificationType === 'wallet_funding' ? 'Wallet' : verificationType === 'order' ? 'Orders' : 'Subscription';
               navigation.navigate('MainTabs', { screen: tabName });
             },
           },
@@ -138,7 +144,7 @@ export const PaymentScreen: React.FC = () => {
       <View style={styles.centerContainer}>
         <Text style={styles.successIcon}>✅</Text>
         <Text style={styles.successTitle}>Payment Successful!</Text>
-        <Text style={styles.successSubtitle}>Your order is being processed.</Text>
+        <Text style={styles.successSubtitle}>{VERIFICATION_LABELS[verificationType]?.successMsg}</Text>
       </View>
     );
   }
