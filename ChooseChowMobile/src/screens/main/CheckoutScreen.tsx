@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCart } from '../../contexts';
-import { orderService, planSubscriptionService } from '../../api';
+import { orderService, planSubscriptionService, walletService } from '../../api';
 import { COLORS } from '../../utils/theme';
 import type { SubscriptionStatusResponse } from '../../types';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -22,7 +22,7 @@ type CheckoutScreenProps = {
   navigation: NativeStackNavigationProp<any>;
 };
 
-type PaymentMethod = 'card' | 'bank_transfer';
+type PaymentMethod = 'card' | 'pay_on_delivery' | 'wallet';
 
 export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) => {
   const { cart, clearCart } = useCart();
@@ -33,12 +33,17 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
   const [deliveryType, setDeliveryType] = useState<'asap' | 'scheduled'>('asap');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const [subscription, setSubscription] = useState<SubscriptionStatusResponse | null | undefined>(undefined);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const sub = await planSubscriptionService.getStatus();
+        const [sub, bal] = await Promise.all([
+          planSubscriptionService.getStatus(),
+          walletService.getBalance().catch(() => null),
+        ]);
         setSubscription(sub);
+        if (bal) setWalletBalance(bal.balance);
       } catch {
         setSubscription(null);
       }
@@ -193,25 +198,43 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
             style={[styles.paymentOption, paymentMethod === 'card' && styles.paymentOptionSelected]}
             onPress={() => setPaymentMethod('card')}
           >
+            <MaterialCommunityIcons name="credit-card-outline" size={24} color={COLORS.text.primary} style={{ marginRight: 12 }} />
             <View style={styles.radioOuter}>
               {paymentMethod === 'card' && <View style={styles.radioInner} />}
             </View>
             <View style={styles.paymentDetails}>
-              <Text style={styles.paymentTitle}>💳 Pay with Card</Text>
+              <Text style={styles.paymentTitle}>Pay with Card</Text>
               <Text style={styles.paymentSubtitle}>Visa, Mastercard, Verve</Text>
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.paymentOption, paymentMethod === 'bank_transfer' && styles.paymentOptionSelected]}
-            onPress={() => setPaymentMethod('bank_transfer')}
+            style={[styles.paymentOption, paymentMethod === 'pay_on_delivery' && styles.paymentOptionSelected]}
+            onPress={() => setPaymentMethod('pay_on_delivery')}
           >
+            <MaterialCommunityIcons name="cash-check" size={24} color={COLORS.text.primary} style={{ marginRight: 12 }} />
             <View style={styles.radioOuter}>
-              {paymentMethod === 'bank_transfer' && <View style={styles.radioInner} />}
+              {paymentMethod === 'pay_on_delivery' && <View style={styles.radioInner} />}
             </View>
             <View style={styles.paymentDetails}>
-              <Text style={styles.paymentTitle}>🏦 Bank Transfer</Text>
-              <Text style={styles.paymentSubtitle}>Pay via bank transfer</Text>
+              <Text style={styles.paymentTitle}>Pay on Delivery</Text>
+              <Text style={styles.paymentSubtitle}>Cash or transfer when order arrives</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.paymentOption, paymentMethod === 'wallet' && styles.paymentOptionSelected]}
+            onPress={() => setPaymentMethod('wallet')}
+          >
+            <MaterialCommunityIcons name="wallet-outline" size={24} color={COLORS.text.primary} style={{ marginRight: 12 }} />
+            <View style={styles.radioOuter}>
+              {paymentMethod === 'wallet' && <View style={styles.radioInner} />}
+            </View>
+            <View style={styles.paymentDetails}>
+              <Text style={styles.paymentTitle}>Pay with Wallet</Text>
+              <Text style={styles.paymentSubtitle}>
+                {walletBalance !== null ? `Balance: ₦${walletBalance.toLocaleString()}` : 'Pay with wallet balance'}
+              </Text>
             </View>
           </TouchableOpacity>
         </View>

@@ -75,7 +75,7 @@ export const WalletScreen: React.FC<WalletScreenProps> = ({ navigation }) => {
       const result = await walletService.fund(amount);
       setFundModal(false);
       setFundAmount('');
-      navigation.navigate('PaymentScreen', {
+      navigation.navigate('Payment', {
         authorizationUrl: result.authorization_url,
         reference: result.reference,
         verificationType: 'wallet_funding',
@@ -87,15 +87,16 @@ export const WalletScreen: React.FC<WalletScreenProps> = ({ navigation }) => {
     }
   };
 
-  const getTypeIcon = (type: string): string => {
+  const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'wallet_topup': return 'wallet-plus';
-      case 'subscription_payment': return 'credit-card-refund';
-      case 'subscription_credit': return 'gift';
-      case 'payout': return 'cash-minus';
-      case 'refund': return 'cash-refund';
-      case 'earning': return 'cash-plus';
-      default: return 'swap-horizontal';
+      case 'wallet_topup': return 'wallet-plus' as const;
+      case 'subscription_payment': return 'credit-card-refund' as const;
+      case 'order_payment': return 'cart-outline' as const;
+      case 'subscription_credit': return 'gift' as const;
+      case 'payout': return 'cash-minus' as const;
+      case 'refund': return 'cash-refund' as const;
+      case 'earning': return 'cash-plus' as const;
+      default: return 'swap-horizontal' as const;
     }
   };
 
@@ -103,6 +104,7 @@ export const WalletScreen: React.FC<WalletScreenProps> = ({ navigation }) => {
     switch (type) {
       case 'wallet_topup': return 'Wallet Funding';
       case 'subscription_payment': return 'Subscription Payment';
+      case 'order_payment': return 'Order Payment';
       case 'subscription_credit': return 'Premium Credit';
       case 'payout': return 'Withdrawal';
       case 'refund': return 'Refund';
@@ -162,7 +164,7 @@ export const WalletScreen: React.FC<WalletScreenProps> = ({ navigation }) => {
               </View>
               <Text style={[
                 styles.transactionAmount,
-                (txn.type === 'subscription_payment' || txn.type === 'payout') && styles.negativeAmount,
+                (txn.type === 'subscription_payment' || txn.type === 'payout' || txn.type === 'order_payment') && styles.negativeAmount,
               ]}>
                 {txn.formatted_amount}
               </Text>

@@ -22,6 +22,9 @@ export type MainStackParamList = {
   SubscriptionPlans: undefined;
   MySubscription: undefined;
   Wallet: undefined;
+  EditProfile: undefined;
+  Addresses: undefined;
+  Notifications: undefined;
 };
 
 export type MainTabParamList = {

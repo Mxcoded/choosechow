@@ -6,7 +6,7 @@ interface CreateOrderData {
   address_id?: number;
   delivery_address?: string;
   phone_number: string;
-  payment_method: 'card' | 'bank_transfer';
+  payment_method: 'card' | 'pay_on_delivery' | 'wallet';
   notes?: string;
   delivery_type: 'asap' | 'scheduled';
   scheduled_date?: string;

@@ -91,7 +91,7 @@ export const SubscriptionPlansScreen: React.FC<SubscriptionPlansScreenProps> = (
       const result = await fn(slug, 'paystack');
 
       if ((result as any).authorization_url) {
-        navigation.navigate('PaymentScreen', {
+        navigation.navigate('Payment', {
           authorizationUrl: (result as any).authorization_url,
           reference: (result as any).reference,
           verificationType: action === 'upgrade' ? 'upgrade' : 'subscription',

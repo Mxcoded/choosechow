@@ -10,6 +10,7 @@ use App\Models\Menu;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -82,7 +83,7 @@ class OrderController extends Controller
             'delivery_type' => ['required', 'in:asap,scheduled'],
             'scheduled_date' => ['required_if:delivery_type,scheduled', 'date', 'after_or_equal:today'],
             'scheduled_time_slot' => ['required_if:delivery_type,scheduled', 'string'],
-            'payment_method' => ['required', 'in:card,bank_transfer'],
+            'payment_method' => ['required', 'in:card,pay_on_delivery,wallet'],
         ]);
 
         if ($validator->fails()) {
@@ -187,28 +188,92 @@ class OrderController extends Controller
                 $orders[] = $order;
             }
 
-            // Initialize Paystack payment
-            $paymentData = $this->initializePaystackPayment($user, $totalAmount, $orders);
+            $paymentMethod = $request->payment_method;
 
-            if (!$paymentData['success']) {
-                DB::rollBack();
-                return $this->error($paymentData['message'], 400);
-            }
+            if ($paymentMethod === 'wallet') {
+                // Deduct from wallet
+                $wallet = Wallet::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['balance' => 0]
+                );
 
-            // Store payment reference for all orders
-            foreach ($orders as $order) {
-                Payment::create([
-                    'user_id' => $user->id,
-                    'payable_type' => Order::class,
-                    'payable_id' => $order->id,
-                    'order_id' => $order->id, // Also store direct reference
-                    'amount' => $order->total_amount,
-                    'reference' => $paymentData['reference'],
-                    'type' => 'order_payment',
-                    'payment_method' => $request->payment_method,
-                    'gateway' => 'paystack',
-                    'status' => 'pending',
-                ]);
+                if (!$wallet->hasSufficientBalance($totalAmount)) {
+                    DB::rollBack();
+                    return $this->error('Insufficient wallet balance. Please fund your wallet or use another payment method.', 400);
+                }
+
+                $reference = 'WALLET-' . strtoupper(Str::random(16));
+
+                foreach ($orders as $order) {
+                    $order->update([
+                        'status' => 'pending',
+                        'payment_status' => 'paid',
+                    ]);
+
+                    Payment::create([
+                        'user_id' => $user->id,
+                        'payable_type' => Order::class,
+                        'payable_id' => $order->id,
+                        'order_id' => $order->id,
+                        'amount' => $order->total_amount,
+                        'reference' => $reference,
+                        'type' => 'order_payment',
+                        'payment_method' => 'wallet',
+                        'gateway' => 'wallet',
+                        'status' => 'success',
+                        'paid_at' => now(),
+                    ]);
+
+                    $wallet->logTransaction(
+                        'order_payment',
+                        $order->total_amount,
+                        $reference,
+                        "Payment for order #{$order->order_number}"
+                    );
+                }
+            } elseif ($paymentMethod === 'pay_on_delivery') {
+                foreach ($orders as $order) {
+                    $order->update([
+                        'status' => 'pending',
+                        'payment_status' => 'pending',
+                    ]);
+
+                    Payment::create([
+                        'user_id' => $user->id,
+                        'payable_type' => Order::class,
+                        'payable_id' => $order->id,
+                        'order_id' => $order->id,
+                        'amount' => $order->total_amount,
+                        'reference' => 'POD-' . strtoupper(Str::random(16)),
+                        'type' => 'order_payment',
+                        'payment_method' => 'pay_on_delivery',
+                        'gateway' => 'pay_on_delivery',
+                        'status' => 'pending',
+                    ]);
+                }
+            } else {
+                // card — initialize Paystack payment
+                $paymentData = $this->initializePaystackPayment($user, $totalAmount, $orders);
+
+                if (!$paymentData['success']) {
+                    DB::rollBack();
+                    return $this->error($paymentData['message'], 400);
+                }
+
+                foreach ($orders as $order) {
+                    Payment::create([
+                        'user_id' => $user->id,
+                        'payable_type' => Order::class,
+                        'payable_id' => $order->id,
+                        'order_id' => $order->id,
+                        'amount' => $order->total_amount,
+                        'reference' => $paymentData['reference'],
+                        'type' => 'order_payment',
+                        'payment_method' => 'card',
+                        'gateway' => 'paystack',
+                        'status' => 'pending',
+                    ]);
+                }
             }
 
             // Clear cart
@@ -216,18 +281,23 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return $this->created([
+            $response = [
                 'orders' => OrderResource::collection(
                     collect($orders)->map(fn($o) => $o->fresh()->load(['items.menu', 'chef.chefProfile']))
                 ),
-                'payment' => [
+                'total_amount' => $totalAmount,
+                'formatted_total' => '₦' . number_format($totalAmount, 2),
+            ];
+
+            if ($paymentMethod === 'card') {
+                $response['payment'] = [
                     'authorization_url' => $paymentData['authorization_url'],
                     'access_code' => $paymentData['access_code'],
                     'reference' => $paymentData['reference'],
-                ],
-                'total_amount' => $totalAmount,
-                'formatted_total' => '₦' . number_format($totalAmount, 2),
-            ], 'Order created. Please complete payment.');
+                ];
+            }
+
+            return $this->created($response, 'Order placed successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();

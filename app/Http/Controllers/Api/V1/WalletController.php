@@ -44,7 +44,7 @@ class WalletController extends Controller
                 'id' => $log->id,
                 'type' => $log->type,
                 'amount' => (float) $log->amount,
-                'formatted_amount' => ($log->type === 'payout' || $log->type === 'subscription_payment' ? '-' : '+') . '₦' . number_format($log->amount, 2),
+                'formatted_amount' => (in_array($log->type, ['payout', 'subscription_payment', 'order_payment']) ? '-' : '+') . '₦' . number_format($log->amount, 2),
                 'balance_before' => (float) $log->balance_before,
                 'balance_after' => (float) $log->balance_after,
                 'reference' => $log->reference,

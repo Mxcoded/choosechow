@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets, EdgeInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts';
 import { COLORS } from '../utils/theme';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 // Base tab bar height (without safe area)
 const BASE_TAB_BAR_HEIGHT = 56;
@@ -31,6 +32,9 @@ import OrdersScreen from '../screens/main/OrdersScreen';
 import SubscriptionPlansScreen from '../screens/main/SubscriptionPlansScreen';
 import MySubscriptionScreen from '../screens/main/MySubscriptionScreen';
 import WalletScreen from '../screens/main/WalletScreen';
+import EditProfileScreen from '../screens/main/EditProfileScreen';
+import AddressScreen from '../screens/main/AddressScreen';
+import NotificationsScreen from '../screens/main/NotificationsScreen';
 
 // Vendor Screens
 import { 
@@ -118,13 +122,13 @@ const ProfileScreen = ({ navigation }: any) => {
   };
   
   const menuItems = [
-    { title: 'Edit Profile', icon: '👤', onPress: () => {} },
-    { title: 'My Addresses', icon: '📍', onPress: () => {} },
-    { title: 'Wallet', icon: '💳', onPress: () => navigation.navigate('Wallet') },
-    { title: 'Subscription', icon: '⭐', onPress: () => navigation.navigate('MySubscription') },
-    { title: 'Notifications', icon: '🔔', onPress: () => {} },
-    { title: 'Help & Support', icon: '❓', onPress: () => {} },
-    { title: 'About ChooseChow', icon: 'ℹ️', onPress: () => {} },
+    { title: 'Edit Profile', icon: 'account-outline', onPress: () => navigation.navigate('EditProfile') },
+    { title: 'My Addresses', icon: 'map-marker-outline', onPress: () => navigation.navigate('Addresses') },
+    { title: 'Wallet', icon: 'wallet-outline', onPress: () => navigation.navigate('Wallet') },
+    { title: 'Subscription', icon: 'crown-outline', onPress: () => navigation.navigate('MySubscription') },
+    { title: 'Notifications', icon: 'bell-outline', onPress: () => navigation.navigate('Notifications') },
+    { title: 'Help & Support', icon: 'help-circle-outline', onPress: () => {} },
+    { title: 'About ChooseChow', icon: 'information-outline', onPress: () => {} },
   ];
   
   return (
@@ -155,7 +159,7 @@ const ProfileScreen = ({ navigation }: any) => {
             onPress={item.onPress}
             activeOpacity={0.7}
           >
-            <Text style={styles.menuIcon}>{item.icon}</Text>
+            <MaterialCommunityIcons name={item.icon as any} size={22} color={COLORS.text.primary} style={styles.menuIcon} />
             <Text style={styles.menuTitle}>{item.title}</Text>
             <Text style={styles.menuArrow}>›</Text>
           </TouchableOpacity>
@@ -259,7 +263,7 @@ const TabNavigator = () => {
           tabBarLabel: 'Home',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>🏠</Text>
+              <MaterialCommunityIcons name={focused ? 'home' : 'home-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
           headerShown: false,
@@ -272,7 +276,7 @@ const TabNavigator = () => {
           tabBarLabel: 'Search',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>🔍</Text>
+              <MaterialCommunityIcons name={focused ? 'magnify' : 'magnify'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
           headerTitle: 'Search Chefs',
@@ -286,7 +290,7 @@ const TabNavigator = () => {
           tabBarLabel: 'Cart',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>🛒</Text>
+              <MaterialCommunityIcons name={focused ? 'cart' : 'cart-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
           tabBarBadge: itemCount > 0 ? itemCount : undefined,
@@ -302,7 +306,7 @@ const TabNavigator = () => {
           tabBarLabel: 'Orders',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>📋</Text>
+              <MaterialCommunityIcons name={focused ? 'clipboard-text' : 'clipboard-text-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
           headerTitle: 'My Orders',
@@ -316,7 +320,7 @@ const TabNavigator = () => {
           tabBarLabel: 'Profile',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>👤</Text>
+              <MaterialCommunityIcons name={focused ? 'account' : 'account-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
           headerTitle: 'Profile',
@@ -393,6 +397,21 @@ const MainNavigator = () => (
       component={WalletScreen}
       options={{ headerTitle: 'My Wallet' }}
     />
+    <MainStack.Screen
+      name="EditProfile"
+      component={EditProfileScreen}
+      options={{ headerTitle: 'Edit Profile' }}
+    />
+    <MainStack.Screen
+      name="Addresses"
+      component={AddressScreen}
+      options={{ headerTitle: 'My Addresses' }}
+    />
+    <MainStack.Screen
+      name="Notifications"
+      component={NotificationsScreen}
+      options={{ headerTitle: 'Notifications' }}
+    />
   </MainStack.Navigator>
 );
 
@@ -430,7 +449,7 @@ const VendorTabNavigator = () => {
           tabBarLabel: 'Dashboard',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>📊</Text>
+              <MaterialCommunityIcons name={focused ? 'view-dashboard' : 'view-dashboard-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
         }}
@@ -442,7 +461,7 @@ const VendorTabNavigator = () => {
           tabBarLabel: 'Orders',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>🛍️</Text>
+              <MaterialCommunityIcons name={focused ? 'package-variant-closed' : 'package-variant-closed'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
         }}
@@ -454,7 +473,7 @@ const VendorTabNavigator = () => {
           tabBarLabel: 'Menu',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>📋</Text>
+              <MaterialCommunityIcons name={focused ? 'silverware-fork-knife' : 'silverware-fork-knife'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
         }}
@@ -466,7 +485,7 @@ const VendorTabNavigator = () => {
           tabBarLabel: 'Profile',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>👤</Text>
+              <MaterialCommunityIcons name={focused ? 'account' : 'account-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
         }}
@@ -564,7 +583,7 @@ const AdminTabNavigator = () => {
           tabBarLabel: 'Dashboard',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>📊</Text>
+              <MaterialCommunityIcons name={focused ? 'view-dashboard' : 'view-dashboard-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
         }}
@@ -576,7 +595,7 @@ const AdminTabNavigator = () => {
           tabBarLabel: 'Users',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>👥</Text>
+              <MaterialCommunityIcons name={focused ? 'account-group' : 'account-group-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
         }}
@@ -588,7 +607,7 @@ const AdminTabNavigator = () => {
           tabBarLabel: 'Vendors',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>🏪</Text>
+              <MaterialCommunityIcons name={focused ? 'store' : 'store-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
         }}
@@ -600,7 +619,7 @@ const AdminTabNavigator = () => {
           tabBarLabel: 'Settings',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
-              <Text style={styles.tabIcon}>⚙️</Text>
+              <MaterialCommunityIcons name={focused ? 'cog' : 'cog-outline'} size={24} color={focused ? COLORS.primary : COLORS.gray[500]} />
             </View>
           ),
         }}
@@ -751,8 +770,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   menuIcon: {
-    fontSize: 22,
     marginRight: 16,
+    width: 24,
+    textAlign: 'center',
   },
   menuTitle: {
     flex: 1,
@@ -784,11 +804,6 @@ const styles = StyleSheet.create({
   },
   tabIconActive: {
     transform: [{ scale: 1.05 }],
-  },
-  tabIcon: {
-    fontSize: 22,
-    lineHeight: 24,
-    textAlign: 'center',
   },
   roleBadge: {
     marginTop: 12,

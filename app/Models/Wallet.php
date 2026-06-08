@@ -42,7 +42,7 @@ class Wallet extends Model
         $balanceBefore = $this->balance;
         
         // Update wallet balance based on transaction type
-        if (in_array($type, ['payout', 'subscription_payment'])) {
+        if (in_array($type, ['payout', 'subscription_payment', 'order_payment'])) {
             $this->balance -= $amount;
         } elseif ($type === 'refund') {
             $this->balance += $amount;
