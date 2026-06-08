@@ -229,7 +229,6 @@ class ChefDashboardController extends Controller
                 'previous_status' => $currentStatus,
                 'new_status' => $newStatus,
             ],
-            'priority' => 'high',
         ]);
 
         return response()->json([

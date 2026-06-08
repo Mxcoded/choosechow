@@ -9,26 +9,19 @@ class Notification extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', // Direct user reference for easier API queries
+        'user_id',
         'notifiable_type',
         'notifiable_id',
         'type',
         'title',
         'message',
         'data',
-        'channels',
         'read_at',
-        'sent_at',
-        'delivery_status',
-        'priority',
     ];
 
     protected $casts = [
         'data' => 'array',
-        'channels' => 'array',
-        'delivery_status' => 'array',
         'read_at' => 'datetime',
-        'sent_at' => 'datetime',
     ];
 
     // Relationships
@@ -77,12 +70,6 @@ class Notification extends Model
     public function isRead(): bool
     {
         return !is_null($this->read_at);
-    }
-
-    public function wasDeliveredVia($channel): bool
-    {
-        return isset($this->delivery_status[$channel]) &&
-            $this->delivery_status[$channel] === 'delivered';
     }
 
     public function getData($key = null): mixed

@@ -281,7 +281,6 @@ class ChefSubscriberController extends Controller
                     'chef_name' => $chef->chefProfile?->business_name ?? $chef->full_name,
                     'menu_id' => $validated['menu_id'] ?? null,
                 ],
-                'priority' => 'normal',
             ]);
             $sentCount++;
         }

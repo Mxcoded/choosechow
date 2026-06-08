@@ -247,7 +247,6 @@ class OrderController extends Controller
                             'customer_name' => $user->full_name,
                             'total_amount' => $order->total_amount,
                         ],
-                        'priority' => 'high',
                     ]);
                 }
             } elseif ($paymentMethod === 'pay_on_delivery') {
@@ -284,7 +283,6 @@ class OrderController extends Controller
                             'customer_name' => $user->full_name,
                             'total_amount' => $order->total_amount,
                         ],
-                        'priority' => 'high',
                     ]);
                 }
             } else {
