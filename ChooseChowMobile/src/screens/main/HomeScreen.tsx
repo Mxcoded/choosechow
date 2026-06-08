@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,18 +13,44 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth, useCart } from '../../contexts';
 import { COLORS } from '../../utils/theme';
-import { scaleWidth, screenWidth } from '../../utils/dimensions';
+import { screenWidth } from '../../utils/dimensions';
 import { ChooseChowLogo } from '../../assets';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { api } from '../../api/client';
+import { ENDPOINTS } from '../../api/config';
+import { customerService } from '../../api/customerService';
 
-// Card dimensions based on design (375px width, 2 columns with 16px padding each side and 12px gap)
-const CARD_WIDTH = (screenWidth - scaleWidth(40)) / 2;
+const GRID_PADDING = 24;
+const GRID_GAP = 12;
+const CARD_WIDTH = (screenWidth - GRID_PADDING - GRID_GAP) / 2;
 
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<any>;
-};
+interface MenuItem {
+  id: number;
+  chef_id: number;
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  formatted_price: string;
+  image: string | null;
+  images: string[];
+  category: string;
+  preparation_time: number | null;
+  preparation_time_display: string | null;
+  is_available: boolean;
+  is_featured: boolean;
+  created_at: string;
+  chef?: {
+    id: number;
+    full_name: string;
+    avatar: string | null;
+    business_name: string;
+    is_verified: boolean;
+    rating: number;
+    delivery_fee: number;
+  };
+}
 
-// Category data with icons
 const CATEGORIES = [
   { id: 'popular', name: 'Popular', icon: '🔥', isSelected: true },
   { id: 'western', name: 'Western', icon: '🍔' },
@@ -34,27 +60,37 @@ const CATEGORIES = [
   { id: 'dessert', name: 'Dessert', icon: '🍰' },
 ];
 
-// Sample food data (will be replaced with API data)
-const SAMPLE_FOODS = [
-  { id: 1, name: 'Prime Pancake with egg yoke sauce', category: 'Asian', rating: 3.9, image: null, isFavorite: false },
-  { id: 2, name: 'Prime Pancake with egg yoke sauce', category: 'Asian', rating: 3.9, image: null, isFavorite: true },
-  { id: 3, name: 'Grilled Chicken Salad', category: 'Western', rating: 4.2, image: null, isFavorite: false },
-  { id: 4, name: 'Jollof Rice Special', category: 'Local', rating: 4.5, image: null, isFavorite: true },
-];
+type HomeScreenProps = {
+  navigation: NativeStackNavigationProp<any>;
+};
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { user } = useAuth();
   const { itemCount } = useCart();
   const insets = useSafeAreaInsets();
   const [selectedCategory, setSelectedCategory] = useState('popular');
-  const [foods, setFoods] = useState(SAMPLE_FOODS);
-  const [isLoading, setIsLoading] = useState(false);
+  const [allMenus, setAllMenus] = useState<MenuItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const loadData = async () => {
-    // TODO: Replace with actual API call
-    setIsLoading(false);
-  };
+  const loadData = useCallback(async () => {
+    try {
+      const [menuRes, unreadRes] = await Promise.all([
+        api.get<MenuItem[]>(ENDPOINTS.MENUS.POPULAR),
+        customerService.getUnreadCount(),
+      ]);
+      setAllMenus(menuRes.data.data ?? []);
+      setUnreadCount(unreadRes.count ?? 0);
+    } catch {
+      // silent
+    } finally {
+      setIsLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -66,11 +102,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     navigation.navigate('Search');
   };
 
-  const toggleFavorite = (id: number) => {
-    setFoods(foods.map(food => 
-      food.id === id ? { ...food, isFavorite: !food.isFavorite } : food
-    ));
+  const toggleFavorite = (menuId: number) => {
+    // Placeholder — API integration TBD
   };
+
+  const filteredMenus = selectedCategory === 'popular'
+    ? allMenus
+    : allMenus.filter(m => m.category?.toLowerCase() === selectedCategory);
 
   const firstName = user?.name?.split(' ')[0] || 'Foodie';
 
@@ -95,9 +133,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <Text style={styles.logoText}>ChooseChow</Text>
         </View>
         <View style={styles.headerIcons}>
-          <TouchableOpacity style={styles.headerIconButton}>
+          <TouchableOpacity
+            style={styles.headerIconButton}
+            onPress={() => navigation.navigate('Notifications')}
+          >
             <MaterialCommunityIcons name="bell-outline" size={24} color="#4B5563" />
-            <View style={styles.notificationBadge} />
+            {unreadCount > 0 && (
+              <View style={styles.notificationBadgeCount}>
+                <Text style={styles.notificationBadgeText}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.headerIconButton}
@@ -188,46 +233,66 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
 
         {/* Food Grid */}
-        <View style={styles.foodGrid}>
-          {foods.map((food) => (
-            <TouchableOpacity
-              key={food.id}
-              style={styles.foodCard}
-              onPress={() => navigation.navigate('ChefDetail', { chefId: food.id })}
-              activeOpacity={0.9}
-            >
-              {/* Food Image */}
-              <View style={styles.foodImageContainer}>
-                <View style={styles.foodImagePlaceholder}>
-                  <MaterialCommunityIcons name="food" size={40} color="#D1D5DB" />
+        {filteredMenus.length === 0 ? (
+          <View style={styles.emptyState}>
+            <MaterialCommunityIcons name="food-off" size={48} color="#D1D5DB" />
+            <Text style={styles.emptyStateText}>No items found</Text>
+          </View>
+        ) : (
+          <View style={styles.foodGrid}>
+            {filteredMenus.map((food) => (
+              <TouchableOpacity
+                key={food.id}
+                style={styles.foodCard}
+                onPress={() => navigation.navigate('ChefDetail', { chefId: food.chef_id })}
+                activeOpacity={0.9}
+              >
+                {/* Food Image */}
+                <View style={styles.foodImageContainer}>
+                  {food.image ? (
+                    <Image
+                      source={{ uri: food.image }}
+                      style={styles.foodImage}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View style={styles.foodImagePlaceholder}>
+                      <MaterialCommunityIcons name="food" size={40} color="#D1D5DB" />
+                    </View>
+                  )}
+                  {/* Rating Badge */}
+                  {food.chef?.rating != null && (
+                    <View style={styles.ratingBadge}>
+                      <Text style={styles.ratingIcon}>⭐</Text>
+                      <Text style={styles.ratingText}>{food.chef.rating.toFixed(1)}</Text>
+                    </View>
+                  )}
+                  {/* Favorite Button */}
+                  <TouchableOpacity 
+                    style={styles.favoriteButton}
+                    onPress={() => toggleFavorite(food.id)}
+                  >
+                    <MaterialCommunityIcons
+                      name="heart-outline"
+                      size={18}
+                      color="#6B7280"
+                    />
+                  </TouchableOpacity>
                 </View>
-                {/* Rating Badge */}
-                <View style={styles.ratingBadge}>
-                  <Text style={styles.ratingIcon}>⭐</Text>
-                  <Text style={styles.ratingText}>{food.rating}</Text>
+                {/* Food Info */}
+                <View style={styles.foodInfo}>
+                  <Text style={styles.foodName} numberOfLines={2}>{food.name}</Text>
+                  <View style={styles.foodFooter}>
+                    <Text style={styles.foodPrice}>{food.formatted_price}</Text>
+                    {food.chef?.business_name && (
+                      <Text style={styles.foodChef} numberOfLines={1}>{food.chef.business_name}</Text>
+                    )}
+                  </View>
                 </View>
-                {/* Favorite Button */}
-                <TouchableOpacity 
-                  style={styles.favoriteButton}
-                  onPress={() => toggleFavorite(food.id)}
-                >
-                  <MaterialCommunityIcons
-                    name={food.isFavorite ? 'heart' : 'heart-outline'}
-                    size={18}
-                    color={food.isFavorite ? '#EF4444' : '#6B7280'}
-                  />
-                </TouchableOpacity>
-              </View>
-              {/* Food Info */}
-              <View style={styles.foodInfo}>
-                <Text style={styles.foodName} numberOfLines={2}>{food.name}</Text>
-                <View style={styles.foodFooter}>
-                  <Text style={styles.foodCategory}>{food.category}</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         <View style={styles.bottomPadding} />
       </ScrollView>
@@ -280,14 +345,22 @@ const styles = StyleSheet.create({
     position: 'relative',
     padding: 4,
   },
-  notificationBadge: {
+  notificationBadgeCount: {
     position: 'absolute',
-    top: 2,
-    right: 2,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    top: -2,
+    right: -2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
     backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  notificationBadgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   cartBadge: {
     position: 'absolute',
@@ -438,6 +511,10 @@ const styles = StyleSheet.create({
     height: 140,
     position: 'relative',
   },
+  foodImage: {
+    width: '100%',
+    height: '100%',
+  },
   foodImagePlaceholder: {
     width: '100%',
     height: '100%',
@@ -494,9 +571,29 @@ const styles = StyleSheet.create({
   foodFooter: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  foodPrice: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  foodChef: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    maxWidth: 100,
   },
   foodCategory: {
     fontSize: 12,
+    color: '#9CA3AF',
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyStateText: {
+    marginTop: 12,
+    fontSize: 15,
     color: '#9CA3AF',
   },
   bottomPadding: {

@@ -18,6 +18,7 @@ export interface VendorStats {
   rating: number;
   total_reviews: number;
   menu_items: number;
+  subscribers: number;
   is_online: boolean;
 }
 

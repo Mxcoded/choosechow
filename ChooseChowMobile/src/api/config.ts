@@ -70,7 +70,7 @@ export const ENDPOINTS = {
     DETAIL: (id: number) => `/menus/${id}`,
     SEARCH: '/menus/search',
     BY_CUISINE: (cuisineId: number) => `/menus/cuisine/${cuisineId}`,
-    POPULAR: '/menus/popular',
+    POPULAR: '/menus/featured',
   },
   
   // Cuisines

@@ -36,6 +36,17 @@ class ChefProfileResource extends JsonResource
             'total_orders' => $this->total_orders ?? 0,
             'is_open_now' => $this->isOpenNow(),
             'is_accepting_orders' => $this->isAcceptingOrders(),
+
+            // Mobile app compatibility aliases
+            'is_available' => $this->is_online,
+            'description' => $this->bio,
+            'banner_url' => $this->cover_image ? asset('storage/' . $this->cover_image) : null,
+            'logo_url' => $this->profile_image ? asset('storage/' . $this->profile_image) : null,
+            'address' => $this->kitchen_address ? implode(', ', array_filter([
+                $this->kitchen_address,
+                $this->city,
+            ])) : null,
+            'delivery_time' => null, // Computed delivery time TBD
             
             // Cuisines (when loaded)
             'cuisines' => $this->when(

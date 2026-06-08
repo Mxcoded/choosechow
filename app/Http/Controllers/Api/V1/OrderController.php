@@ -9,7 +9,9 @@ use App\Models\Cart;
 use App\Models\Menu;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Notification;
 use App\Models\Payment;
+use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -230,6 +232,23 @@ class OrderController extends Controller
                         $reference,
                         "Payment for order #{$order->order_number}"
                     );
+
+                    // Notify chef about new order
+                    Notification::create([
+                        'user_id' => $order->chef_id,
+                        'notifiable_type' => User::class,
+                        'notifiable_id' => $order->chef_id,
+                        'type' => 'new_order',
+                        'title' => 'New Order Received',
+                        'message' => "New order #{$order->order_number} from {$user->full_name} — ₦" . number_format($order->total_amount, 2),
+                        'data' => [
+                            'order_id' => $order->id,
+                            'order_number' => $order->order_number,
+                            'customer_name' => $user->full_name,
+                            'total_amount' => $order->total_amount,
+                        ],
+                        'priority' => 'high',
+                    ]);
                 }
             } elseif ($paymentMethod === 'pay_on_delivery') {
                 foreach ($orders as $order) {
@@ -249,6 +268,23 @@ class OrderController extends Controller
                         'payment_method' => 'pay_on_delivery',
                         'gateway' => 'pay_on_delivery',
                         'status' => 'pending',
+                    ]);
+
+                    // Notify chef about new order
+                    Notification::create([
+                        'user_id' => $order->chef_id,
+                        'notifiable_type' => User::class,
+                        'notifiable_id' => $order->chef_id,
+                        'type' => 'new_order',
+                        'title' => 'New Order Received',
+                        'message' => "New order #{$order->order_number} from {$user->full_name} — ₦" . number_format($order->total_amount, 2),
+                        'data' => [
+                            'order_id' => $order->id,
+                            'order_number' => $order->order_number,
+                            'customer_name' => $user->full_name,
+                            'total_amount' => $order->total_amount,
+                        ],
+                        'priority' => 'high',
                     ]);
                 }
             } else {

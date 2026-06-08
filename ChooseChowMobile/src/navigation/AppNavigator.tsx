@@ -44,6 +44,7 @@ import {
   VendorEarningsScreen,
   VendorProfileScreen,
   VendorOrderDetailScreen,
+  VendorSubscribersScreen,
 } from '../screens/vendor';
 
 // Admin Screens
@@ -500,6 +501,7 @@ const VendorNavigator = () => (
     <VendorStack.Screen name="VendorTabs" component={VendorTabNavigator} />
     <VendorStack.Screen name="VendorEarnings" component={VendorEarningsScreen} />
     <VendorStack.Screen name="VendorOrderDetail" component={VendorOrderDetailScreen} />
+    <VendorStack.Screen name="VendorSubscribers" component={VendorSubscribersScreen} />
   </VendorStack.Navigator>
 );
 

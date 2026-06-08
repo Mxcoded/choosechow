@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\Chef\ChefDashboardController;
 use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
 use App\Http\Controllers\Api\V1\WalletController;
+use App\Http\Controllers\Api\V1\ChefSubscriberController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,6 +134,14 @@ Route::prefix('v1')->group(function () {
         Route::delete('/favorites/{chefId}', [FavoriteController::class, 'destroy']);
         Route::get('/favorites/check/{chefId}', [FavoriteController::class, 'check']);
 
+        // --- Chef Subscriptions (Customer Side) ---
+        Route::get('/subscriptions', [ChefSubscriberController::class, 'index']);
+        Route::post('/subscriptions/chef/{chef}', [ChefSubscriberController::class, 'subscribe']);
+        Route::delete('/subscriptions/chef/{chef}', [ChefSubscriberController::class, 'unsubscribe']);
+        Route::get('/subscriptions/check/{chef}', [ChefSubscriberController::class, 'check']);
+        Route::get('/subscriptions/settings', [ChefSubscriberController::class, 'settings']);
+        Route::put('/subscriptions/settings', [ChefSubscriberController::class, 'updateSettings']);
+
         // --- Wallet ---
         Route::prefix('wallet')->group(function () {
             Route::get('/balance', [WalletController::class, 'balance']);
@@ -209,6 +218,11 @@ Route::prefix('v1')->group(function () {
 
             // Availability Toggle
             Route::post('/toggle-availability', [ChefDashboardController::class, 'toggleAvailability']);
+
+            // Subscribers Management
+            Route::get('/subscribers', [ChefSubscriberController::class, 'subscribers']);
+            Route::get('/subscribers/count', [ChefSubscriberController::class, 'subscriberCount']);
+            Route::post('/subscribers/notify', [ChefSubscriberController::class, 'notifySubscribers']);
         });
 
         // ==========================================

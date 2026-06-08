@@ -36,6 +36,7 @@ const DEFAULT_STATS: VendorStats = {
   rating: 0,
   total_reviews: 0,
   menu_items: 0,
+  subscribers: 0,
   is_online: false,
 };
 
@@ -54,6 +55,7 @@ const MOCK_STATS: VendorStats = {
   rating: 4.8,
   total_reviews: 156,
   menu_items: 24,
+  subscribers: 45,
   is_online: true,
 };
 
@@ -241,6 +243,20 @@ export const VendorDashboardScreen: React.FC<VendorDashboardProps> = ({ navigati
             <Text style={styles.statValue}>{stats.rating.toFixed(1)}</Text>
             <Text style={styles.statLabel}>{stats.total_reviews} reviews</Text>
           </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>🍽️</Text>
+            <Text style={[styles.statValue, { color: COLORS.primary }]}>{stats.menu_items}</Text>
+            <Text style={styles.statLabel}>Menu Items</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.statCard} 
+            onPress={() => navigation.navigate('VendorSubscribers')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.statIcon}>👥</Text>
+            <Text style={[styles.statValue, { color: '#7C3AED' }]}>{stats.subscribers}</Text>
+            <Text style={styles.statLabel}>Subscribers</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Quick Actions */}
@@ -270,6 +286,12 @@ export const VendorDashboardScreen: React.FC<VendorDashboardProps> = ({ navigati
                 <Text style={styles.actionEmoji}>⚙️</Text>
               </View>
               <Text style={styles.actionLabel}>Settings</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('VendorSubscribers')}>
+              <View style={[styles.actionIcon, { backgroundColor: '#EDE9FE' }]}>
+                <Text style={styles.actionEmoji}>👥</Text>
+              </View>
+              <Text style={styles.actionLabel}>Subscribers</Text>
             </TouchableOpacity>
           </View>
         </View>

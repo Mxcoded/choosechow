@@ -12,6 +12,7 @@ import {
   Platform,
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart } from '../../contexts';
 import { orderService, planSubscriptionService, walletService } from '../../api';
 import { COLORS } from '../../utils/theme';
@@ -25,6 +26,7 @@ type CheckoutScreenProps = {
 type PaymentMethod = 'card' | 'pay_on_delivery' | 'wallet';
 
 export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const { cart, clearCart } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notes, setNotes] = useState('');
@@ -99,10 +101,31 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
         );
       }
     } catch (error: any) {
-      Alert.alert(
-        'Order Failed',
-        error.response?.data?.message || 'Failed to place order. Please try again.'
-      );
+      const status = error.response?.status;
+      const data = error.response?.data;
+      let title = 'Order Failed';
+      let message = 'Something went wrong. Please try again.';
+
+      if (!error.response) {
+        message = 'Unable to reach the server. Check your internet connection and try again.';
+      } else if (status === 422) {
+        title = 'Missing Information';
+        const errors = data?.errors;
+        if (errors) {
+          const firstField = Object.values(errors)[0] as string[];
+          message = firstField?.[0] || 'Please check your details and try again.';
+        } else {
+          message = data?.message || 'Please check your details and try again.';
+        }
+      } else if (status === 400) {
+        message = data?.message || 'Invalid request. Please review your order and try again.';
+      } else if (status === 500) {
+        message = 'Something went wrong on our end. Please try again in a few minutes.';
+      } else {
+        message = data?.message || 'Failed to place order. Please try again.';
+      }
+
+      Alert.alert(title, message);
     } finally {
       setIsSubmitting(false);
     }
@@ -128,7 +151,7 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.scrollView} contentContainerStyle={{ paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
         {/* Delivery Type */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Delivery Type</Text>
@@ -310,7 +333,7 @@ export const CheckoutScreen: React.FC<CheckoutScreenProps> = ({ navigation }) =>
       </ScrollView>
 
       {/* Place Order Button */}
-      <View style={styles.bottomContainer}>
+      <View style={[styles.bottomContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <TouchableOpacity
           style={[styles.placeOrderButton, isSubmitting && styles.buttonDisabled]}
           onPress={handlePlaceOrder}

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1\Chef;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\ChefProfile;
+use App\Models\ChefSubscriber;
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Menu;
 use Illuminate\Http\Request;
@@ -64,6 +66,7 @@ class ChefDashboardController extends Controller
             'rating' => (float) ($chefProfile?->rating ?? $user->average_rating ?? 0),
             'total_reviews' => $chefProfile?->total_reviews ?? $user->review_count ?? 0,
             'menu_items' => Menu::where('user_id', $user->id)->count(),
+            'subscribers' => ChefSubscriber::where('chef_id', $user->id)->count(),
             'is_online' => $chefProfile?->is_online ?? false,
         ];
 
@@ -204,7 +207,30 @@ class ChefDashboardController extends Controller
 
         $order->update(['status' => $newStatus]);
 
-        // TODO: Send notification to customer about status change
+        // Notify customer about status change
+        $statusLabels = [
+            'pending' => 'Order Received',
+            'preparing' => 'Preparing Your Order',
+            'ready' => 'Ready for Pickup/Delivery',
+            'completed' => 'Order Completed',
+            'cancelled' => 'Order Cancelled',
+        ];
+        $statusLabel = $statusLabels[$newStatus] ?? 'Order Status Updated';
+        Notification::create([
+            'user_id' => $order->user_id,
+            'notifiable_type' => User::class,
+            'notifiable_id' => $order->user_id,
+            'type' => 'order_status',
+            'title' => $statusLabel,
+            'message' => "Order #{$order->order_number}: {$statusLabel}",
+            'data' => [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'previous_status' => $currentStatus,
+                'new_status' => $newStatus,
+            ],
+            'priority' => 'high',
+        ]);
 
         return response()->json([
             'success' => true,

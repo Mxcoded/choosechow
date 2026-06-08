@@ -10,3 +10,5 @@ export { VendorProfileScreen } from './VendorProfileScreen';
 export { default as VendorProfile } from './VendorProfileScreen';
 export { VendorOrderDetailScreen } from './VendorOrderDetailScreen';
 export { default as VendorOrderDetail } from './VendorOrderDetailScreen';
+export { VendorSubscribersScreen } from './VendorSubscribersScreen';
+export { default as VendorSubscribers } from './VendorSubscribersScreen';
