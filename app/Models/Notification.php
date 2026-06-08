@@ -54,11 +54,6 @@ class Notification extends Model
         return $query->where('type', $type);
     }
 
-    public function scopeHighPriority($query)
-    {
-        return $query->where('priority', 'high');
-    }
-
     // Helper Methods
     public function markAsRead(): void
     {

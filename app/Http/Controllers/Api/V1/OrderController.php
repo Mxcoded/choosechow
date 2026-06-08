@@ -248,6 +248,23 @@ class OrderController extends Controller
                             'total_amount' => $order->total_amount,
                         ],
                     ]);
+
+                    // Notify customer about order confirmation
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'notifiable_type' => User::class,
+                        'notifiable_id' => $user->id,
+                        'type' => 'order',
+                        'title' => 'Order Placed Successfully',
+                        'message' => "Your order #{$order->order_number} has been placed and paid via wallet — ₦" . number_format($order->total_amount, 2),
+                        'data' => [
+                            'order_id' => $order->id,
+                            'order_number' => $order->order_number,
+                            'total_amount' => $order->total_amount,
+                            'payment_method' => 'wallet',
+                            'chef_name' => $order->chef?->chefProfile?->business_name ?? 'Chef',
+                        ],
+                    ]);
                 }
             } elseif ($paymentMethod === 'pay_on_delivery') {
                 foreach ($orders as $order) {
@@ -282,6 +299,23 @@ class OrderController extends Controller
                             'order_number' => $order->order_number,
                             'customer_name' => $user->full_name,
                             'total_amount' => $order->total_amount,
+                        ],
+                    ]);
+
+                    // Notify customer about order confirmation
+                    Notification::create([
+                        'user_id' => $user->id,
+                        'notifiable_type' => User::class,
+                        'notifiable_id' => $user->id,
+                        'type' => 'order',
+                        'title' => 'Order Placed Successfully',
+                        'message' => "Your order #{$order->order_number} has been placed (Pay on Delivery) — ₦" . number_format($order->total_amount, 2),
+                        'data' => [
+                            'order_id' => $order->id,
+                            'order_number' => $order->order_number,
+                            'total_amount' => $order->total_amount,
+                            'payment_method' => 'pay_on_delivery',
+                            'chef_name' => $order->chef?->chefProfile?->business_name ?? 'Chef',
                         ],
                     ]);
                 }
